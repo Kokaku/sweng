@@ -8,9 +8,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-
-/* * 
- * @author Zhivka Gucevska
+/**
+ * 
+ * @author ValentinRutz
  *
  */
 public class MainActivity extends Activity {
