@@ -1,8 +1,8 @@
 package com.example.swengtutorial;
 
+import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
     }
     
     public void displayMessage(View view) {
-    	Toast.makeText(this, "You clicked Display!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "You clicked Display!", Toast.LENGTH_SHORT).show();
         Intent displayActivityIntent = new Intent(this, ShowMessageActivity.class);
 
         EditText editText = (EditText) findViewById(R.id.edit_text);
