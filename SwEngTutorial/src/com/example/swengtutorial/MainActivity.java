@@ -27,10 +27,10 @@ public class MainActivity extends Activity {
     public void displayMessage(View view) {
         Toast.makeText(this, "You clicked Display!", Toast.LENGTH_SHORT).show();
         Intent displayActivityIntent = new Intent(this, ShowMessageActivity.class);
-
+        
         EditText editText = (EditText) findViewById(R.id.edit_text);
         String userText = editText.getText().toString();
-
+        
         displayActivityIntent.putExtra(this.getClass().getName(), userText);
         startActivity(displayActivityIntent);
     }

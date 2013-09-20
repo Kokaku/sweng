@@ -24,6 +24,7 @@ public class ShowMessageActivity extends Activity {
 	    TextView textView = (TextView) findViewById(R.id.displayed_text);
 	    textView.setText(userText);
 	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
