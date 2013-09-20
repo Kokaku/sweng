@@ -1,0 +1,10 @@
+.metadata/
+.classpath
+.project
+.settings
+bin/
+gen/
+local.properties
+*~
+.checkstyle
+.DS_Store
