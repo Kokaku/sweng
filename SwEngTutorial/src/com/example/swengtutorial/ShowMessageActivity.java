@@ -7,11 +7,10 @@ import android.view.Menu;
 import android.widget.TextView;
 
 /**
- *
- * @author MathieuMonney
+ * 
+ * @author lseguy
  *
  */
-
 public class ShowMessageActivity extends Activity {
 
 	@Override

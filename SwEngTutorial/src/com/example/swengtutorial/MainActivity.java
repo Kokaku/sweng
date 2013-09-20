@@ -9,11 +9,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 /**
- *
- * @author MathieuMonney
+ * 
+ * @author lseguy
  *
  */
-
 public class MainActivity extends Activity {
 
     @Override
