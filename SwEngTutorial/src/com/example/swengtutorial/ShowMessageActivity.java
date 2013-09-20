@@ -13,7 +13,10 @@ public class ShowMessageActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_show_message);
 		
+		// get the Intent that started this Activity
 		Intent startingIntent = getIntent();
+		
+		// get the value of the user string
 		String userText = startingIntent.getStringExtra(MainActivity.class.getName());
 		
 		TextView textView = (TextView) findViewById(R.id.displayed_text);
