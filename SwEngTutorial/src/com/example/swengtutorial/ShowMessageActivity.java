@@ -6,9 +6,8 @@ import android.content.Intent;
 import android.view.Menu;
 import android.widget.TextView;
 
-/**
- * 
- * @author kokaku
+/** 
+ * @author Zhivka Gucevska
  *
  */
 public class ShowMessageActivity extends Activity {
