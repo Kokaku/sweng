@@ -6,6 +6,11 @@ import android.content.Intent;
 import android.view.Menu;
 import android.widget.TextView;
 
+/**
+ * 
+ * @author kokaku
+ *
+ */
 public class ShowMessageActivity extends Activity {
 
 	@Override

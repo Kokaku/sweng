@@ -8,6 +8,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * 
+ * @author kokaku
+ *
+ */
 public class MainActivity extends Activity {
 
     @Override
