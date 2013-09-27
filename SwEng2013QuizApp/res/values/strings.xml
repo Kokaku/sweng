@@ -1,5 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">SwEng2013QuizApp</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="show_random_question">Show a random question.</string>
+    <string name="submit_question">Submit a quiz question.</string>
 
 </resources>
