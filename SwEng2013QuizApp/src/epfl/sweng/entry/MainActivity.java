@@ -1,11 +1,17 @@
 package epfl.sweng.entry;
 
-import epfl.sweng.R;
-import epfl.sweng.R.layout;
-import epfl.sweng.R.menu;
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.Menu;
+import epfl.sweng.R;
+
+/**
+ * Main activity of the application.
+ * Shows a menu to choose which activity should be launched.
+ * 
+ * @author lseguy
+ *
+ */
 
 public class MainActivity extends Activity {
 
