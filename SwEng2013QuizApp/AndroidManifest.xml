@@ -30,7 +30,7 @@
             android:label="@string/title_activity_edit_question" >
         </activity>
         <activity
-            android:name="showquestions.ShowQuestionsActivity"
+            android:name="epfl.sweng.showquestions.ShowQuestionsActivity"
             android:label="@string/title_activity_show_questions" >
         </activity>
     </application>

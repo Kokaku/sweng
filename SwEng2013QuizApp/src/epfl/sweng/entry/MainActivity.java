@@ -1,6 +1,5 @@
 package epfl.sweng.entry;
 
-import showquestions.ShowQuestionsActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +7,7 @@ import android.view.Menu;
 import android.view.View;
 import epfl.sweng.R;
 import epfl.sweng.editquestions.EditQuestionActivity;
+import epfl.sweng.showquestions.ShowQuestionsActivity;
 import epfl.sweng.testing.TestingTransactions;
 import epfl.sweng.testing.TestingTransactions.TTChecks;
 
