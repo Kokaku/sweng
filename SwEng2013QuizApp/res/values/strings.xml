@@ -12,5 +12,6 @@
     <string name="button_next">Next question</string>
     <string name="tags">Some tags</string>
     <string name="question">Gru, a super-villain, has his pride injured when an unknown super-villain steals the Great Pyramid of Giza, an action that is described by his colleague Dr. Nefario as making "all other villains look lame." Gru decides to do better, with the assistance of Dr. Nefario, by shrinking and stealing the moon, an idea based on his childhood dream of being an astronaut, which was always discouraged by his mother Marlena. The plan is expensive and Gru seeks a loan from the Bank of Evil, where the president Mr. Perkins is impressed by the plan, but will only provide the money if Gru can obtain the necessary shrink ray first.</string>
-
+	<string name="type_in_question">Type in the question’s text body.</string>
+	<string name="correct_answer">\u2718</string>
 </resources>

@@ -8,9 +8,24 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".EditQuestionActivity" >
 
-    <TextView
+    <EditText
+        android:id="@+id/question_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:hint="@string/type_in_question" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:layout_width="37dp"
+            android:layout_height="34dp"
+            android:layout_marginTop="45dp"
+            android:gravity="left"
+            android:text="@string/correct_answer" />
+    </LinearLayout>
 
 </RelativeLayout>
