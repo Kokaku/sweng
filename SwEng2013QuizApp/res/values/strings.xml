@@ -8,6 +8,9 @@
     <string name="show_random_question">Show a random question.</string>
     <string name="submit_question">Submit a quiz question.</string>
     <string name="title_activity_edit_question">EditQuestionActivity</string>
-    <string name="title_activity_show_questions">ShowQuestionsActivity</string>
+    <string name="title_activity_show_questions">Let\'s take a quiz!</string>
+    <string name="button_next">Next question</string>
+    <string name="tags">Some tags</string>
+    <string name="question">Gru, a super-villain, has his pride injured when an unknown super-villain steals the Great Pyramid of Giza, an action that is described by his colleague Dr. Nefario as making "all other villains look lame." Gru decides to do better, with the assistance of Dr. Nefario, by shrinking and stealing the moon, an idea based on his childhood dream of being an astronaut, which was always discouraged by his mother Marlena. The plan is expensive and Gru seeks a loan from the Bank of Evil, where the president Mr. Perkins is impressed by the plan, but will only provide the money if Gru can obtain the necessary shrink ray first.</string>
 
 </resources>
