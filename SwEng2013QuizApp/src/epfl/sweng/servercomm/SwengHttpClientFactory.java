@@ -31,82 +31,85 @@ import android.util.Log;
  */
 public class SwengHttpClientFactory {
 
-	private static AbstractHttpClient httpClient;
-	private static final int HTTP_PORT = 80;
-	private final static int HTTPS_PORT = 443;
+    private static AbstractHttpClient httpClient;
+    private static final int HTTP_PORT = 80;
+    private final static int HTTPS_PORT = 443;
 
+    public static synchronized AbstractHttpClient getInstance() {
+        if (httpClient == null) {
+            httpClient = create();
+        }
 
-	public static synchronized AbstractHttpClient getInstance() {
-		if (httpClient == null) {
-			httpClient = create();
-		}
+        return httpClient;
+    }
 
-		return httpClient;
-	}
+    public static synchronized void setInstance(AbstractHttpClient instance) {
+        httpClient = instance;
+    }
 
-	public static synchronized void setInstance(AbstractHttpClient instance) {
-		httpClient = instance;
-	}
+    final private static RedirectHandler REDIRECT_NO_FOLLOW = new RedirectHandler() {
+        @Override
+        public boolean isRedirectRequested(HttpResponse response,
+                HttpContext context) {
+            return false;
+        }
 
-	final private static RedirectHandler REDIRECT_NO_FOLLOW = new RedirectHandler() {
-		@Override
-		public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
-			return false;
-		}
+        @Override
+        public URI getLocationURI(HttpResponse response, HttpContext context)
+                throws org.apache.http.ProtocolException {
+            return null;
+        }
+    };
 
-		@Override
-		public URI getLocationURI(HttpResponse response, HttpContext context) throws org.apache.http.ProtocolException {
-			return null;
-		}
-	};
+    final private static CookieStore COOKIE_MONSTER = new CookieStore() {
+        @Override
+        public void addCookie(Cookie cookie) {
+        }
 
-	final private static CookieStore COOKIE_MONSTER = new CookieStore() {
-		@Override
-		public void addCookie(Cookie cookie) {
-		}
+        @Override
+        public void clear() {
+        }
 
-		@Override
-		public void clear() {
-		}
+        @Override
+        public boolean clearExpired(Date date) {
+            return true;
+        }
 
-		@Override
-		public boolean clearExpired(Date date) {
-			return true;
-		}
+        @Override
+        public List<Cookie> getCookies() {
+            return new ArrayList<Cookie>();
+        }
+    };
 
-		@Override
-		public List<Cookie> getCookies() {
-			return new ArrayList<Cookie>();
-		}
-	};
-
-	final private static HttpRequestInterceptor LOGGING_REQUEST_INTERCEPTOR =
-	        new HttpRequestInterceptor() {
+    final private static HttpRequestInterceptor LOGGING_REQUEST_INTERCEPTOR = new HttpRequestInterceptor() {
         @Override
         public void process(HttpRequest request, HttpContext context) {
             Log.d("HTTP REQUEST", request.getRequestLine().toString());
         }
     };
-	
-    final private static HttpResponseInterceptor LOGGING_RESPONSE_INTERCEPTOR =
-            new HttpResponseInterceptor() {
+
+    final private static HttpResponseInterceptor LOGGING_RESPONSE_INTERCEPTOR = new HttpResponseInterceptor() {
         @Override
         public void process(HttpResponse response, HttpContext context) {
             Log.d("HTTP RESPONSE", response.getStatusLine().toString());
         }
     };
-	private static AbstractHttpClient create() {
-		SchemeRegistry schemeRegistry = new SchemeRegistry();
-		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), HTTP_PORT));
-		schemeRegistry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), HTTPS_PORT));
-		HttpParams params = new BasicHttpParams();
-		ThreadSafeClientConnManager connManager = new ThreadSafeClientConnManager(params, schemeRegistry);
-		AbstractHttpClient result = new DefaultHttpClient(connManager, params);
-		result.setRedirectHandler(REDIRECT_NO_FOLLOW);
-		result.setCookieStore(COOKIE_MONSTER);
-		result.addRequestInterceptor(LOGGING_REQUEST_INTERCEPTOR);
-		result.addResponseInterceptor(LOGGING_RESPONSE_INTERCEPTOR);
-		return result;
-	}
+
+    private static AbstractHttpClient create() {
+        SchemeRegistry schemeRegistry = new SchemeRegistry();
+        schemeRegistry.register(new Scheme("http", PlainSocketFactory
+                .getSocketFactory(), HTTP_PORT));
+        schemeRegistry.register(new Scheme("https", SSLSocketFactory
+                .getSocketFactory(), HTTPS_PORT));
+        HttpParams params = new BasicHttpParams();
+        ThreadSafeClientConnManager connManager = new ThreadSafeClientConnManager(
+                params, schemeRegistry);
+        AbstractHttpClient result = new DefaultHttpClient(connManager, params);
+        result.setRedirectHandler(REDIRECT_NO_FOLLOW);
+        result.setCookieStore(COOKIE_MONSTER);
+        result.addRequestInterceptor(LOGGING_REQUEST_INTERCEPTOR);
+        result.addResponseInterceptor(LOGGING_RESPONSE_INTERCEPTOR);
+        return result;
+    }
 
 }

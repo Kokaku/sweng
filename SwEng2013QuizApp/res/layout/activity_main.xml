@@ -11,13 +11,13 @@
     tools:context=".MainActivity" >
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/show_random_question"
         android:onClick="showQuestion" />
     
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/submit_question"
         android:onClick="submitQuestion" />
