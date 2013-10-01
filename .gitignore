@@ -2,6 +2,7 @@
 .classpath
 .project
 .settings
+lint.xml
 bin/
 gen/
 doc/
