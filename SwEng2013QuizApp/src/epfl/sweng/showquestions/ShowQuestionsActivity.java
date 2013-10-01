@@ -3,10 +3,12 @@ package epfl.sweng.showquestions;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TextView;
 import epfl.sweng.R;
@@ -30,7 +32,7 @@ public class ShowQuestionsActivity extends Activity {
 		
 		LinearLayout tagsLayout = (LinearLayout) findViewById(R.id.list_tags);
 		for (int i = 0; i < adapterTags.getCount(); i++) {
-			View item = adapterTags.getView(i, null, null);
+			View item = adapterTags.getView(i, null, tagsLayout);
 			tagsLayout.addView(item);
 		}
 		

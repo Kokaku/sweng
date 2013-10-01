@@ -24,6 +24,7 @@
 	    android:layout_height="wrap_content"
 	    android:layout_marginTop="10dp"
 	    android:requiresFadingEdge="horizontal"
+	    android:overScrollMode="never"
 	    android:scrollbars="none" >
 
 	    <LinearLayout
@@ -37,9 +38,10 @@
         android:id="@+id/list_answers"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
         android:layout_weight="1"
-        android:requiresFadingEdge="vertical" />
+        android:layout_marginTop="5dp"
+        android:requiresFadingEdge="vertical"
+        android:overScrollMode="never" />
     
     <Button 
         android:layout_width="wrap_content"
