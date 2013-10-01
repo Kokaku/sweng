@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-    <integer name="question_max_lines">7</integer>
+    <color name="tags">#03396c</color>
     
 </resources>

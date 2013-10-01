@@ -1,22 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    
     <string name="app_name">SwEng2013QuizApp</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    
+    <!-- MainActivity -->
+    <string name="title_activity_main">MainActivity</string>
     <string name="show_random_question">Show a random question.</string>
     <string name="submit_question">Submit a quiz question.</string>
+    
+    <!-- EditQuestionActivity -->
     <string name="title_activity_edit_question">EditQuestionActivity</string>
+    <string name="type_in_question">Type in the question’s text body.</string>
+    <string name="type_in_tags">Type in the question’s tags</string>
+    <string name="type_in_answer">Type in the answer.</string>
+    <string name="button_submit">Submit</string>
+    
+    <!-- ShowQuestionsActivity -->
     <string name="title_activity_show_questions">Let\'s take a quiz!</string>
     <string name="button_next">Next question</string>
-    <string name="tags">Some tag</string>
     <string name="question">Gru, a super-villain, has his pride injured when an unknown super-villain steals the Great Pyramid of Giza, an action that is described by his colleague Dr. Nefario as making "all other villains look lame." Gru decides to do better, with the assistance of Dr. Nefario, by shrinking and stealing the moon, an idea based on his childhood dream of being an astronaut, which was always discouraged by his mother Marlena. The plan is expensive and Gru seeks a loan from the Bank of Evil, where the president Mr. Perkins is impressed by the plan, but will only provide the money if Gru can obtain the necessary shrink ray first.</string>
-	<string name="type_in_question">Type in the question’s text body.</string>
+	
+    <!-- Unicode characters -->
 	<string name="wrong_answer">\u2718</string>
 	<string name="correct_answer">\u2714</string>
-	<string name="type_in_tags">Type in the question’s tags</string>
-	<string name="button_submit">Submit</string>
 	<string name="button_add_answer">\u002B</string>
-	<string name="type_in_answer">Type in the answer.</string>
 	<string name="remove_answer">\u002D</string>
+	
 </resources>

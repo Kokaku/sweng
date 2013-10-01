@@ -8,8 +8,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin" >
-    
-	<TextView
+
+    <TextView
         android:id="@+id/text_question"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,37 +17,36 @@
         android:scrollbars="vertical"
         android:text="@string/question"
         android:textSize="17sp" />
-	
-	<HorizontalScrollView
+
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-	    android:layout_marginTop="10dp"
-	    android:requiresFadingEdge="horizontal"
-	    android:overScrollMode="never"
-	    android:scrollbars="none" >
+        android:layout_marginTop="10dp"
+        android:overScrollMode="never"
+        android:requiresFadingEdge="horizontal"
+        android:scrollbars="none" >
 
-	    <LinearLayout
-	        android:id="@+id/list_tags"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:orientation="horizontal" />
-	    
-	</HorizontalScrollView>
-    
+        <LinearLayout
+            android:id="@+id/list_tags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
     <ListView
         android:id="@+id/list_answers"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:layout_marginTop="10dp"
-        android:requiresFadingEdge="vertical"
-        android:overScrollMode="never" />
-    
-    <Button 
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:requiresFadingEdge="vertical" />
+
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/button_next"
+        android:layout_gravity="right"
         android:layout_marginTop="10dp"
-        android:layout_gravity="right" />
+        android:text="@string/button_next" />
 
 </LinearLayout>

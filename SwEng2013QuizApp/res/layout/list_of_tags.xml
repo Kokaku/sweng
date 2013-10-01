@@ -5,6 +5,5 @@
     android:layout_marginRight="5dp"
     android:background="@drawable/tag_background"
     android:padding="8dp"
-    android:text="@string/tags"
     android:textSize="14sp"
     android:textColor="#FFFFFF" />
