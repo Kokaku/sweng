@@ -14,7 +14,7 @@
         android:id="@+id/text_question"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="7"
+        android:maxLines="@integer/question_max_lines"
         android:scrollbars="vertical"
         android:text="@string/question"
         android:textSize="17sp" />
