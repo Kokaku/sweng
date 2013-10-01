@@ -1,6 +1,6 @@
 package epfl.sweng.showquestions;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
@@ -17,8 +17,16 @@ import epfl.sweng.R;
  * @author lseguy
  * 
  */
-public class ShowQuestionsActivity extends Activity {
-
+public class ShowQuestionsActivity extends ListActivity {
+    /**
+     *  How long the "correct" or "incorrect" symbol will be displayed (in
+     *  milliseconds)
+     */
+    private static final int SYMBOL_DISPLAY_TIME = 1500;
+    
+    /**
+     * Initialization of the activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,19 +52,46 @@ public class ShowQuestionsActivity extends Activity {
 
         
         /*
+         * Enable scrolling for the question
+         */
+        TextView question = (TextView) findViewById(R.id.text_question);
+        question.setMovementMethod(new ScrollingMovementMethod());
+        
+        
+        /*
          * Initialize answers list with static data.
          */
         String[] answers = {"Banana", "Potato", "It's so fluffy!", "Gnaaaah",
             "Foo", "Bar", "Blah", "Pouet"};
 
-        TextView question = (TextView) findViewById(R.id.text_question);
-        question.setMovementMethod(new ScrollingMovementMethod());
-
         ArrayAdapter<String> adapterAnswers = new ArrayAdapter<String>(this,
             android.R.layout.simple_list_item_1, answers);
         
-        ListView answersList = (ListView) findViewById(R.id.list_answers);
-        answersList.setAdapter(adapterAnswers);
+        setListAdapter(adapterAnswers);
+    }
+    
+    /**
+     * Called when an item is clicked in the answer list.
+     * Displays a check mark and enable the "next" button if the answer is
+     * correct. Otherwise, displays an error symbol for SYMBOL_DISPLAY_TIME
+     * milliseconds.
+     */
+    @Override
+    public void onListItemClick(ListView list, View view,
+        int position, long id) {
+        
+        final TextView symbol = (TextView) findViewById(R.id.text_check_answer);
+        
+        symbol.setVisibility(View.VISIBLE);
+        getListView().setEnabled(false);
+        
+        symbol.postDelayed(new Runnable() {
+            public void run() {
+                symbol.setVisibility(View.INVISIBLE);
+                getListView().setEnabled(true);
+            }
+        }, SYMBOL_DISPLAY_TIME);
+        
     }
 
 }
