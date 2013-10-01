@@ -3,7 +3,6 @@ package epfl.sweng.entry;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
 import epfl.sweng.R;
 import epfl.sweng.editquestions.EditQuestionActivity;
@@ -28,17 +27,18 @@ public class MainActivity extends Activity {
         TestingTransactions.check(TTChecks.MAIN_ACTIVITY_SHOWN);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
+    /**
+     * When the first button is pressed, starts ShowQuestionsActivity
+     * @param view the button which is pressed
+     */
     public void showQuestion(View view) {
         startActivity(new Intent(this, ShowQuestionsActivity.class));
     }
 
+    /**
+     * When the second button is pressed, starts EditQuestionActivity
+     * @param view the button which is pressed
+     */
     public void submitQuestion(View view) {
         startActivity(new Intent(this, EditQuestionActivity.class));
     }

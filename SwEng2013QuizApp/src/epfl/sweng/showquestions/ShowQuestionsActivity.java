@@ -17,6 +17,7 @@ import epfl.sweng.R;
  * @author lseguy
  * 
  */
+
 public class ShowQuestionsActivity extends ListActivity {
     /**
      *  How long the "correct" or "incorrect" symbol will be displayed (in
