@@ -1,7 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -9,23 +10,71 @@
     tools:context=".EditQuestionActivity" >
 
     <EditText
-        android:id="@+id/question_text"
+        android:id="@+id/new_text_question"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="@string/type_in_question" />
+        android:hint="@string/type_in_question"
+        android:maxLines="@integer/question_max_lines"
+        android:scrollbars="vertical" />
+
+    <EditText
+        android:id="@+id/new_tags"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/type_in_tags"
+        android:maxLines="2"
+        android:scrollbars="vertical" />
 
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:orientation="horizontal" >
 
         <Button
-            android:layout_width="37dp"
-            android:layout_height="34dp"
-            android:layout_marginTop="45dp"
-            android:gravity="left"
-            android:text="@string/correct_answer" />
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/wrong_answer" >
+        </Button>
+
+        <EditText
+            android:id="@+id/new_answer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/type_in_answer"
+            android:maxLines="1"
+            android:scrollbars="vertical" />
+
+        <Button
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/remove_answer" >
+        </Button>
     </LinearLayout>
 
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_add_answer" >
+        </Button>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="false"
+            android:text="@string/button_submit" >
+        </Button>
+    </LinearLayout>
+
+</LinearLayout>
