@@ -9,10 +9,10 @@ import java.util.Set;
  * @author kokaku
  *
  */
-public class PostQuestion extends ServerQuestion {
+public class QuestionSender extends ServerQuestion {
 
 	
-	public PostQuestion(String question, String[] answers, int solutionIndex, Set<String> tags) {
+	public QuestionSender(String question, String[] answers, int solutionIndex, Set<String> tags) {
 		super(question, answers, solutionIndex, tags);
 	}
 	

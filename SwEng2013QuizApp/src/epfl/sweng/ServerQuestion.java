@@ -17,7 +17,6 @@ import org.json.JSONObject;
 public abstract class ServerQuestion extends QuizQuestion {
 	
 	protected static final String SERVER_URL = "https://sweng-quiz.appspot.com/quizquestions/";
-	protected static final int TOTAL_CONNECTION_TRY_BEFORE_ABORD = 5;
 	
 	/**
 	 * @link ServerQuestion
