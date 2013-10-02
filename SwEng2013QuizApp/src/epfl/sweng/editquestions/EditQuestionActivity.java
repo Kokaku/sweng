@@ -30,24 +30,22 @@ public class EditQuestionActivity extends Activity {
 		return true;
 	}
 	
-	public boolean onClickSubmit() {
-		ListView listView = (ListView) findViewById(R.id.list_answers);
-		ListAdapter listAdapter = listView.getAdapter();
-		String answerString = listAdapter.toString(); // To test
-		ArrayList<String> answers = new ArrayList<String>();
-		int answersNumber = listAdapter.getCount();
-		for (int i = 0; i<answersNumber; ++i) {
-			answers.add(((TextView) listAdapter.getView(i, null, listView)).getText().toString());
-		}
-		return true;
-	}
-	
-	public boolean onClickAdd() {
-	    ListView listView = (ListView) findViewById(R.id.list_answers);
-	    LinearLayout newLine = new LinearLayout(listView.getContext());
-	    //listView.addView(child, listView.getCount(), params);
-		return true;
-	}
->>>>>>> Begin the implementation of EditQuestionActivity, not working yet. Shouldn't prevent the code from compiling.
-
+//	public boolean onClickSubmit() {
+//		ListView listView = (ListView) findViewById(R.id.list_answers);
+//		ListAdapter listAdapter = listView.getAdapter();
+//		String answerString = listAdapter.toString(); // To test
+//		ArrayList<String> answers = new ArrayList<String>();
+//		int answersNumber = listAdapter.getCount();
+//		for (int i = 0; i<answersNumber; ++i) {
+//			answers.add(((TextView) listAdapter.getView(i, null, listView)).getText().toString());
+//		}
+//		return true;
+//	}
+//	
+//	public boolean onClickAdd() {
+//	    ListView listView = (ListView) findViewById(R.id.list_answers);
+//	    LinearLayout newLine = new LinearLayout(listView.getContext());
+//	    //listView.addView(child, listView.getCount(), params);
+//		return true;
+//	}
 }
