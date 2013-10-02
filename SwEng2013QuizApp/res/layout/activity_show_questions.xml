@@ -59,12 +59,13 @@
         android:id="@+id/text_check_answer"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:text="@string/correct_answer"
+        android:text="@string/wrong_answer"
         android:gravity="center"
         android:textSize="200dp"
-        android:textColor="#669900"
+        android:textColor="#c72a00"
+        
         android:background="#B9bfcada"
         android:visibility="invisible"
-        />
+        /><!-- android:textColor="#669900" -->
     
 </merge>
