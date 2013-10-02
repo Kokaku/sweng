@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -17,6 +18,15 @@
         android:maxLines="@integer/question_max_lines"
         android:scrollbars="vertical" />
 
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:requiresFadingEdge="vertical" />
+
     <EditText
         android:id="@+id/new_tags"
         android:layout_width="wrap_content"
@@ -25,37 +35,9 @@
         android:maxLines="2"
         android:scrollbars="vertical" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal" >
+    <!-- Don't modify ListView's id. It's mandatory for ListActivity -->
 
-        <Button
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/wrong_answer" >
-        </Button>
-
-        <EditText
-            android:id="@+id/new_answer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="@string/type_in_answer"
-            android:maxLines="1"
-            android:scrollbars="vertical" />
-
-        <Button
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/remove_answer" >
-        </Button>
-    </LinearLayout>
+    
 
     <LinearLayout
         android:layout_width="fill_parent"

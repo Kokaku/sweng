@@ -1,18 +1,27 @@
 package epfl.sweng.editquestions;
 
-import java.util.ArrayList;
-
-import android.app.Activity;
+import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import epfl.sweng.R;
 
-public class EditQuestionActivity extends Activity {
 
+/**
+ * This activity displays empty fields that let the user create a new question
+ * by setting the question text, a set of tags, a set of possible answers and
+ * the right answer.
+ * 
+ * @author MathieuMonney
+ * 
+ */
+
+public class EditQuestionActivity extends ListActivity {
+
+    private ArrayAdapter<String> adapterAnswers;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +29,17 @@ public class EditQuestionActivity extends Activity {
 		setContentView(R.layout.activity_edit_question);
 		
 		String[] tags = {};
-		String[] answers = {};
+		String[] answers = {"1", "prout", "pouf"};
+		
+        //View view = adapterAnswers.getView(1, null, null);
+		
+		//adapterAnswers = new ArrayAdapter<String>(this, 
+		//        R.layout.view_list_answers, answers);
+		
+		
+		
+		//setListAdapter(adapterAnswers);
+
 	}
 
 	@Override
@@ -30,22 +49,16 @@ public class EditQuestionActivity extends Activity {
 		return true;
 	}
 	
-//	public boolean onClickSubmit() {
-//		ListView listView = (ListView) findViewById(R.id.list_answers);
-//		ListAdapter listAdapter = listView.getAdapter();
-//		String answerString = listAdapter.toString(); // To test
-//		ArrayList<String> answers = new ArrayList<String>();
-//		int answersNumber = listAdapter.getCount();
-//		for (int i = 0; i<answersNumber; ++i) {
-//			answers.add(((TextView) listAdapter.getView(i, null, listView)).getText().toString());
-//		}
-//		return true;
-//	}
-//	
-//	public boolean onClickAdd() {
-//	    ListView listView = (ListView) findViewById(R.id.list_answers);
-//	    LinearLayout newLine = new LinearLayout(listView.getContext());
-//	    //listView.addView(child, listView.getCount(), params);
-//		return true;
-//	}
+	public boolean onClickSubmit() {
+		String answerString = adapterAnswers.toString(); // To test
+		System.out.println("answerString: " + answerString);
+		return true;
+	}
+	
+	public boolean onClickAdd() {
+	    //ListView listView = (ListView) findViewById(R.id.list_answers);
+	    //LinearLayout newLine = new LinearLayout(listView.getContext());
+	    //listView.addView(child, listView.getCount(), params);
+		return true;
+	}
 }
