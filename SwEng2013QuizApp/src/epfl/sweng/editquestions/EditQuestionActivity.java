@@ -3,10 +3,7 @@ package epfl.sweng.editquestions;
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import epfl.sweng.R;
 
 
