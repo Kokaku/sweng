@@ -22,8 +22,8 @@ public abstract class ServerQuestion extends QuizQuestion {
 	/**
 	 * @link ServerQuestion
 	 */
-	public ServerQuestion(long questionId, String question, String[] answers, int solutionIndex, Set<String> tags) {
-		super(questionId, question, answers, solutionIndex, tags);
+	public ServerQuestion(String question, String[] answers, int solutionIndex, Set<String> tags) {
+		super(question, answers, solutionIndex, tags);
 	}
 
 	/**
@@ -36,10 +36,10 @@ public abstract class ServerQuestion extends QuizQuestion {
 	 * @throws JSONException thrown if JSON doen't contains field needed to construct object
 	 */
 	public ServerQuestion(JSONObject json) throws ServerCommunicationException {
-		super(parseId(json), parseQuestion(json), parseAnswers(json), parseSolutionIndex(json), parseTags(json));
+		super(parseQuestion(json), parseAnswers(json), parseSolutionIndex(json), parseTags(json));
 	}
 	
-	private static long parseId(JSONObject json) throws ServerCommunicationException {
+	protected static long parseId(JSONObject json) throws ServerCommunicationException {
 		try {
 			return json.getLong("id");
 		} catch (JSONException e) {
@@ -47,7 +47,7 @@ public abstract class ServerQuestion extends QuizQuestion {
 		}
 	}
 	
-	private static String parseQuestion(JSONObject json) throws ServerCommunicationException {
+	protected static String parseQuestion(JSONObject json) throws ServerCommunicationException {
 		try {
 			return json.getString("question");
 		} catch (JSONException e) {
@@ -55,7 +55,7 @@ public abstract class ServerQuestion extends QuizQuestion {
 		}
 	}
 	
-	private static String[] parseAnswers(JSONObject json) throws ServerCommunicationException {
+	protected static String[] parseAnswers(JSONObject json) throws ServerCommunicationException {
 		try {
 			JSONArray jsonAnswers = json.getJSONArray("answers");
 			String[] answers = new String[jsonAnswers.length()];
@@ -68,7 +68,7 @@ public abstract class ServerQuestion extends QuizQuestion {
 		}
 	}
 	
-	private static int parseSolutionIndex(JSONObject json) throws ServerCommunicationException {
+	protected static int parseSolutionIndex(JSONObject json) throws ServerCommunicationException {
 		try {
 			return json.getInt("solutionIndex");
 		} catch (JSONException e) {
@@ -76,7 +76,7 @@ public abstract class ServerQuestion extends QuizQuestion {
 		}
 	}
 	
-	private static Set<String> parseTags(JSONObject json) throws ServerCommunicationException {
+	protected static Set<String> parseTags(JSONObject json) throws ServerCommunicationException {
 		try {
 			JSONArray jsonTags = json.getJSONArray("tags");
 			Set<String> tags = new HashSet<String>();

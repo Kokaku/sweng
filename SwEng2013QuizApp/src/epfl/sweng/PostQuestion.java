@@ -13,7 +13,7 @@ public class PostQuestion extends ServerQuestion {
 
 	
 	public PostQuestion(String question, String[] answers, int solutionIndex, Set<String> tags) {
-		super(DEFAULT_ID, question, answers, solutionIndex, tags);
+		super(question, answers, solutionIndex, tags);
 	}
 	
 	/**

@@ -9,11 +9,6 @@ import java.util.Set;
  *
  */
 public abstract class QuizQuestion {
-	/*
-	 * DEFAULT_ID is the default value for an id when quiz question doen't have yet a associated id
-	 */
-	public final static long DEFAULT_ID = -1;
-	private long mId;
 	private String mQuestion;
 	private String[] mAnswers;
 	private int mSolutionIndex;
@@ -28,19 +23,11 @@ public abstract class QuizQuestion {
 	 * @param solutionIndex is the index of the correct solution
 	 * @param tags is the set of keyword about what is the question
 	 */
-	public QuizQuestion(long questionId, String question, String[] answers, int solutionIndex, Set<String> tags) {
-		mId = questionId;
+	public QuizQuestion(String question, String[] answers, int solutionIndex, Set<String> tags) {
 		mQuestion = question;
 		mAnswers = answers.clone();
 		mSolutionIndex = solutionIndex;
 		mTags = new HashSet<String>(tags);
-	}
-	
-	/**
-	 * @return the id associated to the quiz question. return DEFAULT_ID if not yet associated.
-	 */
-	public long getQuestionId() {
-		return mId;
 	}
 	
 	/**

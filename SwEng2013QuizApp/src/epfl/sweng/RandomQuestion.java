@@ -19,7 +19,7 @@ import epfl.sweng.servercomm.SwengHttpClientFactory;
  *
  */
 public class RandomQuestion extends ServerQuestion {
-
+    
 	/**
 	 * Get a random question from server
 	 * @throws ServerCommunicationException thrown if there is a problem with the server communication
