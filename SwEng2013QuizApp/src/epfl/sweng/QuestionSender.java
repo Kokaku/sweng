@@ -26,17 +26,22 @@ public class QuestionSender extends ServerQuestion {
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {
         }
-        return false;
-    }
 
-    public String convertIterableToJSONString(Iterable<String> iterable) {
-        String jsonString = "[";
-        for (String element : iterable) {
-            jsonString += " \"" + element + "\",";
-        }
-        jsonString = jsonString.substring(0, jsonString.length() - 1);
-        jsonString += " ]";
+		return false;
+	}
 
-        return jsonString;
-    }
+	public int getSolutionIndex() {
+		return super.getSolutionIndex();
+	}
+	
+	public String convertIterableToJSONString(Iterable<String> iterable) {
+		String jsonString = "[";
+		for (String element : iterable) {
+			jsonString += " \"" + element + "\",";
+		}
+		jsonString = jsonString.substring(0, jsonString.length()-1);
+		jsonString += " ]";
+		
+		return jsonString;
+	}
 }
