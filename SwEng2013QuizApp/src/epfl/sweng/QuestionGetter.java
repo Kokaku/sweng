@@ -18,7 +18,7 @@ public class QuestionGetter extends ServerQuestion {
     }
 
     private static JSONObject exceptionHandler(String url)
-            throws ServerQuestionException {
+        throws ServerQuestionException {
         try {
             Object questionOrException = new GetQuestionTask().execute(url)
                     .get();

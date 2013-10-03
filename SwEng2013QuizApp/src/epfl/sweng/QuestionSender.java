@@ -22,7 +22,7 @@ public class QuestionSender extends ServerQuestion {
      */
     public boolean postOnServer() {
         try {
-            return new PostQuestionTask().execute().get();
+            return new PostQuestionTask().execute(this).get();
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {
         }

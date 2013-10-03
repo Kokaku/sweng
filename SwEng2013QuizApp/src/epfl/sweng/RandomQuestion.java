@@ -16,6 +16,6 @@ public class RandomQuestion extends QuestionGetter {
 	 * @throws ServerCommunicationException thrown if there is a problem with the server communication
 	 */
 	public RandomQuestion() throws ServerQuestionException {
-		super("rando");
+		super("random");
 	}
 }

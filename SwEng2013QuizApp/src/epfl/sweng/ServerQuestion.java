@@ -41,7 +41,7 @@ public abstract class ServerQuestion extends QuizQuestion {
     }
 
     protected static long parseId(JSONObject json)
-            throws ServerQuestionException {
+        throws ServerQuestionException {
         try {
             return json.getLong("id");
         } catch (JSONException e) {
@@ -50,7 +50,7 @@ public abstract class ServerQuestion extends QuizQuestion {
     }
 
     protected static String parseQuestion(JSONObject json)
-            throws ServerQuestionException {
+        throws ServerQuestionException {
         try {
             return json.getString("question");
         } catch (JSONException e) {
@@ -59,7 +59,7 @@ public abstract class ServerQuestion extends QuizQuestion {
     }
 
     protected static String[] parseAnswers(JSONObject json)
-            throws ServerQuestionException {
+        throws ServerQuestionException {
         try {
             JSONArray jsonAnswers = json.getJSONArray("answers");
             String[] answers = new String[jsonAnswers.length()];
@@ -73,7 +73,7 @@ public abstract class ServerQuestion extends QuizQuestion {
     }
 
     protected static int parseSolutionIndex(JSONObject json)
-            throws ServerQuestionException {
+        throws ServerQuestionException {
         try {
             return json.getInt("solutionIndex");
         } catch (JSONException e) {
@@ -82,7 +82,7 @@ public abstract class ServerQuestion extends QuizQuestion {
     }
 
     protected static Set<String> parseTags(JSONObject json)
-            throws ServerQuestionException {
+        throws ServerQuestionException {
         try {
             JSONArray jsonTags = json.getJSONArray("tags");
             Set<String> tags = new HashSet<String>();

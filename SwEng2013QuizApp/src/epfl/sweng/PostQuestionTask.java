@@ -33,9 +33,9 @@ public class PostQuestionTask extends
         QuestionSender question = questions[0];
         try {
             post.setEntity(new StringEntity("{"
-                    + " \"question\": "
+                    + " \"question\": \""
                     + question.getQuestion()
-                    + ","
+                    + "\","
                     + " \"answers\": "
                     + question.convertIterableToJSONString(Arrays
                             .asList(question.getAnswers()))
