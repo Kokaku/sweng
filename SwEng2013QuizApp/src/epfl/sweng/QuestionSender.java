@@ -28,6 +28,10 @@ public class QuestionSender extends ServerQuestion {
         }
 		return false;
 	}
+
+	public int getSolutionIndex() {
+		return super.getSolutionIndex();
+	}
 	
 	public String convertIterableToJSONString(Iterable<String> iterable) {
 		String jsonString = "[";

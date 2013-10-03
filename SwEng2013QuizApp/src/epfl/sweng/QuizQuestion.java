@@ -58,4 +58,8 @@ public abstract class QuizQuestion {
 	public Set<String> getTags() {
 		return new HashSet<String>(mTags);
 	}
+	
+	protected int getSolutionIndex() {
+		return mSolutionIndex;
+	}
 }
