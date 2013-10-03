@@ -18,15 +18,7 @@
         android:maxLines="@integer/question_max_lines"
         android:scrollbars="vertical" />
 
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:layout_weight="1"
-        android:overScrollMode="never"
-        android:requiresFadingEdge="vertical" />
-
+  
     <EditText
         android:id="@+id/new_tags"
         android:layout_width="wrap_content"
@@ -34,6 +26,15 @@
         android:hint="@string/type_in_tags"
         android:maxLines="2"
         android:scrollbars="vertical" />
+      <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:requiresFadingEdge="vertical" />
+    
 
     <!-- Don't modify ListView's id. It's mandatory for ListActivity -->
 
@@ -46,12 +47,15 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/button_add_answer" >
+            android:text="@string/button_add_answer"
+             >
         </Button>
-
-        <Button
+		 <Button
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_clear_answer" >
+        </Button>
+        <Button
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:clickable="false"

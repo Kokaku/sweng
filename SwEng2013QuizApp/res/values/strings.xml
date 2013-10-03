@@ -15,6 +15,7 @@
     <string name="type_in_tags">Type in the question’s tags</string>
     <string name="type_in_answer">Type in the answer.</string>
     <string name="button_submit">Submit</string>
+    <string name="button_clear_answer">Clear</string>
     
     <!-- ShowQuestionsActivity -->
     <string name="title_activity_show_questions">Let\'s take a quiz!</string>
