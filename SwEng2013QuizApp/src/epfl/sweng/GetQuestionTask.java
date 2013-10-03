@@ -16,13 +16,15 @@ import epfl.sweng.servercomm.SwengHttpClientFactory;
 
 /**
  * @author kokaku
- *
+ * 
  */
 public class GetQuestionTask extends AsyncTask<String, Integer, Object> {
 
     protected static final int TOTAL_CONNECTION_TRY_BEFORE_ABORT = 5;
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see android.os.AsyncTask#doInBackground(Params[])
      */
     @Override
@@ -31,15 +33,17 @@ public class GetQuestionTask extends AsyncTask<String, Integer, Object> {
             try {
                 HttpGet request = new HttpGet(serverURL[0]);
                 ResponseHandler<String> handler = new BasicResponseHandler();
-                String question = SwengHttpClientFactory.getInstance().execute(request, handler);
+                String question = SwengHttpClientFactory.getInstance().execute(
+                        request, handler);
                 JSONObject json = new JSONObject(question);
                 return json;
             } catch (JSONException e) {
             } catch (IOException e) {
             }
         }
-        
-        return new ServerQuestionException("Couldn't fetch question from server.");
+
+        return new ServerQuestionException(
+                "Couldn't fetch question from server.");
     }
 
 }
