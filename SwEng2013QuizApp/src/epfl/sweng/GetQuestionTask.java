@@ -5,7 +5,6 @@ package epfl.sweng;
 
 import java.io.IOException;
 
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
@@ -36,7 +35,6 @@ public class GetQuestionTask extends AsyncTask<String, Integer, Object> {
                 JSONObject json = new JSONObject(question);
                 return json;
             } catch (JSONException e) {
-            } catch (ClientProtocolException e) {
             } catch (IOException e) {
             }
         }
