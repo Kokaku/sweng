@@ -34,27 +34,27 @@ public abstract class ServerQuestion extends QuizQuestion {
 	 * 	"tags" : JSONArray
 	 * @throws JSONException thrown if JSON doen't contains field needed to construct object
 	 */
-	public ServerQuestion(JSONObject json) throws ServerCommunicationException {
+	public ServerQuestion(JSONObject json) throws ServerQuestionException {
 		super(parseQuestion(json), parseAnswers(json), parseSolutionIndex(json), parseTags(json));
 	}
 	
-	protected static long parseId(JSONObject json) throws ServerCommunicationException {
+	protected static long parseId(JSONObject json) throws ServerQuestionException {
 		try {
 			return json.getLong("id");
 		} catch (JSONException e) {
-			throw new ServerCommunicationException("Couldn't parse JSON.");
+			throw new ServerQuestionException("Couldn't parse JSON.");
 		}
 	}
 	
-	protected static String parseQuestion(JSONObject json) throws ServerCommunicationException {
+	protected static String parseQuestion(JSONObject json) throws ServerQuestionException {
 		try {
 			return json.getString("question");
 		} catch (JSONException e) {
-			throw new ServerCommunicationException("Couldn't parse JSON.");
+			throw new ServerQuestionException("Couldn't parse JSON.");
 		}
 	}
 	
-	protected static String[] parseAnswers(JSONObject json) throws ServerCommunicationException {
+	protected static String[] parseAnswers(JSONObject json) throws ServerQuestionException {
 		try {
 			JSONArray jsonAnswers = json.getJSONArray("answers");
 			String[] answers = new String[jsonAnswers.length()];
@@ -63,19 +63,19 @@ public abstract class ServerQuestion extends QuizQuestion {
 			}
 			return answers;
 		} catch (JSONException e) {
-			throw new ServerCommunicationException("Couldn't parse JSON.");
+			throw new ServerQuestionException("Couldn't parse JSON.");
 		}
 	}
 	
-	protected static int parseSolutionIndex(JSONObject json) throws ServerCommunicationException {
+	protected static int parseSolutionIndex(JSONObject json) throws ServerQuestionException {
 		try {
 			return json.getInt("solutionIndex");
 		} catch (JSONException e) {
-			throw new ServerCommunicationException("Couldn't parse JSON.");
+			throw new ServerQuestionException("Couldn't parse JSON.");
 		}
 	}
 	
-	protected static Set<String> parseTags(JSONObject json) throws ServerCommunicationException {
+	protected static Set<String> parseTags(JSONObject json) throws ServerQuestionException {
 		try {
 			JSONArray jsonTags = json.getJSONArray("tags");
 			Set<String> tags = new HashSet<String>();
@@ -84,7 +84,7 @@ public abstract class ServerQuestion extends QuizQuestion {
 			}
 			return tags;
 		} catch (JSONException e) {
-			throw new ServerCommunicationException("Couldn't parse JSON.");
+			throw new ServerQuestionException("Couldn't parse JSON.");
 		}
 	}
 }

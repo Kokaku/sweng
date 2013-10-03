@@ -7,7 +7,10 @@ import android.view.Menu;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import epfl.sweng.QuizQuestion;
 import epfl.sweng.R;
+import epfl.sweng.RandomQuestion;
+import epfl.sweng.ServerQuestionException;
 
 /**
  * 
@@ -20,9 +23,19 @@ public class ShowQuestionsActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_show_questions);
-		
-		String[] answers = {"Banana", "Potato", "It's so fluffy!", "Gnaaaah", "Foo", "Bar", "Blah", "Pouet"};
 
+		String[] answers = null;
+		QuizQuestion quizQuestion = null;
+		answers = new String[]{"Banana", "Potato", "It's so fluffy!", "Gnaaaah", "Foo", "Bar", "Blah", "Pouet"};
+		try {
+			quizQuestion = new RandomQuestion();
+		} catch (ServerQuestionException e) {
+			answers = new String[]{"\\o/", "Potato", "It's so fluffy!", "Gnaaaah", "Foo", "Bar", "Blah", "Pouet"};
+		}
+		
+		if(quizQuestion != null)
+			answers = quizQuestion.getAnswers();
+		
 		TextView question = (TextView) findViewById(R.id.text_question);
 		question.setMovementMethod(new ScrollingMovementMethod());
 		

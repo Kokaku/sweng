@@ -12,15 +12,14 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import epfl.sweng.servercomm.SwengHttpClientFactory;
-
 import android.os.AsyncTask;
+import epfl.sweng.servercomm.SwengHttpClientFactory;
 
 /**
  * @author kokaku
  *
  */
-public class GetQuestionTask extends AsyncTask<String, Integer, JSONObject> {
+public class GetQuestionTask extends AsyncTask<String, Integer, Object> {
 
     protected static final int TOTAL_CONNECTION_TRY_BEFORE_ABORT = 5;
     
@@ -28,7 +27,7 @@ public class GetQuestionTask extends AsyncTask<String, Integer, JSONObject> {
      * @see android.os.AsyncTask#doInBackground(Params[])
      */
     @Override
-    protected JSONObject doInBackground(String... serverURL) {
+    protected Object doInBackground(String... serverURL) {
         for (int i = 0; i < TOTAL_CONNECTION_TRY_BEFORE_ABORT; i++) {
             try {
                 HttpGet request = new HttpGet(serverURL[0]);
@@ -42,11 +41,7 @@ public class GetQuestionTask extends AsyncTask<String, Integer, JSONObject> {
             }
         }
         
-      //TODO
-        /*
-         * Do something to tell UI that they will never get their question !!!
-         */
-        throw new RuntimeException("Couldn't fetch random question from server.");
+        return new ServerQuestionException("Couldn't fetch question from server.");
     }
 
 }
