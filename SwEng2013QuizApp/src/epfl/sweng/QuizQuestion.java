@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * 
+ * Represent a quiz question
  * @author kokaku
  * 
  */
@@ -16,15 +16,14 @@ public class QuizQuestion {
 	private Set<String> mTags;
 	
 	/**
-	 * A QuizQuestion represent a quiz question
 	 * 
-	 * @param questionId is a unique id associated to each quiz question
-	 * @param question is a string that invite the user to answer the quiz question
-	 * @param answers is a list of possible answers
-	 * @param solutionIndex is the index of the correct solution
-	 * @param tags is the set of keyword about what is the question
+	 * @param question a string corresponding to the question
+	 * @param answers an array of possible answers
+	 * @param solutionIndex index of the right answer
+	 * @param tags set of keywords describing the question
 	 */
-	public QuizQuestion(String question, String[] answers, int solutionIndex, Set<String> tags) {
+	public QuizQuestion(String question, String[] answers, int solutionIndex, 
+	                    Set<String> tags) {
 		mQuestion = question;
 		mAnswers = answers.clone();
 		mSolutionIndex = solutionIndex;
@@ -39,29 +38,30 @@ public class QuizQuestion {
 	}
 	
 	/**
-	 * @return the string that invite the user to answer the quiz question
+	 * @return the string corresponding to the question
 	 */
 	public String getQuestion() {
 		return mQuestion;
 	}
 	
 	/**
-	 * @return the list of possible answers
+	 * @return the array of possible answers
 	 */
 	public String[] getAnswers() {
 		return mAnswers.clone();
 	}
 	
 	/**
-	 * @param answerId is the index of the answer you want to check
-	 * @return true if answerId is the index of the correct answer else return false
+	 * @param answerId the index of the answer you want to check
+	 * @return true if answerId is the index of the correct answer
+	 * otherwise return false
 	 */
 	public boolean isSolutionCorrect(int answerId) {
 		return mSolutionIndex == answerId;
 	}
 	
 	/**
-	 * @return the set of keyword about what is the question
+	 * @return the set of keywords describing the question
 	 */
 	public Set<String> getTags() {
 		return new TreeSet<String>(mTags);
