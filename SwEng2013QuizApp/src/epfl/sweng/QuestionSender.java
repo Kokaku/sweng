@@ -28,4 +28,15 @@ public class QuestionSender extends ServerQuestion {
         }
 		return false;
 	}
+	
+	public String convertArrayToJSONString(String[] array) {
+		String jsonString = "[";
+		for (String element : array) {
+			jsonString += " \"" + element + "\",";
+		}
+		jsonString = jsonString.substring(0, jsonString.length()-1);
+		jsonString += " ]";
+		
+		return jsonString;
+	}
 }
