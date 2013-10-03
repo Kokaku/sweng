@@ -1,14 +1,14 @@
 package epfl.sweng;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * 
  * @author kokaku
  * 
  */
-public abstract class QuizQuestion {
+public class QuizQuestion {
 
 	private String mQuestion;
 	private String[] mAnswers;
@@ -28,7 +28,14 @@ public abstract class QuizQuestion {
 		mQuestion = question;
 		mAnswers = answers.clone();
 		mSolutionIndex = solutionIndex;
-		mTags = new HashSet<String>(tags);
+		mTags = new TreeSet<String>(tags);
+	}
+	
+	/**
+	 * @return the index of the correct answer
+	 */
+	public int getSolutionIndex() {
+		return mSolutionIndex;
 	}
 	
 	/**
@@ -57,10 +64,6 @@ public abstract class QuizQuestion {
 	 * @return the set of keyword about what is the question
 	 */
 	public Set<String> getTags() {
-		return new HashSet<String>(mTags);
-	}
-	
-	protected int getSolutionIndex() {
-		return mSolutionIndex;
+		return new TreeSet<String>(mTags);
 	}
 }

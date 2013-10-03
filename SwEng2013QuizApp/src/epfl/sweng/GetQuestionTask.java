@@ -18,7 +18,7 @@ import epfl.sweng.servercomm.SwengHttpClientFactory;
  * @author kokaku
  * 
  */
-public class GetQuestionTask extends AsyncTask<String, Integer, Object> {
+public class GetQuestionTask extends AsyncTask<String, Integer, JSONObject> {
 
     protected static final int TOTAL_CONNECTION_TRY_BEFORE_ABORT = 5;
 
@@ -28,7 +28,7 @@ public class GetQuestionTask extends AsyncTask<String, Integer, Object> {
      * @see android.os.AsyncTask#doInBackground(Params[])
      */
     @Override
-    protected Object doInBackground(String... serverURL) {
+    protected JSONObject doInBackground(String... serverURL) {
         for (int i = 0; i < TOTAL_CONNECTION_TRY_BEFORE_ABORT; i++) {
             try {
                 HttpGet request = new HttpGet(serverURL[0]);
@@ -42,8 +42,7 @@ public class GetQuestionTask extends AsyncTask<String, Integer, Object> {
             }
         }
 
-        return new ServerQuestionException(
-                "Couldn't fetch question from server.");
+        return null;
     }
 
 }

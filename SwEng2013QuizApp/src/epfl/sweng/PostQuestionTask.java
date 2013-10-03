@@ -5,7 +5,6 @@ package epfl.sweng;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
@@ -20,7 +19,7 @@ import epfl.sweng.servercomm.SwengHttpClientFactory;
  * 
  */
 public class PostQuestionTask extends
-        AsyncTask<QuestionSender, Integer, Boolean> {
+        AsyncTask<String, Integer, Boolean> {
 
     /*
      * (non-Javadoc)
@@ -28,23 +27,10 @@ public class PostQuestionTask extends
      * @see android.os.AsyncTask#doInBackground(Params[])
      */
     @Override
-    protected Boolean doInBackground(QuestionSender... questions) {
-        HttpPost post = new HttpPost(ServerQuestion.SERVER_URL);
-        QuestionSender question = questions[0];
+    protected Boolean doInBackground(String... jsonString) {
         try {
-            post.setEntity(new StringEntity("{"
-                    + " \"question\": \""
-                    + question.getQuestion()
-                    + "\","
-                    + " \"answers\": "
-                    + question.convertIterableToJSONString(Arrays
-                            .asList(question.getAnswers()))
-                    + ","
-                    + " \"solutionIndex\": "
-                    + question.getSolutionIndex() + ","
-                    + " \"tags\": "
-                    + question.convertIterableToJSONString(question.getTags())
-                    + " }"));
+        	HttpPost post = new HttpPost(ServerCommunication.SERVER_URL);
+            post.setEntity(new StringEntity(jsonString[0]));
             post.setHeader("Content-type", "application/json");
             ResponseHandler<String> handler = new BasicResponseHandler();
             /* returns a string corresponding to the response HTTP */
