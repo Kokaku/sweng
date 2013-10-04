@@ -4,8 +4,10 @@ import java.util.Set;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -30,17 +32,18 @@ import epfl.sweng.testing.TestingTransactions.TTChecks;
 
 public class ShowQuestionsActivity extends ListActivity {
     
-    /**
-     *  How long the "correct" or "incorrect" symbol will be displayed (in
-     *  milliseconds)
-     */
+    //  How long the "correct" or "incorrect" symbol will be displayed (in milliseconds)
     private static final int SYMBOL_DISPLAY_TIME = 1000;
+    
+    // How long should the device vibrate (in milliseconds)
+    private static final int VIBRATOR_DURATION = 250;
     
     private QuizQuestion mCurrentQuestion;
     private TextView mQuestionText;
     private LinearLayout mTagsList;
     private Button mNextButton;
     private TextView mSymbol;
+    private Vibrator mVibrator;
     
     /**
      * Initialization of the activity.
@@ -54,6 +57,7 @@ public class ShowQuestionsActivity extends ListActivity {
         mNextButton = (Button) findViewById(R.id.button_next);
         mSymbol = (TextView) findViewById(R.id.text_check_answer);
         mTagsList = (LinearLayout) findViewById(R.id.list_tags);
+        mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         
         // Enable scrolling for the question
         mQuestionText.setMovementMethod(new ScrollingMovementMethod());
@@ -80,6 +84,8 @@ public class ShowQuestionsActivity extends ListActivity {
         } else {
             mSymbol.setText(R.string.wrong_answer);
             mSymbol.setTextColor(getResources().getColor(R.color.wrong_answer));
+            
+            mVibrator.vibrate(VIBRATOR_DURATION);
         }
         
         getListView().setEnabled(false);
