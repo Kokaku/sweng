@@ -24,22 +24,22 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 	private AnswersListAdapter adapter = this;
 	private int correctAnswerPosition;
 	private boolean questionValidity;
+	private Button submitButton;
 
-	public AnswersListAdapter(Context contextArg, ArrayList<String> answersArg) {
+	public AnswersListAdapter(Context contextArg, ArrayList<String> answersArg, Button submit) {
 		super(contextArg, epfl.sweng.R.layout.rowlayout_view_list_answers,
 				answersArg);
 		this.context = contextArg;
 		this.answers = answersArg;
 		this.correctAnswerPosition = -1;
 		this.questionValidity = false;
-
+		this.submitButton = submit;
 	}
 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
 		View rowView = inflater.inflate(
 				epfl.sweng.R.layout.rowlayout_view_list_answers, parent, false);
 		Button buttonCheckAnswer = (Button) rowView
@@ -66,10 +66,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 			@Override
 			public void afterTextChanged(Editable newText) {
 				answers.set(position, newText.toString());
-				if (getValidAnswersCount() >=2 && correctAnswerPosition != -1) {
-					
-				}
-				
+				updateSubmitButton();
 			}
 
 			@Override
@@ -94,6 +91,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 				} else if (position < correctAnswerPosition) {
 					correctAnswerPosition--;
 				}
+				updateSubmitButton();
 				adapter.notifyDataSetChanged();
 
 			}
@@ -103,6 +101,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 			@Override
 			public void onClick(View v) {
 				correctAnswerPosition = position;
+				updateSubmitButton();
 				adapter.notifyDataSetChanged();
 
 			}
@@ -121,20 +120,29 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 	public int getCorrectAnswerPosition() {
 		return correctAnswerPosition;
 	}
-	
-	private int getValidAnswersCount() {
+
+	public int getValidAnswersCount() {
 		int validAnswersNumber = 0;
-		for (String answer: answers) {
-			if (!answer.matches("(\" \")*")) {
+		for (String answer : answers) {
+			if (!answer.replaceAll("\\s+", "").equals("")) {
 				validAnswersNumber++;
 			}
 		}
 		return validAnswersNumber;
 	}
-	
-//	private boolean isValidQuestion() {
-//		
-//	}
 
-	
+	public void setQuestionValidity(boolean newQuestionValidity) {
+		questionValidity = newQuestionValidity;
+		updateSubmitButton();
+	}
+
+	public void updateSubmitButton() {
+		if (getValidAnswersCount() >= 2 && correctAnswerPosition != -1
+				&& questionValidity == true && !answers.get(correctAnswerPosition).equals("")) {
+			submitButton.setEnabled(true);
+		} else {
+			submitButton.setEnabled(false);
+		}
+	}
+
 }

@@ -64,7 +64,8 @@
             android:id="@+id/button_submit"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:clickable="false"
+            android:enabled="false"
+            android:onClick="onClickSubmit"
             android:text="@string/button_submit" 
             style="?android:attr/buttonBarButtonStyle"/>
     </LinearLayout>
