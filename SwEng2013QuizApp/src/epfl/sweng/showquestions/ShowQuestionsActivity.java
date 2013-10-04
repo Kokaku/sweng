@@ -54,9 +54,7 @@ public class ShowQuestionsActivity extends ListActivity {
         mSymbol = (TextView) findViewById(R.id.text_check_answer);
         mTagsList = (LinearLayout) findViewById(R.id.list_tags);
         
-        /*
-         * Enable scrolling for the question
-         */
+        // Enable scrolling for the question
         mQuestionText.setMovementMethod(new ScrollingMovementMethod());
         
         showNewQuestion();
@@ -88,13 +86,13 @@ public class ShowQuestionsActivity extends ListActivity {
         mSymbol.postDelayed(new Runnable() {
             public void run() {
                 if (correctAnswer) {
-                    mNextButton.setClickable(true);
+                    mNextButton.setEnabled(true);
                 } else {
                     getListView().setEnabled(true);
                 }
                 
-                mSymbol.setVisibility(View.INVISIBLE);
                 TestingTransactions.check(TTChecks.ANSWER_SELECTED);
+                mSymbol.setVisibility(View.INVISIBLE);
             }
         }, SYMBOL_DISPLAY_TIME);
         
@@ -108,7 +106,7 @@ public class ShowQuestionsActivity extends ListActivity {
      */
     public void nextQuestion(View view) {
         getListView().setEnabled(true);
-        mNextButton.setClickable(false);
+        mNextButton.setEnabled(false);
         showNewQuestion();
     }
     
@@ -154,7 +152,7 @@ public class ShowQuestionsActivity extends ListActivity {
     private void showErrorDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         
-        // Either try to get a new question
+        // The user can either try to get a new question
         dialogBuilder.setPositiveButton(R.string.text_retry,
             new DialogInterface.OnClickListener() {
                 @Override
@@ -173,7 +171,7 @@ public class ShowQuestionsActivity extends ListActivity {
             });
         
         dialogBuilder.setCancelable(false);
-        dialogBuilder.setMessage(R.string.dialog_showquestions_error_message);
+        dialogBuilder.setMessage(R.string.dialog_showquestions_error);
         dialogBuilder.show();
     }
 
