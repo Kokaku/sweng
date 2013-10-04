@@ -1,4 +1,4 @@
-package epfl.sweng;
+package epfl.sweng.questions;
 
 import java.util.Set;
 import java.util.TreeSet;

@@ -1,4 +1,4 @@
-package epfl.sweng;
+package epfl.sweng.servercomm;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -9,7 +9,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 
 import android.os.AsyncTask;
-import epfl.sweng.servercomm.SwengHttpClientFactory;
 
 /**
  * An AsyncTask that post the question given in parameter as String to server.

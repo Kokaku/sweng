@@ -1,9 +1,12 @@
-package epfl.sweng;
+package epfl.sweng.servercomm;
 
 import java.util.concurrent.ExecutionException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import epfl.sweng.questions.QuizQuestion;
+import epfl.sweng.utils.JSONUtilities;
 
 /**
  * This class allow communication with the question server
@@ -27,7 +30,7 @@ public abstract class ServerCommunication {
     public static boolean send(QuizQuestion question) {
         try {
             return new PostQuestionTask().execute(
-                    JSONParser.getJSONString(question)).get();
+                    JSONUtilities.getJSONString(question)).get();
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {
         }
@@ -48,9 +51,9 @@ public abstract class ServerCommunication {
         	}
         	return new QuizQuestion(
         			json.getString("question"),
-        			JSONParser.parseAnswers(json),
+        			JSONUtilities.parseAnswers(json),
         			json.getInt("solutionIndex"),
-        			JSONParser.parseTags(json));
+        			JSONUtilities.parseTags(json));
         	
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {

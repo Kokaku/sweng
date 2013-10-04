@@ -1,7 +1,7 @@
 /**
  * 
  */
-package epfl.sweng;
+package epfl.sweng.utils;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -11,11 +11,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import epfl.sweng.questions.QuizQuestion;
+
 /**
  * @author ValentinRutz
  *
  */
-public class JSONParser {
+public class JSONUtilities {
 
     public static String getJSONString(QuizQuestion question) {
         return "{"

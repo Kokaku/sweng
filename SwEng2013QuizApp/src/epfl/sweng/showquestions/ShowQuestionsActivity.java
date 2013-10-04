@@ -11,9 +11,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import epfl.sweng.QuizQuestion;
 import epfl.sweng.R;
-import epfl.sweng.ServerCommunication;
+import epfl.sweng.questions.QuizQuestion;
+import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.testing.TestingTransactions;
 import epfl.sweng.testing.TestingTransactions.TTChecks;
 
