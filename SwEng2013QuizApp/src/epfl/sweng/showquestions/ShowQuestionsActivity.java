@@ -1,29 +1,40 @@
 package epfl.sweng.showquestions;
 
+import java.util.Set;
+
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import epfl.sweng.QuizQuestion;
 import epfl.sweng.R;
+import epfl.sweng.ServerCommunication;
 
 /**
  * This activity displays questions and allows the user to answer them.
- * The user has to chose the right answer to be able to receive a new question.
+ * The user has to chose the right answer to be able to get a new question.
  * 
  * @author lseguy
  * 
  */
 
 public class ShowQuestionsActivity extends ListActivity {
+    
     /**
      *  How long the "correct" or "incorrect" symbol will be displayed (in
      *  milliseconds)
      */
-    private static final int SYMBOL_DISPLAY_TIME = 1500;
+    private static final int SYMBOL_DISPLAY_TIME = 1000;
+    
+    private QuizQuestion mCurrentQuestion;
+    private TextView mQuestionText;
+    private Button mNextButton;
+    private TextView mSymbol;
     
     /**
      * Initialization of the activity.
@@ -32,17 +43,28 @@ public class ShowQuestionsActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_questions);
-
+        
+        mQuestionText = (TextView) findViewById(R.id.text_question);
+        mNextButton = (Button) findViewById(R.id.button_next);
+        mSymbol = (TextView) findViewById(R.id.text_check_answer);
         
         /*
-         * Initialize tags list with static data.
+         * Enable scrolling for the question
          */
-        String[] tags = {"Despicable Me", "Unicorn", "Fluffiness", "Some tag",
-            "Rainbow", "Blah"};
+        mQuestionText.setMovementMethod(new ScrollingMovementMethod());
+        
+        showNewQuestion();
+    }
+    
+    private void showNewQuestion() {
+        mCurrentQuestion = ServerCommunication.getRandomQuestion();
+        
+        Set<String> tags = mCurrentQuestion.getTags();
+        String[] tagsArray = tags.toArray(new String[tags.size()]);
 
         // Using an adapter to fill the LinearLayout with data from the array
         ArrayAdapter<String> adapterTags = new ArrayAdapter<String>(this,
-            R.layout.list_of_tags, tags);
+            R.layout.list_of_tags, tagsArray);
 
         LinearLayout tagsLayout = (LinearLayout) findViewById(R.id.list_tags);
         
@@ -50,23 +72,12 @@ public class ShowQuestionsActivity extends ListActivity {
             View item = adapterTags.getView(i, null, tagsLayout);
             tagsLayout.addView(item);
         }
-
         
-        /*
-         * Enable scrolling for the question
-         */
-        TextView question = (TextView) findViewById(R.id.text_question);
-        question.setMovementMethod(new ScrollingMovementMethod());
+        TextView questionText = (TextView) findViewById(R.id.text_question);
+        questionText.setText(mCurrentQuestion.getQuestion());
         
-        
-        /*
-         * Initialize answers list with static data.
-         */
-        String[] answers = {"Banana", "Potato", "It's so fluffy!", "Gnaaaah",
-            "Foo", "Bar", "Blah", "Pouet"};
-
         ArrayAdapter<String> adapterAnswers = new ArrayAdapter<String>(this,
-            android.R.layout.simple_list_item_1, answers);
+            android.R.layout.simple_list_item_1, mCurrentQuestion.getAnswers());
         
         setListAdapter(adapterAnswers);
     }
@@ -81,18 +92,44 @@ public class ShowQuestionsActivity extends ListActivity {
     public void onListItemClick(ListView list, View view,
         int position, long id) {
         
-        final TextView symbol = (TextView) findViewById(R.id.text_check_answer);
+        final boolean correctAnswer = mCurrentQuestion.isSolutionCorrect(position);
         
-        symbol.setVisibility(View.VISIBLE);
+        if (correctAnswer) {
+            mSymbol.setText(R.string.correct_answer);
+            mSymbol.setTextColor(getResources().getColor(R.color.right_answer));
+        } else {
+            mSymbol.setText(R.string.wrong_answer);
+            mSymbol.setTextColor(getResources().getColor(R.color.wrong_answer));
+        }
+        
         getListView().setEnabled(false);
+        mSymbol.setVisibility(View.VISIBLE);
         
-        symbol.postDelayed(new Runnable() {
+        mSymbol.postDelayed(new Runnable() {
             public void run() {
-                symbol.setVisibility(View.INVISIBLE);
-                getListView().setEnabled(true);
+                if (correctAnswer) {
+                    mNextButton.setClickable(true);
+                }
+                else {
+                    getListView().setEnabled(true);
+                }
+                
+                mSymbol.setVisibility(View.INVISIBLE);
             }
         }, SYMBOL_DISPLAY_TIME);
         
+    }
+    
+    /**
+     * Called when clicking on the button "Next question"
+     * Sets views back to their normal state then gets a new question.
+     * 
+     * @param view the button being clicked
+     */
+    public void nextQuestion(View view) {
+        getListView().setEnabled(true);
+        mNextButton.setClickable(false);
+        showNewQuestion();
     }
 
 }

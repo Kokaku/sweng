@@ -17,7 +17,6 @@
 	        android:layout_height="wrap_content"
 	        android:maxLines="@integer/question_max_lines"
 	        android:scrollbars="vertical"
-	        android:text="@string/question"
 	        android:textSize="17sp" />
 	
 	    <HorizontalScrollView
@@ -46,12 +45,14 @@
 	        android:requiresFadingEdge="vertical" />
 	
 	    <Button
+	        android:id="@+id/button_next"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_gravity="right"
 	        android:layout_marginTop="10dp"
 	        android:text="@string/button_next"
-	        android:clickable="false" />
+	        android:clickable="false"
+	        android:onClick="nextQuestion" />
 	
 	</LinearLayout>
 	
@@ -59,13 +60,10 @@
         android:id="@+id/text_check_answer"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:text="@string/wrong_answer"
         android:gravity="center"
-        android:textSize="200dp"
-        android:textColor="#c72a00"
-        
+        android:textSize="200dp"     
         android:background="#B9bfcada"
         android:visibility="invisible"
-        /><!-- android:textColor="#669900" -->
+        />
     
 </merge>
