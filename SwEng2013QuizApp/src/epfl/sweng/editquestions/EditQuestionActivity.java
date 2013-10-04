@@ -26,7 +26,7 @@ public class EditQuestionActivity extends ListActivity {
 		setContentView(R.layout.activity_edit_question);
 
 		String[] tags = {};
-		String[] answers = { "", "","","","","","","" };
+		String[] answers = { "Bonjour", "Coucou","Saluuuuut","","","","Prout","" };
 
 		//View view = adapterAnswers.getView(1, null, null);
 

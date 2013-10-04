@@ -31,7 +31,12 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 		Button buttonRemoveAnswer = (Button) rowView.findViewById(R.id.button_remove_answer);
 		EditText editAnswer = (EditText) rowView.findViewById(R.id.edit_answer);
 		
-		editAnswer.setHint(R.string.type_in_answer);
+		if (answers[position].equals("")) {
+	        editAnswer.setHint(R.string.type_in_answer);
+		} else {
+		    editAnswer.setText(answers[position]);
+		}
+		
 		buttonCheckAnswer.setText(R.string.wrong_answer);
 		buttonRemoveAnswer.setText(R.string.remove_answer);
 		
