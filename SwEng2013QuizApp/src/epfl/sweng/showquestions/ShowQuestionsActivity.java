@@ -22,6 +22,7 @@ import epfl.sweng.testing.TestingTransactions.TTChecks;
 /**
  * This activity displays questions and allows the user to answer them.
  * The user has to chose the right answer to be able to get a new question.
+ * Displays an error dialog if unable to retrieve a question from the server.
  * 
  * @author lseguy
  * 
@@ -132,10 +133,10 @@ public class ShowQuestionsActivity extends ListActivity {
                 View item = adapterTags.getView(i, null, mTagsList);
                 mTagsList.addView(item);
             }
+
+            mQuestionText.setText(mCurrentQuestion.getQuestion());
             
-            TextView questionText = (TextView) findViewById(R.id.text_question);
-            questionText.setText(mCurrentQuestion.getQuestion());
-            
+            // Sets the answer list
             ArrayAdapter<String> adapterAnswers = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, mCurrentQuestion.getAnswers());
             
