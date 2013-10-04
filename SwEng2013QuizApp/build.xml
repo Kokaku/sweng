@@ -88,5 +88,34 @@
     -->
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
+    
+    <target name="reports" depends="debug" description="generates javadoc and also UML Diagram" >
+
+    <property name="reports.dir" value="reports" />
+
+    <delete dir="${reports.dir}" />
+
+    <mkdir dir="${reports.dir}" />
+
+    <javadoc classpath="${sdk.dir}/platforms/android-18/android.jar" destdir="${reports.dir}" packagenames="epfl.sweng.*" sourcepath="src:gen" >
+      <doclet name="org.umlgraph.doclet.UmlGraphDoc" path="reportslib/UMLGraph.jar" >
+          <param name="-all" />
+          <param name="-inferdep" />
+          <param name="-inferdepinpackage" />
+          <param name="-inferdepvis" />
+          <param name="-useimports" />
+      </doclet>
+    </javadoc>
+
+    <apply
+        dest="${reports.dir}" executable="dot" parallel="false" >
+        <arg value="-Tpng" />
+        <arg value="-o" />
+        <targetfile />
+        <srcfile />
+        <fileset dir="${reports.dir}" includes="*.dot" />
+        <mapper from="*.dot" to="*.png" type="glob" />
+    </apply>
+</target>
 
 </project>
