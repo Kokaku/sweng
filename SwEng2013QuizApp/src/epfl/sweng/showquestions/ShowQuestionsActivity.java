@@ -172,6 +172,7 @@ public class ShowQuestionsActivity extends ListActivity {
                 }
             });
         
+        dialogBuilder.setCancelable(false);
         dialogBuilder.setMessage(R.string.dialog_showquestions_error_message);
         dialogBuilder.show();
     }
