@@ -10,7 +10,8 @@
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:onClick="checkRightAnswer"
-        android:text="@string/wrong_answer" />
+        android:text="@string/wrong_answer"
+        android:focusable="true" />
 
     <EditText
         android:id="@+id/edit_answer"
@@ -26,7 +27,7 @@
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="40dp"
         android:layout_height="wrap_content"
-        android:onClick="onClickRemove"
-        android:text="@string/remove_answer" />
+        android:text="@string/remove_answer"
+        android:focusable="true" />
 
 </LinearLayout>

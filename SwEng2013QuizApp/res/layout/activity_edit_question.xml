@@ -36,7 +36,7 @@
         android:layout_weight="1"
         android:overScrollMode="never"
         android:requiresFadingEdge="vertical"
-        android:descendantFocusability="afterDescendants" />
+        />
 
     <!-- Don't modify ListView's id. It's mandatory for ListActivity -->
 
@@ -56,10 +56,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/button_clear_answer" 
+            android:onClick="onClickClear"
              style="?android:attr/buttonBarButtonStyle" />
 
         <Button
             android:layout_width="0dip"
+            android:id="@+id/button_submit"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:clickable="false"

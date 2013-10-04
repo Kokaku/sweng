@@ -6,6 +6,8 @@ import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import epfl.sweng.R;
 
 /**
@@ -21,7 +23,13 @@ public class EditQuestionActivity extends ListActivity {
 
 	private AnswersListAdapter adapterAnswers;
 	private ArrayList<String> answers;
-	//private String[] tags;
+	private Button buttonSubmit;
+	private EditText questionText;
+	private EditText tagsText;
+	
+	
+
+	// private String[] tags;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +38,10 @@ public class EditQuestionActivity extends ListActivity {
 
 		answers = new ArrayList<String>();
 		answers.add("");
-
+		
+		buttonSubmit = (Button) findViewById(R.id.button_submit);
+		questionText = (EditText) findViewById(R.id.new_text_question);
+		tagsText = (EditText) findViewById(R.id.new_tags);
 		adapterAnswers = new AnswersListAdapter(this, answers);
 		setListAdapter(adapterAnswers);
 		// this.getListView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
@@ -45,7 +56,7 @@ public class EditQuestionActivity extends ListActivity {
 		return true;
 	}
 
-	public boolean onClickSubmit() {
+	public boolean onClickSubmit(View view) {
 		String answerString = adapterAnswers.toString(); // To test
 		System.out.println("answerString: " + answerString);
 		return true;
@@ -56,9 +67,14 @@ public class EditQuestionActivity extends ListActivity {
 		adapterAnswers.notifyDataSetChanged();
 		return true;
 	}
-	public boolean onClickRemove(View view) {
-		
+	
+	public boolean onClickClear(View view) {
+		adapterAnswers.clearAnswers();
+		buttonSubmit.setClickable(false);
 		return true;
 	}
+	
+	
+	
 
 }

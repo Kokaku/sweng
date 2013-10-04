@@ -26,7 +26,8 @@
         </activity>
         <activity
             android:name="epfl.sweng.editquestions.EditQuestionActivity"
-            android:label="@string/title_activity_edit_question" >
+            android:label="@string/title_activity_edit_question"
+            android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
             android:name="epfl.sweng.showquestions.ShowQuestionsActivity"
