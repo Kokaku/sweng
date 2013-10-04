@@ -1,6 +1,3 @@
-/**
- * 
- */
 package epfl.sweng;
 
 import java.io.IOException;
@@ -15,6 +12,8 @@ import android.os.AsyncTask;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 
 /**
+ * An AsyncTask that post the question given in parameter as String to server.
+ * And return true if correctly sent.
  * @author ValentinRutz
  * 
  */
