@@ -64,6 +64,3 @@ public abstract class ServerCommunication {
     }
     
 }
-
-
-

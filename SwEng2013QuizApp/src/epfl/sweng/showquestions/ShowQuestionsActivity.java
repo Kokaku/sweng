@@ -2,7 +2,9 @@ package epfl.sweng.showquestions;
 
 import java.util.Set;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
@@ -60,35 +62,6 @@ public class ShowQuestionsActivity extends ListActivity {
         showNewQuestion();
     }
     
-    private void showNewQuestion() {
-        mCurrentQuestion = ServerCommunication.getRandomQuestion();
-        
-        Set<String> tags = mCurrentQuestion.getTags();
-        String[] tagsArray = tags.toArray(new String[tags.size()]);
-
-        // Using an adapter to fill the LinearLayout with data from the array
-        ArrayAdapter<String> adapterTags = new ArrayAdapter<String>(this,
-            R.layout.list_of_tags, tagsArray);
-
-        mTagsList.removeAllViews();
-        
-        for (int i = 0; i < adapterTags.getCount(); ++i) {
-            View item = adapterTags.getView(i, null, mTagsList);
-            mTagsList.addView(item);
-        }
-        
-        TextView questionText = (TextView) findViewById(R.id.text_question);
-        questionText.setText(mCurrentQuestion.getQuestion());
-        
-        ArrayAdapter<String> adapterAnswers = new ArrayAdapter<String>(this,
-            android.R.layout.simple_list_item_1, mCurrentQuestion.getAnswers());
-        
-        setListAdapter(adapterAnswers);
-        
-        TestingTransactions.check(TTChecks.QUESTION_SHOWN);
-        
-    }
-    
     /**
      * Called when an item is clicked in the answer list.
      * Displays a check mark and enable the "next" button if the answer is
@@ -137,6 +110,70 @@ public class ShowQuestionsActivity extends ListActivity {
         getListView().setEnabled(true);
         mNextButton.setClickable(false);
         showNewQuestion();
+    }
+    
+    /**
+     * Retrieve a new question and set views so that the question is displayed.
+     */
+    private void showNewQuestion() {
+        mCurrentQuestion = ServerCommunication.getRandomQuestion();
+        
+        if (mCurrentQuestion == null) {
+            showErrorDialog();
+        } else {
+            Set<String> tags = mCurrentQuestion.getTags();
+            String[] tagsArray = tags.toArray(new String[tags.size()]);
+    
+            // Using an adapter to fill the LinearLayout with data from the array
+            ArrayAdapter<String> adapterTags = new ArrayAdapter<String>(this,
+                R.layout.list_of_tags, tagsArray);
+    
+            mTagsList.removeAllViews();
+            
+            for (int i = 0; i < adapterTags.getCount(); ++i) {
+                View item = adapterTags.getView(i, null, mTagsList);
+                mTagsList.addView(item);
+            }
+            
+            TextView questionText = (TextView) findViewById(R.id.text_question);
+            questionText.setText(mCurrentQuestion.getQuestion());
+            
+            ArrayAdapter<String> adapterAnswers = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, mCurrentQuestion.getAnswers());
+            
+            setListAdapter(adapterAnswers);
+            
+            TestingTransactions.check(TTChecks.QUESTION_SHOWN);
+        }
+        
+    }
+    
+    /**
+     * Displays an error dialog when the question can't be retrieved.
+     */
+    private void showErrorDialog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        
+        // Either try to get a new question
+        dialogBuilder.setPositiveButton(R.string.text_retry,
+            new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    showNewQuestion();
+                }
+            });
+        
+        // Or close the activity
+        dialogBuilder.setNegativeButton(R.string.text_abort,
+            new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    finish();
+                }
+            });
+        
+        dialogBuilder.setMessage(R.string.dialog_showquestions_error_message);
+        dialogBuilder.show();
     }
 
 }

@@ -20,7 +20,10 @@
     <!-- ShowQuestionsActivity -->
     <string name="title_activity_show_questions">Let\'s take a quiz!</string>
     <string name="button_next">Next question</string>
-
+    <string name="dialog_showquestions_error_message">Impossible to get a new question! Do you want to retry?</string>
+    <string name="text_retry">Retry</string>
+    <string name="text_abort">Abort</string>
+    
     <!-- Unicode characters -->
 	<string name="wrong_answer">\u2718</string>
 	<string name="correct_answer">\u2714</string>
