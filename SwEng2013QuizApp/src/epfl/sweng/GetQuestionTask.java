@@ -1,6 +1,3 @@
-/**
- * 
- */
 package epfl.sweng;
 
 import java.io.IOException;
@@ -15,6 +12,8 @@ import android.os.AsyncTask;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 
 /**
+ * An AsyncTask that fetch a question from server at address given in parameter.
+ * And return it in a JSON form. Return null if an error occurred.
  * @author kokaku
  * 
  */
