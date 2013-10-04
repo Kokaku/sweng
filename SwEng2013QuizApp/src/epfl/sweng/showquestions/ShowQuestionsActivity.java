@@ -14,6 +14,8 @@ import android.widget.TextView;
 import epfl.sweng.QuizQuestion;
 import epfl.sweng.R;
 import epfl.sweng.ServerCommunication;
+import epfl.sweng.testing.TestingTransactions;
+import epfl.sweng.testing.TestingTransactions.TTChecks;
 
 /**
  * This activity displays questions and allows the user to answer them.
@@ -33,6 +35,7 @@ public class ShowQuestionsActivity extends ListActivity {
     
     private QuizQuestion mCurrentQuestion;
     private TextView mQuestionText;
+    private LinearLayout mTagsList;
     private Button mNextButton;
     private TextView mSymbol;
     
@@ -47,6 +50,7 @@ public class ShowQuestionsActivity extends ListActivity {
         mQuestionText = (TextView) findViewById(R.id.text_question);
         mNextButton = (Button) findViewById(R.id.button_next);
         mSymbol = (TextView) findViewById(R.id.text_check_answer);
+        mTagsList = (LinearLayout) findViewById(R.id.list_tags);
         
         /*
          * Enable scrolling for the question
@@ -66,11 +70,11 @@ public class ShowQuestionsActivity extends ListActivity {
         ArrayAdapter<String> adapterTags = new ArrayAdapter<String>(this,
             R.layout.list_of_tags, tagsArray);
 
-        LinearLayout tagsLayout = (LinearLayout) findViewById(R.id.list_tags);
+        mTagsList.removeAllViews();
         
         for (int i = 0; i < adapterTags.getCount(); ++i) {
-            View item = adapterTags.getView(i, null, tagsLayout);
-            tagsLayout.addView(item);
+            View item = adapterTags.getView(i, null, mTagsList);
+            mTagsList.addView(item);
         }
         
         TextView questionText = (TextView) findViewById(R.id.text_question);
@@ -80,6 +84,9 @@ public class ShowQuestionsActivity extends ListActivity {
             android.R.layout.simple_list_item_1, mCurrentQuestion.getAnswers());
         
         setListAdapter(adapterAnswers);
+        
+        TestingTransactions.check(TTChecks.QUESTION_SHOWN);
+        
     }
     
     /**
@@ -109,12 +116,12 @@ public class ShowQuestionsActivity extends ListActivity {
             public void run() {
                 if (correctAnswer) {
                     mNextButton.setClickable(true);
-                }
-                else {
+                } else {
                     getListView().setEnabled(true);
                 }
                 
                 mSymbol.setVisibility(View.INVISIBLE);
+                TestingTransactions.check(TTChecks.ANSWER_SELECTED);
             }
         }, SYMBOL_DISPLAY_TIME);
         
