@@ -4,6 +4,6 @@
     <color name="tags">#03396c</color>
     <color name="right_answer">#669900</color>
     <color name="wrong_answer">#c72a00</color>
-    <color name="right_answer_list_item">#A0669900</color>
+    <color name="right_answer_list_item">#90669900</color>
     
 </resources>
