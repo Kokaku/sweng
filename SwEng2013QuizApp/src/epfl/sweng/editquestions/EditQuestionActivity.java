@@ -26,14 +26,13 @@ public class EditQuestionActivity extends ListActivity {
 		setContentView(R.layout.activity_edit_question);
 
 		String[] tags = {};
-		String[] answers = { "1", "prout", "pouf" };
+		String[] answers = { "", "","","","","","","","","","","","","","","","","","","","","","" };
 
-		View view = adapterAnswers.getView(1, null, null);
+		//View view = adapterAnswers.getView(1, null, null);
 
-		adapterAnswers = new ArrayAdapter<String>(this,
-				R.layout.view_list_answers, answers);
+		adapterAnswers = new AnswersListAdapter(this, answers);
 
-		// setListAdapter(adapterAnswers);
+		setListAdapter(adapterAnswers);
 
 	}
 

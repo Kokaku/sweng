@@ -55,11 +55,14 @@
             android:layout_height="wrap_content"
             android:text="@string/button_clear_answer" >
         </Button>
+
         <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:clickable="false"
             android:text="@string/button_submit" >
+
         </Button>
     </LinearLayout>
 
