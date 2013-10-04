@@ -72,7 +72,7 @@ public class JSONUtilities {
     }
     
     /**
-     * Parse answers from {@link JSONObject} into a {@link String[]}
+     * Parse answers from {@link JSONObject} into a {@link String} array
      * 
      * @param json the object from which we parse the answers
      * @return String[] of the answers
