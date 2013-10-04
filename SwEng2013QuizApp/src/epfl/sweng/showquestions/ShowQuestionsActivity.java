@@ -76,6 +76,7 @@ public class ShowQuestionsActivity extends ListActivity {
         if (correctAnswer) {
             mSymbol.setText(R.string.correct_answer);
             mSymbol.setTextColor(getResources().getColor(R.color.right_answer));
+            view.setBackgroundColor(getResources().getColor(R.color.right_answer_list_item));
         } else {
             mSymbol.setText(R.string.wrong_answer);
             mSymbol.setTextColor(getResources().getColor(R.color.wrong_answer));
@@ -105,7 +106,7 @@ public class ShowQuestionsActivity extends ListActivity {
      * 
      * @param view the button being clicked
      */
-    public void nextQuestion(View view) {
+    public void nextButtonClicked(View view) {
         getListView().setEnabled(true);
         mNextButton.setEnabled(false);
         showNewQuestion();
