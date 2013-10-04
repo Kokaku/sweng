@@ -19,14 +19,14 @@
         android:layout_weight="1"
         android:hint="@string/type_in_answer"
         android:maxLines="1"
-        android:scrollbars="vertical" />
+        android:scrollbars="vertical"/>
 
     <Button
         android:id="@+id/button_remove_answer"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="40dp"
         android:layout_height="wrap_content"
-        android:onClick="removeAnswer"
+        android:onClick="onClickRemove"
         android:text="@string/remove_answer" />
 
 </LinearLayout>

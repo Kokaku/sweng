@@ -1,10 +1,11 @@
 package epfl.sweng.editquestions;
 
+import java.util.ArrayList;
+
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import epfl.sweng.R;
 
 /**
@@ -18,21 +19,21 @@ import epfl.sweng.R;
 
 public class EditQuestionActivity extends ListActivity {
 
-	private ArrayAdapter<String> adapterAnswers;
+	private AnswersListAdapter adapterAnswers;
+	private ArrayList<String> answers;
+	//private String[] tags;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_edit_question);
 
-		String[] tags = {};
-		String[] answers = { "Bonjour", "Coucou","Saluuuuut","","","","Prout","" };
-
-		//View view = adapterAnswers.getView(1, null, null);
+		answers = new ArrayList<String>();
+		answers.add("");
 
 		adapterAnswers = new AnswersListAdapter(this, answers);
-
 		setListAdapter(adapterAnswers);
+		// this.getListView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
 	}
 
@@ -50,10 +51,14 @@ public class EditQuestionActivity extends ListActivity {
 		return true;
 	}
 
-	public boolean onClickAdd() {
-		// ListView listView = (ListView) findViewById(R.id.list_answers);
-		// LinearLayout newLine = new LinearLayout(listView.getContext());
-		// listView.addView(child, listView.getCount(), params);
+	public boolean onClickAdd(View view) {
+		answers.add("");
+		adapterAnswers.notifyDataSetChanged();
 		return true;
 	}
+	public boolean onClickRemove(View view) {
+		
+		return true;
+	}
+
 }

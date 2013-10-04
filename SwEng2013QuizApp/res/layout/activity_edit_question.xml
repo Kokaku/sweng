@@ -8,7 +8,9 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".EditQuestionActivity" >
+    tools:context=".EditQuestionActivity" 
+    android:descendantFocusability="afterDescendants"
+    >
 
     <EditText
         android:id="@+id/new_text_question"
@@ -33,30 +35,36 @@
         android:layout_marginTop="10dp"
         android:layout_weight="1"
         android:overScrollMode="never"
-        android:requiresFadingEdge="vertical" />
+        android:requiresFadingEdge="vertical"
+        android:descendantFocusability="afterDescendants" />
 
     <!-- Don't modify ListView's id. It's mandatory for ListActivity -->
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        style="?android:attr/buttonBarStyle" >
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/button_add_answer" />
+            android:text="@string/button_add_answer"
+            style="?android:attr/buttonBarButtonStyle"
+            android:onClick="onClickAdd" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/button_clear_answer" />
+            android:text="@string/button_clear_answer" 
+             style="?android:attr/buttonBarButtonStyle" />
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:clickable="false"
-            android:text="@string/button_submit" />
+            android:text="@string/button_submit" 
+            style="?android:attr/buttonBarButtonStyle"/>
     </LinearLayout>
 
 </LinearLayout>
