@@ -14,13 +14,16 @@ import epfl.sweng.utils.JSONUtilities;
  * @author kokaku
  * 
  */
-public abstract class ServerCommunication {
+public final class ServerCommunication {
 
     /**
      * SERVER_URL is the server address
      */
     public static final String SERVER_URL = 
     		"https://sweng-quiz.appspot.com/quizquestions/";
+    
+    private ServerCommunication() {
+    }
     
     /**
      * Send the question in parameter to the server
