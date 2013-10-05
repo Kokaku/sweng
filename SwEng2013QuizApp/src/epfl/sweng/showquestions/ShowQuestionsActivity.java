@@ -85,7 +85,7 @@ public class ShowQuestionsActivity extends ListActivity {
             mSymbol.setText(R.string.wrong_answer);
             mSymbol.setTextColor(getResources().getColor(R.color.wrong_answer));
             
-            //mVibrator.vibrate(VIBRATOR_DURATION);
+            mVibrator.vibrate(VIBRATOR_DURATION);
         }
         
         getListView().setEnabled(false);

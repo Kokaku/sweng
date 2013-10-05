@@ -11,8 +11,8 @@
     
     <!-- EditQuestionActivity -->
     <string name="title_activity_edit_question">EditQuestionActivity</string>
-    <string name="type_in_question">Type in the question’s text body.</string>
-    <string name="type_in_tags">Type in the question’s tags</string>
+    <string name="type_in_question">Type in the question's text body.</string>
+    <string name="type_in_tags">Type in the question's tags</string>
     <string name="type_in_answer">Type in the answer.</string>
     <string name="button_submit">Submit</string>
     <string name="button_clear_answer">Clear</string>
