@@ -93,8 +93,7 @@ public class EditQuestionActivity extends ListActivity {
 	}
 
 	public boolean onClickSubmit(View view) {
-		System.out.println("COucoou");
-		questionText = questionEditText.getText().toString();
+		questionText = removeExtraSpaces(questionEditText.getText().toString());
 		extractFinalAnswers(answers, adapterAnswers.getCorrectAnswerPosition());
 		extractTags();
 		
@@ -129,7 +128,7 @@ public class EditQuestionActivity extends ListActivity {
 		int validAnswersCount = 0;
 		for (int i = 0; i < answers.size(); i++) {
 			if (!answers.get(i).replaceAll("\\s+", "").equals("")) {
-				finalAnswers[validAnswersCount] = answers.get(i);
+				finalAnswers[validAnswersCount] = removeExtraSpaces(answers.get(i));
 				System.out.println(answers.get(i));
 				if (i == relativeCorrectAnswerPosition) { 	
 					correctAnswerPosition = validAnswersCount;
@@ -137,18 +136,33 @@ public class EditQuestionActivity extends ListActivity {
 				validAnswersCount++;
 			}
 		}
-		System.out.println("final answer" + finalAnswers.toString());
-		System.out.println("correct postiton" + correctAnswerPosition);
+		printFinalAnswers();
+		System.out.println("correct postiton " + correctAnswerPosition);
 	}
 
-	private void extractTags() {
+	/**
+     * 
+     */
+    private void printFinalAnswers() {
+        for (int i = 0; i < finalAnswers.length; ++i) {
+            System.out.println("Array index " + i + ": " + finalAnswers[i]);
+        }
+    }
+
+    private void extractTags() {
 		tags = new TreeSet<String>();
-		String[] tagsArray = tagsText.getText().toString().split("\\W");
+		String[] tagsArray = removeExtraSpaces(tagsText.getText().toString()).split("\\W+");
 		for (String tag : tagsArray) {
 			System.out.println(tag);
-			tags.add(tag);
+			tags.add(removeExtraSpaces(tag));
 		}
 		
 		System.out.println(tags.toString());
+	}
+	
+	
+	// removes all spaces at the begining and the end of the string
+	private String removeExtraSpaces(String charSequence) {
+	    return charSequence.trim();
 	}
 }
