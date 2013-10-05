@@ -20,7 +20,7 @@ import epfl.sweng.R;
  */
 public class AnswersListAdapter extends ArrayAdapter<String> {
     private final Context context;
-    private final ArrayList<String> answers;
+    private final ArrayList<String> answersArrayList;
     private AnswersListAdapter adapter = this;
     private int correctAnswerPosition;
     private boolean questionValidity;
@@ -31,7 +31,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
         super(contextArg, epfl.sweng.R.layout.rowlayout_view_list_answers,
                 answersArg);
         this.context = contextArg;
-        this.answers = answersArg;
+        this.answersArrayList = answersArg;
         this.correctAnswerPosition = -1;
         this.questionValidity = false;
         this.submitButton = submit;
@@ -45,42 +45,45 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
         View rowView = inflater.inflate(
                 epfl.sweng.R.layout.rowlayout_view_list_answers, parent, false);
 
-        Button buttonCheckAnswer = (Button) rowView
+        Button checkAnswerButton = (Button) rowView
                 .findViewById(R.id.button_check_answer);
 
-        Button buttonRemoveAnswer = (Button) rowView
+        Button removeAnswerButton = (Button) rowView
                 .findViewById(R.id.button_remove_answer);
 
-        EditText editAnswer = (EditText) rowView.findViewById(R.id.edit_answer);
+        EditText answerEditText = (EditText) rowView.findViewById(R.id.edit_answer);
+        
+        removeAnswerButton.setText(R.string.remove_answer);
 
-        if (answers.get(position).equals("")) {
-            editAnswer.setHint(R.string.type_in_answer);
+        if (answersArrayList.get(position).equals("")) {
+            answerEditText.setHint(R.string.type_in_answer);
         } else {
-            editAnswer.setText(answers.get(position));
+            answerEditText.setText(answersArrayList.get(position));
         }
 
         if (correctAnswerPosition == position) {
-            buttonCheckAnswer.setText(R.string.correct_answer);
+            checkAnswerButton.setText(R.string.correct_answer);
         } else {
-            buttonCheckAnswer.setText(R.string.wrong_answer);
+            checkAnswerButton.setText(R.string.wrong_answer);
         }
+        
+        checkAnswerButton.setOnClickListener(new CheckAnswerButtonListener(
+                position));
+        
+        answerEditText.addTextChangedListener(new AnswerEditTextListener(position));
 
-        buttonRemoveAnswer.setText(R.string.remove_answer);
-        editAnswer.addTextChangedListener(new EditAnswerListener(position));
-
-        buttonRemoveAnswer.setOnClickListener(new ButtonRemoveAnswerListener(
+        removeAnswerButton.setOnClickListener(new RemoveAnswerButtonListener(
                 position));
 
-        buttonCheckAnswer.setOnClickListener(new ButtonCheckAnswerListener(
-                position));
+        
 
         return rowView;
     }
 
     public void clearAnswers() {
         correctAnswerPosition = -1;
-        answers.clear();
-        answers.add("");
+        answersArrayList.clear();
+        answersArrayList.add("");
         notifyDataSetChanged();
     }
 
@@ -90,7 +93,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 
     public int getValidAnswersCount() {
         int validAnswersNumber = 0;
-        for (String answer : answers) {
+        for (String answer : answersArrayList) {
             if (!answer.replaceAll("\\s+", "").equals("")) {
                 validAnswersNumber++;
             }
@@ -106,7 +109,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
     public void updateSubmitButton() {
         if (getValidAnswersCount() >= 2 && correctAnswerPosition != -1
                 && questionValidity == true
-                && !answers.get(correctAnswerPosition).equals("")) {
+                && !answersArrayList.get(correctAnswerPosition).equals("")) {
             submitButton.setEnabled(true);
         } else {
             submitButton.setEnabled(false);
@@ -114,19 +117,19 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
     }
 
     /**
-     * Listener for editAnswer EditText field
+     * Listener for answerEditText EditText field
      * 
      */
-    private class EditAnswerListener implements TextWatcher {
+    private class AnswerEditTextListener implements TextWatcher {
         private int editTextPosition;
 
-        public EditAnswerListener(int position) {
+        public AnswerEditTextListener(int position) {
             this.editTextPosition = position;
         }
 
         @Override
         public void afterTextChanged(Editable newText) {
-            answers.set(editTextPosition, newText.toString());
+            answersArrayList.set(editTextPosition, newText.toString());
             updateSubmitButton();
         }
 
@@ -143,19 +146,19 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
     }
 
     /**
-     * Listener for buttonRemoveAnswer Button
+     * Listener for removeAnswerButton Button
      * 
      */
-    private class ButtonRemoveAnswerListener implements View.OnClickListener {
+    private class RemoveAnswerButtonListener implements View.OnClickListener {
         private int buttonPosition;
 
-        public ButtonRemoveAnswerListener(int position) {
+        public RemoveAnswerButtonListener(int position) {
             this.buttonPosition = position;
         }
 
         @Override
         public void onClick(View v) {
-            answers.remove(buttonPosition);
+            answersArrayList.remove(buttonPosition);
             if (buttonPosition == correctAnswerPosition) {
                 correctAnswerPosition = -1;
             } else if (buttonPosition < correctAnswerPosition) {
@@ -167,13 +170,13 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
     }
 
     /**
-     * Listener for buttonCheckAnswer Button
+     * Listener for checkAnswerButton Button
      * 
      */
-    private class ButtonCheckAnswerListener implements View.OnClickListener {
+    private class CheckAnswerButtonListener implements View.OnClickListener {
         private int buttonPosition;
 
-        public ButtonCheckAnswerListener(int position) {
+        public CheckAnswerButtonListener(int position) {
             this.buttonPosition = position;
         }
 

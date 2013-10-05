@@ -27,14 +27,14 @@ import epfl.sweng.servercomm.ServerCommunication;
 
 public class EditQuestionActivity extends ListActivity {
 
-    private AnswersListAdapter adapterAnswers;
-    private ArrayList<String> answers;
-    private Button buttonSubmit;
     private EditText questionEditText;
-    private EditText tagsText;
+    private EditText tagsEditText;
+    private AnswersListAdapter answersAdapter;
+    private Button submitButton;
 
     private String questionText;
-    private Set<String> tags;
+    private Set<String> tagsSet;
+    private ArrayList<String> answersArrayList;
     private int correctAnswerPosition;
     private String[] finalAnswers;
 
@@ -43,15 +43,16 @@ public class EditQuestionActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_question);
 
-        answers = new ArrayList<String>();
-        answers.add("");
+        answersArrayList = new ArrayList<String>();
+        answersArrayList.add("");
 
-        buttonSubmit = (Button) findViewById(R.id.button_submit);
         questionEditText = (EditText) findViewById(R.id.new_text_question);
-        tagsText = (EditText) findViewById(R.id.new_tags);
-        adapterAnswers = new AnswersListAdapter(this, answers, buttonSubmit);
+        tagsEditText = (EditText) findViewById(R.id.new_tags);
+        submitButton = (Button) findViewById(R.id.button_submit);
+        answersAdapter = new AnswersListAdapter(this, answersArrayList,
+                submitButton);
 
-        setListAdapter(adapterAnswers);
+        setListAdapter(answersAdapter);
 
         System.out.println(questionEditText);
         questionEditText.addTextChangedListener(new QuestionEditTextListener());
@@ -68,70 +69,70 @@ public class EditQuestionActivity extends ListActivity {
 
     public boolean onClickSubmit(View view) {
         questionText = cleanStartOfString(questionEditText.getText().toString());
-        extractFinalAnswers(answers, adapterAnswers.getCorrectAnswerPosition());
+        extractFinalAnswers(answersArrayList,
+                answersAdapter.getCorrectAnswerPosition());
         extractTags();
-
+        
         QuizQuestion question = new QuizQuestion(questionText, finalAnswers,
-                correctAnswerPosition, tags);
+                correctAnswerPosition, tagsSet);
         ServerCommunication.send(question);
 
-        adapterAnswers.clearAnswers();
-        tags.clear();
-        tagsText.setText("");
-        questionText = "";
-        questionEditText.setText("");
-        buttonSubmit.setEnabled(false);
-        adapterAnswers.notifyDataSetChanged();
+        resetScreen();
         // faire un truc si faux
         return true;
     }
 
     public boolean onClickAdd(View view) {
-        answers.add("");
-        adapterAnswers.notifyDataSetChanged();
+        answersArrayList.add("");
+        answersAdapter.notifyDataSetChanged();
         return true;
     }
 
     public boolean onClickClear(View view) {
-        adapterAnswers.clearAnswers();
-        buttonSubmit.setEnabled(false);
+        resetScreen();
         return true;
     }
 
     private void extractFinalAnswers(ArrayList<String> argAnswers,
             int relativeCorrectAnswerPosition) {
-        int size = adapterAnswers.getValidAnswersCount();
+        int size = answersAdapter.getValidAnswersCount();
         finalAnswers = new String[size];
         int validAnswersCount = 0;
-        for (int i = 0; i < answers.size(); i++) {
-            if (!answers.get(i).replaceAll("\\s+", "").equals("")) {
-                finalAnswers[validAnswersCount] = cleanStartOfString(answers
+        for (int i = 0; i < answersArrayList.size(); i++) {
+            if (!answersArrayList.get(i).replaceAll("\\s+", "").equals("")) {
+                finalAnswers[validAnswersCount] = cleanStartOfString(answersArrayList
                         .get(i));
-                System.out.println(answers.get(i));
                 if (i == relativeCorrectAnswerPosition) {
                     correctAnswerPosition = validAnswersCount;
                 }
                 validAnswersCount++;
             }
         }
-        System.out.println("correct postiton " + correctAnswerPosition);
     }
 
     private void extractTags() {
-        tags = new TreeSet<String>();
-        String[] tagsArray = cleanStartOfString(tagsText.getText().toString())
-                .split("\\W+");
+        tagsSet = new TreeSet<String>();
+        String[] tagsArray = cleanStartOfString(
+                tagsEditText.getText().toString()).split("\\W+");
         for (String tag : tagsArray) {
             System.out.println(tag);
-            tags.add(tag);
+            tagsSet.add(tag);
         }
-
-        System.out.println(tags.toString());
     }
 
     // removes all non alphanumeric characters in the beginning of the string
     private String cleanStartOfString(String charSequence) {
-        return charSequence.replaceAll("^\\W+", "");
+        return charSequence.replaceAll("^\\W+", "").trim();
+    }
+
+    private void resetScreen() {
+        answersAdapter.clearAnswers();
+        tagsSet.clear();
+        tagsEditText.setText("");
+        questionText = "";
+        questionEditText.setText("");
+        submitButton.setEnabled(false);
+        answersAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -142,12 +143,11 @@ public class EditQuestionActivity extends ListActivity {
 
         @Override
         public void afterTextChanged(Editable newText) {
-
             if (!questionEditText.getText().toString().replaceAll("\\s+", "")
                     .equals("")) {
-                adapterAnswers.setQuestionValidity(true);
+                answersAdapter.setQuestionValidity(true);
             } else {
-                adapterAnswers.setQuestionValidity(false);
+                answersAdapter.setQuestionValidity(false);
             }
         }
 
