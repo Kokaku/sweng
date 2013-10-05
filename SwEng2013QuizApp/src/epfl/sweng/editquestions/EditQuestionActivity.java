@@ -27,145 +27,139 @@ import epfl.sweng.servercomm.ServerCommunication;
 
 public class EditQuestionActivity extends ListActivity {
 
-	private AnswersListAdapter adapterAnswers;
-	private ArrayList<String> answers;
-	private Button buttonSubmit;
-	private EditText questionEditText;
-	private EditText tagsText;
+    private AnswersListAdapter adapterAnswers;
+    private ArrayList<String> answers;
+    private Button buttonSubmit;
+    private EditText questionEditText;
+    private EditText tagsText;
 
-	private String questionText;
-	private Set<String> tags;
-	private int correctAnswerPosition;
-	private String[] finalAnswers;
+    private String questionText;
+    private Set<String> tags;
+    private int correctAnswerPosition;
+    private String[] finalAnswers;
 
-	// private String[] tags;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_edit_question);
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_edit_question);
+        answers = new ArrayList<String>();
+        answers.add("");
 
-		answers = new ArrayList<String>();
-		answers.add("");
+        buttonSubmit = (Button) findViewById(R.id.button_submit);
+        questionEditText = (EditText) findViewById(R.id.new_text_question);
+        tagsText = (EditText) findViewById(R.id.new_tags);
+        adapterAnswers = new AnswersListAdapter(this, answers, buttonSubmit);
 
-		buttonSubmit = (Button) findViewById(R.id.button_submit);
-		questionEditText = (EditText) findViewById(R.id.new_text_question);
-		tagsText = (EditText) findViewById(R.id.new_tags);
-		adapterAnswers = new AnswersListAdapter(this, answers, buttonSubmit);
+        setListAdapter(adapterAnswers);
 
-		setListAdapter(adapterAnswers);
+        System.out.println(questionEditText);
+        questionEditText.addTextChangedListener(new QuestionEditTextListener());
 
-		System.out.println(questionEditText);
-		questionEditText.addTextChangedListener(new TextWatcher() {
+    }
 
-			@Override
-			public void afterTextChanged(Editable newText) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.edit_question, menu);
 
-				if (!questionEditText.getText().toString()
-						.replaceAll("\\s+", "").equals("")) {
-					adapterAnswers.setQuestionValidity(true);
-				} else {
-					adapterAnswers.setQuestionValidity(false);
-				}
-			}
+        return true;
+    }
 
-			@Override
-			public void beforeTextChanged(CharSequence arg0, int arg1,
-					int arg2, int arg3) {
-			}
+    public boolean onClickSubmit(View view) {
+        questionText = cleanStartOfString(questionEditText.getText().toString());
+        extractFinalAnswers(answers, adapterAnswers.getCorrectAnswerPosition());
+        extractTags();
 
-			@Override
-			public void onTextChanged(CharSequence arg0, int arg1, int arg2,
-					int arg3) {
+        QuizQuestion question = new QuizQuestion(questionText, finalAnswers,
+                correctAnswerPosition, tags);
+        ServerCommunication.send(question);
 
-			}
+        adapterAnswers.clearAnswers();
+        tags.clear();
+        tagsText.setText("");
+        questionText = "";
+        questionEditText.setText("");
+        buttonSubmit.setEnabled(false);
+        adapterAnswers.notifyDataSetChanged();
+        // faire un truc si faux
+        return true;
+    }
 
-		});
+    public boolean onClickAdd(View view) {
+        answers.add("");
+        adapterAnswers.notifyDataSetChanged();
+        return true;
+    }
 
-	}
+    public boolean onClickClear(View view) {
+        adapterAnswers.clearAnswers();
+        buttonSubmit.setEnabled(false);
+        return true;
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.edit_question, menu);
-
-		return true;
-	}
-
-	public boolean onClickSubmit(View view) {
-		questionText = removeExtraSpaces(questionEditText.getText().toString());
-		extractFinalAnswers(answers, adapterAnswers.getCorrectAnswerPosition());
-		extractTags();
-		
-		QuizQuestion question = new QuizQuestion(questionText, finalAnswers, correctAnswerPosition, tags);
-		boolean sendSuccess = ServerCommunication.send(question);
-		System.out.println(sendSuccess);
-		adapterAnswers.clear();
-		tags.clear();
-		tagsText.setText("");
-		tagsText.setHint(R.string.type_in_tags);
-		questionText = "";
-		questionEditText.setText("");
-		questionEditText.setHint(R.string.type_in_question);
-		buttonSubmit.setEnabled(false);
-		//faire un truc si faux
-		return true;
-	}
-
-	public boolean onClickAdd(View view) {
-		answers.add("");
-		adapterAnswers.notifyDataSetChanged();
-		return true;
-	}
-
-	public boolean onClickClear(View view) {
-		adapterAnswers.clearAnswers();
-		buttonSubmit.setEnabled(false);
-		return true;
-	}
-
-	private void extractFinalAnswers(ArrayList<String> argAnswers,
-			int relativeCorrectAnswerPosition) {
-		int size = adapterAnswers.getValidAnswersCount();
-		finalAnswers = new String[size];
-		int validAnswersCount = 0;
-		for (int i = 0; i < answers.size(); i++) {
-			if (!answers.get(i).replaceAll("\\s+", "").equals("")) {
-				finalAnswers[validAnswersCount] = removeExtraSpaces(answers.get(i));
-				System.out.println(answers.get(i));
-				if (i == relativeCorrectAnswerPosition) { 	
-					correctAnswerPosition = validAnswersCount;
-				}
-				validAnswersCount++;
-			}
-		}
-		printFinalAnswers();
-		System.out.println("correct postiton " + correctAnswerPosition);
-	}
-
-	/**
-     * 
-     */
-    private void printFinalAnswers() {
-        for (int i = 0; i < finalAnswers.length; ++i) {
-            System.out.println("Array index " + i + ": " + finalAnswers[i]);
+    private void extractFinalAnswers(ArrayList<String> argAnswers,
+            int relativeCorrectAnswerPosition) {
+        int size = adapterAnswers.getValidAnswersCount();
+        finalAnswers = new String[size];
+        int validAnswersCount = 0;
+        for (int i = 0; i < answers.size(); i++) {
+            if (!answers.get(i).replaceAll("\\s+", "").equals("")) {
+                finalAnswers[validAnswersCount] = cleanStartOfString(answers
+                        .get(i));
+                System.out.println(answers.get(i));
+                if (i == relativeCorrectAnswerPosition) {
+                    correctAnswerPosition = validAnswersCount;
+                }
+                validAnswersCount++;
+            }
         }
+        System.out.println("correct postiton " + correctAnswerPosition);
     }
 
     private void extractTags() {
-		tags = new TreeSet<String>();
-		String[] tagsArray = removeExtraSpaces(tagsText.getText().toString()).split("\\W+");
-		for (String tag : tagsArray) {
-			System.out.println(tag);
-			tags.add(tag);
-		}
-		
-		System.out.println(tags.toString());
-	}
-	
-	
-	// removes all non alphanumeric characters in the beginning of the string
-	private String removeExtraSpaces(String charSequence) {
-	    return charSequence.replaceAll("^\\W+", "");
-	}
+        tags = new TreeSet<String>();
+        String[] tagsArray = cleanStartOfString(tagsText.getText().toString())
+                .split("\\W+");
+        for (String tag : tagsArray) {
+            System.out.println(tag);
+            tags.add(tag);
+        }
+
+        System.out.println(tags.toString());
+    }
+
+    // removes all non alphanumeric characters in the beginning of the string
+    private String cleanStartOfString(String charSequence) {
+        return charSequence.replaceAll("^\\W+", "");
+    }
+
+    /**
+     * Listener for questionEditText
+     * 
+     */
+    private class QuestionEditTextListener implements TextWatcher {
+
+        @Override
+        public void afterTextChanged(Editable newText) {
+
+            if (!questionEditText.getText().toString().replaceAll("\\s+", "")
+                    .equals("")) {
+                adapterAnswers.setQuestionValidity(true);
+            } else {
+                adapterAnswers.setQuestionValidity(false);
+            }
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                int arg3) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+                int arg3) {
+
+        }
+    }
 }

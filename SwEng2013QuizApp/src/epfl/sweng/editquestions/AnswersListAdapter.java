@@ -19,130 +19,170 @@ import epfl.sweng.R;
  * 
  */
 public class AnswersListAdapter extends ArrayAdapter<String> {
-	private final Context context;
-	private final ArrayList<String> answers;
-	private AnswersListAdapter adapter = this;
-	private int correctAnswerPosition;
-	private boolean questionValidity;
-	private Button submitButton;
+    private final Context context;
+    private final ArrayList<String> answers;
+    private AnswersListAdapter adapter = this;
+    private int correctAnswerPosition;
+    private boolean questionValidity;
+    private Button submitButton;
 
-	public AnswersListAdapter(Context contextArg, ArrayList<String> answersArg, Button submit) {
-		super(contextArg, epfl.sweng.R.layout.rowlayout_view_list_answers,
-				answersArg);
-		this.context = contextArg;
-		this.answers = answersArg;
-		this.correctAnswerPosition = -1;
-		this.questionValidity = false;
-		this.submitButton = submit;
-	}
+    public AnswersListAdapter(Context contextArg, ArrayList<String> answersArg,
+            Button submit) {
+        super(contextArg, epfl.sweng.R.layout.rowlayout_view_list_answers,
+                answersArg);
+        this.context = contextArg;
+        this.answers = answersArg;
+        this.correctAnswerPosition = -1;
+        this.questionValidity = false;
+        this.submitButton = submit;
+    }
 
-	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View rowView = inflater.inflate(
-				epfl.sweng.R.layout.rowlayout_view_list_answers, parent, false);
-		Button buttonCheckAnswer = (Button) rowView
-				.findViewById(R.id.button_check_answer);
-		Button buttonRemoveAnswer = (Button) rowView
-				.findViewById(R.id.button_remove_answer);
-		EditText editAnswer = (EditText) rowView.findViewById(R.id.edit_answer);
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-		if (answers.get(position).equals("")) {
-			editAnswer.setHint(R.string.type_in_answer);
-		} else {
-			editAnswer.setText(answers.get(position));
-		}
+        View rowView = inflater.inflate(
+                epfl.sweng.R.layout.rowlayout_view_list_answers, parent, false);
 
-		if (correctAnswerPosition == position) {
-			buttonCheckAnswer.setText(R.string.correct_answer);
-		} else {
-			buttonCheckAnswer.setText(R.string.wrong_answer);
-		}
+        Button buttonCheckAnswer = (Button) rowView
+                .findViewById(R.id.button_check_answer);
 
-		buttonRemoveAnswer.setText(R.string.remove_answer);
-		editAnswer.addTextChangedListener(new TextWatcher() {
+        Button buttonRemoveAnswer = (Button) rowView
+                .findViewById(R.id.button_remove_answer);
 
-			@Override
-			public void afterTextChanged(Editable newText) {
-				answers.set(position, newText.toString());
-				updateSubmitButton();
-			}
+        EditText editAnswer = (EditText) rowView.findViewById(R.id.edit_answer);
 
-			@Override
-			public void beforeTextChanged(CharSequence arg0, int arg1,
-					int arg2, int arg3) {
-			}
+        if (answers.get(position).equals("")) {
+            editAnswer.setHint(R.string.type_in_answer);
+        } else {
+            editAnswer.setText(answers.get(position));
+        }
 
-			@Override
-			public void onTextChanged(CharSequence arg0, int arg1, int arg2,
-					int arg3) {
+        if (correctAnswerPosition == position) {
+            buttonCheckAnswer.setText(R.string.correct_answer);
+        } else {
+            buttonCheckAnswer.setText(R.string.wrong_answer);
+        }
 
-			}
+        buttonRemoveAnswer.setText(R.string.remove_answer);
+        editAnswer.addTextChangedListener(new EditAnswerListener(position));
 
-		});
+        buttonRemoveAnswer.setOnClickListener(new ButtonRemoveAnswerListener(
+                position));
 
-		buttonRemoveAnswer.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				answers.remove(position);
-				if (position == correctAnswerPosition) {
-					correctAnswerPosition = -1;
-				} else if (position < correctAnswerPosition) {
-					correctAnswerPosition--;
-				}
-				updateSubmitButton();
-				adapter.notifyDataSetChanged();
+        buttonCheckAnswer.setOnClickListener(new ButtonCheckAnswerListener(
+                position));
 
-			}
-		});
+        return rowView;
+    }
 
-		buttonCheckAnswer.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				correctAnswerPosition = position;
-				updateSubmitButton();
-				adapter.notifyDataSetChanged();
+    public void clearAnswers() {
+        correctAnswerPosition = -1;
+        answers.clear();
+        answers.add("");
+        notifyDataSetChanged();
+    }
 
-			}
-		});
+    public int getCorrectAnswerPosition() {
+        return correctAnswerPosition;
+    }
 
-		return rowView;
-	}
+    public int getValidAnswersCount() {
+        int validAnswersNumber = 0;
+        for (String answer : answers) {
+            if (!answer.replaceAll("\\s+", "").equals("")) {
+                validAnswersNumber++;
+            }
+        }
+        return validAnswersNumber;
+    }
 
-	public void clearAnswers() {
-		correctAnswerPosition = -1;
-		answers.clear();
-		answers.add("");
-		notifyDataSetChanged();
-	}
+    public void setQuestionValidity(boolean newQuestionValidity) {
+        questionValidity = newQuestionValidity;
+        updateSubmitButton();
+    }
 
-	public int getCorrectAnswerPosition() {
-		return correctAnswerPosition;
-	}
+    public void updateSubmitButton() {
+        if (getValidAnswersCount() >= 2 && correctAnswerPosition != -1
+                && questionValidity == true
+                && !answers.get(correctAnswerPosition).equals("")) {
+            submitButton.setEnabled(true);
+        } else {
+            submitButton.setEnabled(false);
+        }
+    }
 
-	public int getValidAnswersCount() {
-		int validAnswersNumber = 0;
-		for (String answer : answers) {
-			if (!answer.replaceAll("\\s+", "").equals("")) {
-				validAnswersNumber++;
-			}
-		}
-		return validAnswersNumber;
-	}
+    /**
+     * Listener for editAnswer EditText field
+     * 
+     */
+    private class EditAnswerListener implements TextWatcher {
+        private int editTextPosition;
 
-	public void setQuestionValidity(boolean newQuestionValidity) {
-		questionValidity = newQuestionValidity;
-		updateSubmitButton();
-	}
+        public EditAnswerListener(int position) {
+            this.editTextPosition = position;
+        }
 
-	public void updateSubmitButton() {
-		if (getValidAnswersCount() >= 2 && correctAnswerPosition != -1
-				&& questionValidity == true && !answers.get(correctAnswerPosition).equals("")) {
-			submitButton.setEnabled(true);
-		} else {
-			submitButton.setEnabled(false);
-		}
-	}
+        @Override
+        public void afterTextChanged(Editable newText) {
+            answers.set(editTextPosition, newText.toString());
+            updateSubmitButton();
+        }
 
+        @Override
+        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                int arg3) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+                int arg3) {
+
+        }
+    }
+
+    /**
+     * Listener for buttonRemoveAnswer Button
+     * 
+     */
+    private class ButtonRemoveAnswerListener implements View.OnClickListener {
+        private int buttonPosition;
+
+        public ButtonRemoveAnswerListener(int position) {
+            this.buttonPosition = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            answers.remove(buttonPosition);
+            if (buttonPosition == correctAnswerPosition) {
+                correctAnswerPosition = -1;
+            } else if (buttonPosition < correctAnswerPosition) {
+                correctAnswerPosition--;
+            }
+            updateSubmitButton();
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Listener for buttonCheckAnswer Button
+     * 
+     */
+    private class ButtonCheckAnswerListener implements View.OnClickListener {
+        private int buttonPosition;
+
+        public ButtonCheckAnswerListener(int position) {
+            this.buttonPosition = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            correctAnswerPosition = buttonPosition;
+            updateSubmitButton();
+            adapter.notifyDataSetChanged();
+
+        }
+    }
 }
