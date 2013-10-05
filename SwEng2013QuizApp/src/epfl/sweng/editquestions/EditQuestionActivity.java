@@ -154,7 +154,7 @@ public class EditQuestionActivity extends ListActivity {
 		String[] tagsArray = removeExtraSpaces(tagsText.getText().toString()).split("\\W+");
 		for (String tag : tagsArray) {
 			System.out.println(tag);
-			tags.add(removeExtraSpaces(tag));
+			tags.add(tag);
 		}
 		
 		System.out.println(tags.toString());
