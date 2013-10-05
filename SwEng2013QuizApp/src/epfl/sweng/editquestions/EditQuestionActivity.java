@@ -100,11 +100,14 @@ public class EditQuestionActivity extends ListActivity {
 		QuizQuestion question = new QuizQuestion(questionText, finalAnswers, correctAnswerPosition, tags);
 		boolean sendSuccess = ServerCommunication.send(question);
 		System.out.println(sendSuccess);
-//		adapterAnswers.clear();
-//		tags.clear();
-//		questionText = "";
-//		questionEditText.setHint(R.string.type_in_question);
-//		buttonSubmit.setEnabled(false);
+		adapterAnswers.clear();
+		tags.clear();
+		tagsText.setText("");
+		tagsText.setHint(R.string.type_in_tags);
+		questionText = "";
+		questionEditText.setText("");
+		questionEditText.setHint(R.string.type_in_question);
+		buttonSubmit.setEnabled(false);
 		//faire un truc si faux
 		return true;
 	}
@@ -161,8 +164,8 @@ public class EditQuestionActivity extends ListActivity {
 	}
 	
 	
-	// removes all spaces at the begining and the end of the string
+	// removes all non alphanumeric characters in the beginning of the string
 	private String removeExtraSpaces(String charSequence) {
-	    return charSequence.trim();
+	    return charSequence.replaceAll("^\\W+", "");
 	}
 }
