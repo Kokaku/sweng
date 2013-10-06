@@ -3,4 +3,4 @@ Member 1: 21h
 Member 2: 15h
 Member 3: 30h
 Member 4: 28h
-Member 5:
+Member 5: 27h
