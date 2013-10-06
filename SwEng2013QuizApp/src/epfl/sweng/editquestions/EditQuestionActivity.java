@@ -81,7 +81,7 @@ public class EditQuestionActivity extends ListActivity {
 
     public boolean onClickSubmit(View view) {
         onReset = true;
-        
+
         questionText = cleanStartOfString(questionEditText.getText().toString());
         extractFinalAnswers(answersArrayList,
                 answersAdapter.getCorrectAnswerPosition());
@@ -91,13 +91,14 @@ public class EditQuestionActivity extends ListActivity {
                 correctAnswerPosition, tagsSet);
         ServerCommunication.send(question);
 
+        TestingTransactions.check(TTChecks.NEW_QUESTION_SUBMITTED);
+
         resetScreen();
+
+        //TestingTransactions.check(TTChecks.EDIT_QUESTIONS_SHOWN);
 
         onReset = false;
 
-
-        TestingTransactions.check(TTChecks.NEW_QUESTION_SUBMITTED);
-        TestingTransactions.check(TTChecks.EDIT_QUESTIONS_SHOWN);
         // faire un truc si faux
         return true;
     }
