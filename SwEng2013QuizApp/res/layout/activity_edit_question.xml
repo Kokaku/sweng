@@ -26,6 +26,7 @@
         android:layout_weight="1"
         android:overScrollMode="never"
         android:requiresFadingEdge="vertical"
+        android:choiceMode="singleChoice"
         android:focusable="false"
         android:clickable="false" />
 

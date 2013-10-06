@@ -23,7 +23,6 @@ import epfl.sweng.testing.TestingTransactions.TTChecks;
 public class AnswersListAdapter extends ArrayAdapter<String> {
     private final Context context;
     private final ArrayList<String> answersArrayList;
-    private AnswersListAdapter adapter = this;
     private int correctAnswerPosition;
     private boolean questionBodyValidity;
     private Button submitButton;
@@ -71,13 +70,13 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
         }
 
         checkAnswerButton.setOnClickListener(new CheckAnswerButtonListener(
-                position));
+                position, this));
 
         answerEditText.addTextChangedListener(new AnswerEditTextListener(
                 position));
 
         removeAnswerButton.setOnClickListener(new RemoveAnswerButtonListener(
-                position));
+                position, this));
 
         return rowView;
     }
@@ -152,9 +151,11 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
      */
     private class RemoveAnswerButtonListener implements View.OnClickListener {
         private int buttonPosition;
+        private AnswersListAdapter answersAdapter;
 
-        public RemoveAnswerButtonListener(int position) {
+        public RemoveAnswerButtonListener(int position, AnswersListAdapter adapter) {
             this.buttonPosition = position;
+            this.answersAdapter = adapter;
         }
 
         @Override
@@ -166,7 +167,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
                 correctAnswerPosition--;
             }
             updateSubmitButton();
-            adapter.notifyDataSetChanged();
+            answersAdapter.notifyDataSetChanged();
             TestingTransactions.check(TTChecks.QUESTION_EDITED);
         }
     }
@@ -177,9 +178,11 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
      */
     private class CheckAnswerButtonListener implements View.OnClickListener {
         private int buttonPosition;
+        private AnswersListAdapter answersAdapter;
 
-        public CheckAnswerButtonListener(int position) {
+        public CheckAnswerButtonListener(int position, AnswersListAdapter adapter) {
             this.buttonPosition = position;
+            this.answersAdapter = adapter;
         }
 
         @Override
@@ -187,7 +190,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
             if (correctAnswerPosition != buttonPosition) {
                 correctAnswerPosition = buttonPosition;
                 updateSubmitButton();
-                adapter.notifyDataSetChanged();
+                answersAdapter.notifyDataSetChanged();
                 TestingTransactions.check(TTChecks.QUESTION_EDITED);
             }
         }

@@ -58,6 +58,7 @@ public class EditQuestionActivity extends ListActivity {
         answersAdapter = new AnswersListAdapter(this, answersArrayList,
                 submitButton);
 
+        tagsSet = new TreeSet<String>();
         hasValidQuestion = false;
         hasValidTags = false;
         onReset = false;
@@ -104,11 +105,12 @@ public class EditQuestionActivity extends ListActivity {
     public boolean onClickAdd(View view) {
         answersArrayList.add("");
         answersAdapter.notifyDataSetChanged();
+        submitButton.setEnabled(false);
 
         TestingTransactions.check(TTChecks.QUESTION_EDITED);
         return true;
     }
-
+    
     public boolean onClickClear(View view) {
         resetScreen();
 
@@ -134,7 +136,6 @@ public class EditQuestionActivity extends ListActivity {
     }
 
     private void extractTags() {
-        tagsSet = new TreeSet<String>();
         String[] tagsArray = cleanStartOfString(
                 tagsEditText.getText().toString()).split("\\W+");
         for (String tag : tagsArray) {
