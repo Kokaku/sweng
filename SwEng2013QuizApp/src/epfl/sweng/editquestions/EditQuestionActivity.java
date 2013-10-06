@@ -83,7 +83,7 @@ public class EditQuestionActivity extends ListActivity {
     public boolean onClickSubmit(View view) {
         onReset = true;
 
-        questionText = cleanStartOfString(questionEditText.getText().toString());
+        questionText = questionEditText.getText().toString();
         extractFinalAnswers(answersArrayList,
                 answersAdapter.getCorrectAnswerPosition());
         extractTags();
@@ -125,8 +125,8 @@ public class EditQuestionActivity extends ListActivity {
         int validAnswersCount = 0;
         for (int i = 0; i < answersArrayList.size(); i++) {
             if (!answersArrayList.get(i).replaceAll("\\s+", "").equals("")) {
-                finalAnswers[validAnswersCount] = cleanStartOfString(answersArrayList
-                        .get(i));
+                finalAnswers[validAnswersCount] = answersArrayList
+                        .get(i);
                 if (i == relativeCorrectAnswerPosition) {
                     correctAnswerPosition = validAnswersCount;
                 }
@@ -210,7 +210,7 @@ public class EditQuestionActivity extends ListActivity {
             if (onReset == false) {
                 System.out.println("Tags field edited");
 
-                if (!tagsEditText.getText().toString().replaceAll("\\s+", "")
+                if (!tagsEditText.getText().toString().replaceAll("\\W+", "")
                         .equals("")) {
                     hasValidTags = true;
                 } else {
