@@ -18,6 +18,7 @@
             android:layout_weight="1"
             android:hint="@string/type_in_answer"
             android:maxLines="1"
+            android:focusable="true"
             android:scrollbars="vertical" />
 
         <Button

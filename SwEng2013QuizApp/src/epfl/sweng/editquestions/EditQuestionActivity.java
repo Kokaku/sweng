@@ -91,11 +91,9 @@ public class EditQuestionActivity extends ListActivity {
                 correctAnswerPosition, tagsSet);
         ServerCommunication.send(question);
 
-        TestingTransactions.check(TTChecks.NEW_QUESTION_SUBMITTED);
-
         resetScreen();
-
-        //TestingTransactions.check(TTChecks.EDIT_QUESTIONS_SHOWN);
+        
+        TestingTransactions.check(TTChecks.NEW_QUESTION_SUBMITTED);
 
         onReset = false;
 
