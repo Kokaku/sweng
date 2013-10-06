@@ -91,15 +91,13 @@ public class EditQuestionActivity extends ListActivity {
                 .toArray(new String[mAnswersArrayList.size()]);
         int correctAnswer = mAnswersAdapter.getCorrectAnswerPosition();
         Set<String> tagsSet = extractTags();
-        
+
         QuizQuestion question = new QuizQuestion(questionText, finalAnswers,
                 correctAnswer, tagsSet);
         ServerCommunication.send(question);
 
         resetScreen();
-
         TestingTransactions.check(TTChecks.NEW_QUESTION_SUBMITTED);
-
         mOnReset = false;
 
         return true;
@@ -119,7 +117,7 @@ public class EditQuestionActivity extends ListActivity {
     }
 
     /**
-     * Fill the tagsArray field with the tags currently in the mTagsEditText
+     * Returns a new Set containing the tags currently in the mTagsEditText
      * EditText.
      */
     private Set<String> extractTags() {

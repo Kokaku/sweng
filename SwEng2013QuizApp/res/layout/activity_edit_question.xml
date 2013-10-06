@@ -54,14 +54,6 @@
             android:focusable="false" />
 
         <Button
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onClickClear"
-            android:text="@string/button_clear_answer"
-            android:focusable="false" />
-
-        <Button
             android:id="@+id/button_submit"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dip"
