@@ -26,7 +26,9 @@
         android:layout_marginTop="10dp"
         android:layout_weight="1"
         android:overScrollMode="never"
-        android:requiresFadingEdge="vertical" />
+        android:requiresFadingEdge="vertical"
+        android:focusable="false"
+        android:clickable="false" />
 
     <!-- Don't modify ListView's id. It's mandatory for ListActivity -->
 
