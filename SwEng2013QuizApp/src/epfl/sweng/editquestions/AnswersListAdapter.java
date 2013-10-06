@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import epfl.sweng.R;
+import epfl.sweng.testing.TestingTransactions;
+import epfl.sweng.testing.TestingTransactions.TTChecks;
 
 /**
  * 
@@ -23,7 +25,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
     private final ArrayList<String> answersArrayList;
     private AnswersListAdapter adapter = this;
     private int correctAnswerPosition;
-    private boolean questionValidity;
+    private boolean questionBodyValidity;
     private Button submitButton;
 
     public AnswersListAdapter(Context contextArg, ArrayList<String> answersArg,
@@ -33,7 +35,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
         this.context = contextArg;
         this.answersArrayList = answersArg;
         this.correctAnswerPosition = -1;
-        this.questionValidity = false;
+        this.questionBodyValidity = false;
         this.submitButton = submit;
     }
 
@@ -51,8 +53,9 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
         Button removeAnswerButton = (Button) rowView
                 .findViewById(R.id.button_remove_answer);
 
-        EditText answerEditText = (EditText) rowView.findViewById(R.id.edit_answer);
-        
+        EditText answerEditText = (EditText) rowView
+                .findViewById(R.id.edit_answer);
+
         removeAnswerButton.setText(R.string.remove_answer);
 
         if (answersArrayList.get(position).equals("")) {
@@ -66,16 +69,15 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
         } else {
             checkAnswerButton.setText(R.string.wrong_answer);
         }
-        
+
         checkAnswerButton.setOnClickListener(new CheckAnswerButtonListener(
                 position));
-        
-        answerEditText.addTextChangedListener(new AnswerEditTextListener(position));
+
+        answerEditText.addTextChangedListener(new AnswerEditTextListener(
+                position));
 
         removeAnswerButton.setOnClickListener(new RemoveAnswerButtonListener(
                 position));
-
-        
 
         return rowView;
     }
@@ -91,25 +93,23 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
         return correctAnswerPosition;
     }
 
-    public int getValidAnswersCount() {
-        int validAnswersNumber = 0;
+    public boolean hasOnlyValidAnswers() {
         for (String answer : answersArrayList) {
-            if (!answer.replaceAll("\\s+", "").equals("")) {
-                validAnswersNumber++;
+            if (answer.replaceAll("\\s+", "").equals("")) {
+                return false;
             }
         }
-        return validAnswersNumber;
+        return true;
     }
 
-    public void setQuestionValidity(boolean newQuestionValidity) {
-        questionValidity = newQuestionValidity;
+    public void setQuestionBodyValidity(boolean newQuestionBodyValidity) {
+        questionBodyValidity = newQuestionBodyValidity;
         updateSubmitButton();
     }
 
     public void updateSubmitButton() {
-        if (getValidAnswersCount() >= 2 && correctAnswerPosition != -1
-                && questionValidity == true
-                && !answersArrayList.get(correctAnswerPosition).equals("")) {
+        if (correctAnswerPosition != -1 && questionBodyValidity == true
+                && answersArrayList.size() >= 2 && hasOnlyValidAnswers()) {
             submitButton.setEnabled(true);
         } else {
             submitButton.setEnabled(false);
@@ -130,6 +130,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
         @Override
         public void afterTextChanged(Editable newText) {
             answersArrayList.set(editTextPosition, newText.toString());
+            TestingTransactions.check(TTChecks.QUESTION_EDITED);
             updateSubmitButton();
         }
 
@@ -166,6 +167,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
             }
             updateSubmitButton();
             adapter.notifyDataSetChanged();
+            TestingTransactions.check(TTChecks.QUESTION_EDITED);
         }
     }
 
@@ -182,10 +184,12 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 
         @Override
         public void onClick(View v) {
-            correctAnswerPosition = buttonPosition;
-            updateSubmitButton();
-            adapter.notifyDataSetChanged();
-
+            if (correctAnswerPosition != buttonPosition) {
+                correctAnswerPosition = buttonPosition;
+                updateSubmitButton();
+                adapter.notifyDataSetChanged();
+                TestingTransactions.check(TTChecks.QUESTION_EDITED);
+            }
         }
     }
 }
