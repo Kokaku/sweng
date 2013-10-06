@@ -157,8 +157,8 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 		@Override
 		public void afterTextChanged(Editable newText) {
 			mAnswersArrayList.set(editTextPosition, newText.toString());
-			TestingTransactions.check(TTChecks.QUESTION_EDITED);
 			updateSubmitButton();
+            TestingTransactions.check(TTChecks.QUESTION_EDITED);
 		}
 
 		@Override
@@ -217,12 +217,14 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 
 		@Override
 		public void onClick(View v) {
-			if (mCorrectAnswerPosition != buttonPosition) {
-				mCorrectAnswerPosition = buttonPosition;
-				updateSubmitButton();
-				answersAdapter.notifyDataSetChanged();
-				TestingTransactions.check(TTChecks.QUESTION_EDITED);
-			}
+		    if (mCorrectAnswerPosition == buttonPosition) {
+                mCorrectAnswerPosition = -1;
+            } else {
+                mCorrectAnswerPosition = buttonPosition;
+            }
+            updateSubmitButton();
+            answersAdapter.notifyDataSetChanged();
+            TestingTransactions.check(TTChecks.QUESTION_EDITED);
 		}
 	}
 }

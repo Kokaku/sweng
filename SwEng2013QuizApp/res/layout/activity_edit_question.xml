@@ -50,14 +50,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="onClickAdd"
-            android:text="@string/button_add_answer" />
+            android:text="@string/button_add_answer"
+            android:focusable="false" />
 
         <Button
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="onClickClear"
-            android:text="@string/button_clear_answer" />
+            android:text="@string/button_clear_answer"
+            android:focusable="false" />
 
         <Button
             android:id="@+id/button_submit"
@@ -67,7 +69,8 @@
             android:layout_weight="1"
             android:enabled="false"
             android:onClick="onClickSubmit"
-            android:text="@string/button_submit" />
+            android:text="@string/button_submit"
+            android:focusable="false" />
     </LinearLayout>
 
 </LinearLayout>
