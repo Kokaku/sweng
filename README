@@ -1,6 +1,11 @@
- ____________________ 
-< BA-BA-BANANAAAAAAA >
- -------------------- 
+ Branches :
+ - master for stable builds
+ - develop is the main branch for developing
+ - several topic branches merged to "develop" when complete enough 
+
+ ____________________________ 
+< I'm not a fucking donkey ! >
+ ---------------------------- 
         \   ^__^
          \  (oo)\_______
             (__)\       )\/\
