@@ -3,7 +3,7 @@ Git workflow :
  - master should be stable at ALL times
  - when developing a new feature or a bug fix, just create a new branch off master
  - create a pull request for each branch to get help and code review
- - before merging to master, the code has to be stable, tested AND reviewed by someone else
+ - before merging to master, the code has to be tested AND reviewed by someone else
 
  ____________________________ 
 < I'm not a fucking donkey ! >
