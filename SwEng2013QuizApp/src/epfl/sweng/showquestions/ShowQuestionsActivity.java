@@ -18,8 +18,8 @@ import android.widget.TextView;
 import epfl.sweng.R;
 import epfl.sweng.questions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
-import epfl.sweng.testing.TestingTransactions;
-import epfl.sweng.testing.TestingTransactions.TTChecks;
+import epfl.sweng.testing.TestCoordinator;
+import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 /**
  * This activity displays questions and allows the user to answer them.
@@ -99,7 +99,7 @@ public class ShowQuestionsActivity extends ListActivity {
                     getListView().setEnabled(true);
                 }
                 
-                TestingTransactions.check(TTChecks.ANSWER_SELECTED);
+                TestCoordinator.check(TTChecks.ANSWER_SELECTED);
                 mSymbol.setVisibility(View.INVISIBLE);
             }
         }, SYMBOL_DISPLAY_TIME);
@@ -149,7 +149,7 @@ public class ShowQuestionsActivity extends ListActivity {
             
             setListAdapter(adapterAnswers);
             
-            TestingTransactions.check(TTChecks.QUESTION_SHOWN);
+            TestCoordinator.check(TTChecks.QUESTION_SHOWN);
         }
         
     }

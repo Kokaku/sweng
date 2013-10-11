@@ -16,8 +16,8 @@ import android.widget.EditText;
 import epfl.sweng.R;
 import epfl.sweng.questions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
-import epfl.sweng.testing.TestingTransactions;
-import epfl.sweng.testing.TestingTransactions.TTChecks;
+import epfl.sweng.testing.TestCoordinator;
+import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 /**
  * This activity displays empty fields that let the user create a new question
@@ -68,7 +68,7 @@ public class EditQuestionActivity extends ListActivity {
 
         setListAdapter(mAnswersAdapter);
 
-        TestingTransactions.check(TTChecks.EDIT_QUESTIONS_SHOWN);
+        TestCoordinator.check(TTChecks.EDIT_QUESTIONS_SHOWN);
 
     }
 
@@ -97,7 +97,7 @@ public class EditQuestionActivity extends ListActivity {
         ServerCommunication.send(question);
 
         resetScreen();
-        TestingTransactions.check(TTChecks.NEW_QUESTION_SUBMITTED);
+        TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
         mOnReset = false;
 
         return true;
@@ -112,7 +112,7 @@ public class EditQuestionActivity extends ListActivity {
         mAnswersAdapter.notifyDataSetChanged();
         mSubmitButton.setEnabled(false);
 
-        TestingTransactions.check(TTChecks.QUESTION_EDITED);
+        TestCoordinator.check(TTChecks.QUESTION_EDITED);
         return true;
     }
 
@@ -164,7 +164,7 @@ public class EditQuestionActivity extends ListActivity {
                 mAnswersAdapter.setQuestionBodyValidity(mValidTags
                         && mValidQuestion);
 
-                TestingTransactions.check(TTChecks.QUESTION_EDITED);
+                TestCoordinator.check(TTChecks.QUESTION_EDITED);
             }
         }
 
@@ -197,7 +197,7 @@ public class EditQuestionActivity extends ListActivity {
                 mAnswersAdapter.setQuestionBodyValidity(mValidTags
                         && mValidQuestion);
 
-                TestingTransactions.check(TTChecks.QUESTION_EDITED);
+                TestCoordinator.check(TTChecks.QUESTION_EDITED);
             }
         }
 

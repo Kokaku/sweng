@@ -12,8 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import epfl.sweng.R;
-import epfl.sweng.testing.TestingTransactions;
-import epfl.sweng.testing.TestingTransactions.TTChecks;
+import epfl.sweng.testing.TestCoordinator;
+import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 /**
  * Adapter for the ListView that manages the the EditText, and Buttons for
@@ -158,7 +158,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 		public void afterTextChanged(Editable newText) {
 			mAnswersArrayList.set(editTextPosition, newText.toString());
 			updateSubmitButton();
-            TestingTransactions.check(TTChecks.QUESTION_EDITED);
+            TestCoordinator.check(TTChecks.QUESTION_EDITED);
 		}
 
 		@Override
@@ -197,7 +197,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 			}
 			updateSubmitButton();
 			answersAdapter.notifyDataSetChanged();
-			TestingTransactions.check(TTChecks.QUESTION_EDITED);
+			TestCoordinator.check(TTChecks.QUESTION_EDITED);
 		}
 	}
 
@@ -224,7 +224,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
             }
             updateSubmitButton();
             answersAdapter.notifyDataSetChanged();
-            TestingTransactions.check(TTChecks.QUESTION_EDITED);
+            TestCoordinator.check(TTChecks.QUESTION_EDITED);
 		}
 	}
 }
