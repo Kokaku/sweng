@@ -56,7 +56,7 @@ public class SwengHttpClientFactory {
 
         @Override
         public URI getLocationURI(HttpResponse response, HttpContext context)
-                throws org.apache.http.ProtocolException {
+            throws org.apache.http.ProtocolException {
             return null;
         }
     };
