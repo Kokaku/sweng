@@ -13,9 +13,5 @@ public class ShowQuestionsActivityTest extends
     public ShowQuestionsActivityTest() {
         super(ShowQuestionsActivity.class);
     }
-
-    public void testHello() {
-        fail("Not yet implemented");
-    }
     
 }
