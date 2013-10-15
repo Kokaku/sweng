@@ -1,17 +1,22 @@
 package epfl.sweng.test;
 
-import android.test.ActivityInstrumentationTestCase2;
+import com.jayway.android.robotium.solo.Solo;
+
 import epfl.sweng.editquestions.EditQuestionActivity;
 
 /**
  * @author MathieuMonney
  * 
  */
-public class EditQuestionActivityTest extends
-        ActivityInstrumentationTestCase2<EditQuestionActivity> {
+public class EditQuestionActivityTest extends QuizAppTest<EditQuestionActivity> {
 
     public EditQuestionActivityTest() {
         super(EditQuestionActivity.class);
+    }
+    
+    @Override
+    protected void setUp() {
+        solo = new Solo(getInstrumentation(), getActivity());
     }
 
 }
