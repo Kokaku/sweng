@@ -1,6 +1,13 @@
 package epfl.sweng.test;
 
+<<<<<<< HEAD
 import android.widget.Button;
+=======
+import junit.framework.Assert;
+
+import com.jayway.android.robotium.solo.Solo;
+
+>>>>>>> Create tests for MainActivity
 import epfl.sweng.showquestions.ShowQuestionsActivity;
 
 /**
