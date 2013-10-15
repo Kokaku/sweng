@@ -7,15 +7,20 @@ import com.jayway.android.robotium.solo.Solo;
 
 /**
  * @author MathieuMonney
- *
+ * 
  */
-public abstract class QuizAppTest<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
-    
+public abstract class QuizAppTest<T extends Activity> extends
+        ActivityInstrumentationTestCase2<T> {
+
     protected Solo solo;
-    
-    
+
     public QuizAppTest(Class<T> activityClass) {
         super(activityClass);
+    }
+
+    @Override
+    protected void setUp() {
+        solo = new Solo(getInstrumentation(), getActivity());
     }
 
 }

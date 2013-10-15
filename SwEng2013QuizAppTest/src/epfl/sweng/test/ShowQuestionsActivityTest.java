@@ -1,9 +1,6 @@
 package epfl.sweng.test;
 
 import android.widget.Button;
-
-import com.jayway.android.robotium.solo.Solo;
-
 import epfl.sweng.showquestions.ShowQuestionsActivity;
 
 /**
@@ -11,16 +8,11 @@ import epfl.sweng.showquestions.ShowQuestionsActivity;
  * 
  */
 
-public class ShowQuestionsActivityTest extends QuizAppTest<ShowQuestionsActivity> {
-    private Solo solo;
+public class ShowQuestionsActivityTest extends
+        QuizAppTest<ShowQuestionsActivity> {
 
     public ShowQuestionsActivityTest() {
         super(ShowQuestionsActivity.class);
-    }
-
-    @Override
-    protected void setUp() {
-        solo = new Solo(getInstrumentation(), getActivity());
     }
 
     public void testShowQuestion() {
