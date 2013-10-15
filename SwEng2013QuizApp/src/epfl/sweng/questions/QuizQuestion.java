@@ -24,6 +24,12 @@ public class QuizQuestion {
 	 */
 	public QuizQuestion(String question, String[] answers, int solutionIndex, 
 	                    Set<String> tags) {
+	    
+	    if (question == null || answers == null || tags == null) {
+	        throw new IllegalArgumentException("Question can't be instanciated"
+	            + "with null parameters");
+	    }
+	    
 		mQuestion = question;
 		mAnswers = answers.clone();
 		mSolutionIndex = solutionIndex;
