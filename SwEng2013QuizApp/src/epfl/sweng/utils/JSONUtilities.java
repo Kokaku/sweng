@@ -38,6 +38,10 @@ public class JSONUtilities {
      * @return String representing the formatted question
      */
     public static String getJSONString(QuizQuestion question) {
+        if (question == null) {
+            throw new IllegalArgumentException("");
+        }
+        
         return "{"
                 + " \"question\": \""
                 + protectTwiceSpecialChars(question.getQuestion())

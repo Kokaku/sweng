@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Represent a quiz question
+ * Represents a quiz question
  * @author kokaku
  * 
  */
@@ -24,7 +24,6 @@ public class QuizQuestion {
 	 */
 	public QuizQuestion(String question, String[] answers, int solutionIndex, 
 	                    Set<String> tags) {
-	    
 	    if (question == null || answers == null || tags == null) {
 	        throw new IllegalArgumentException("Question can't be instanciated"
 	            + "with null parameters");
