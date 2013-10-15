@@ -1,33 +1,11 @@
 package epfl.sweng.test;
 
-<<<<<<< HEAD
-=======
 import epfl.sweng.editquestions.EditQuestionActivity;
->>>>>>> Create tests for MainActivity
 import epfl.sweng.entry.MainActivity;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 /**
-<<<<<<< HEAD
- * @author MathieuMonney
- * 
- */
-public class MainActivityTest extends QuizAppTest<MainActivity> {
-
-    public MainActivityTest() {
-        super(MainActivity.class);
-    }
-
-    public void testRandomQuestionButtonDisplayed() {
-        assertTrue("Random question button displayed",
-                solo.searchButton("Show a random question"));
-    }
-
-    public void testSubmitQuestionButtonDisplayed() {
-        assertTrue("Edit question button displayed",
-                solo.searchButton("Submit a quiz question"));
-=======
  * @author lseguy
  *
  */
@@ -49,7 +27,6 @@ public class MainActivityTest extends QuizAppTest<MainActivity> {
     public void testRightActivityIsDisplayed() {
         solo.assertCurrentActivity("Display activity is not displayed",
             MainActivity.class);
->>>>>>> Create tests for MainActivity
     }
     
     public void testRandomQuestionButtonIsDisplayed() {
