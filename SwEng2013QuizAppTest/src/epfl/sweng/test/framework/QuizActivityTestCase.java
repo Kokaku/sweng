@@ -1,4 +1,4 @@
-package epfl.sweng.test;
+package epfl.sweng.test.framework;
 
 import android.app.Activity;
 import android.test.ActivityInstrumentationTestCase2;
@@ -12,13 +12,13 @@ import epfl.sweng.testing.TestingTransaction;
  * @author lseguy
  *
  */
-public abstract class QuizAppTest<T extends Activity>
+public abstract class QuizActivityTestCase<T extends Activity>
     extends ActivityInstrumentationTestCase2<T>
     {
     
     protected Solo solo;
     
-    public QuizAppTest(Class<T> activityClass) {
+    public QuizActivityTestCase(Class<T> activityClass) {
         super(activityClass);
     }
     

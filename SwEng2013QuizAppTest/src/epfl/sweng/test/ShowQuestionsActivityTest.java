@@ -2,6 +2,7 @@ package epfl.sweng.test;
 
 import android.widget.Button;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
+import epfl.sweng.test.framework.QuizActivityTestCase;
 
 /**
  * @author lseguy
@@ -9,7 +10,7 @@ import epfl.sweng.showquestions.ShowQuestionsActivity;
  */
 
 public class ShowQuestionsActivityTest extends
-        QuizAppTest<ShowQuestionsActivity> {
+        QuizActivityTestCase<ShowQuestionsActivity> {
 
     public ShowQuestionsActivityTest() {
         super(ShowQuestionsActivity.class);

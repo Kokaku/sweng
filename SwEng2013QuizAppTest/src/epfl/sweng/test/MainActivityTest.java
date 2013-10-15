@@ -3,13 +3,14 @@ package epfl.sweng.test;
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.entry.MainActivity;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
+import epfl.sweng.test.framework.QuizActivityTestCase;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 /**
  * @author lseguy
  *
  */
-public class MainActivityTest extends QuizAppTest<MainActivity> {
+public class MainActivityTest extends QuizActivityTestCase<MainActivity> {
     
     public String SHOW_QUESTION_TEXT = "Show a random question";
     public String SUBMIT_QUESTION_TEXT = "Submit a quiz question";
