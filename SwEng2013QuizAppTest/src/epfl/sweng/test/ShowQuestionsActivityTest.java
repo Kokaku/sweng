@@ -27,9 +27,7 @@ public class ShowQuestionsActivityTest extends
         super.setUp();
         mockHttpClient = new MockHttpClient();
         SwengHttpClientFactory.setInstance(mockHttpClient);
-    }
-    
-    public void testShowQuestion() {
+
         mockHttpClient
                 .pushCannedResponse(
                         "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
@@ -38,7 +36,11 @@ public class ShowQuestionsActivityTest extends
                                 + " \"answers\": [\"Forty-two\", \"Twenty-seven\"], \"owner\": \"sweng\","
                                 + " \"solutionIndex\": 0, \"tags\": [\"h2g2\", \"trivia\"], \"id\": \"1\" }",
                         "application/json");
+
         getActivityAndWaitFor(TTChecks.QUESTION_SHOWN);
+    }
+
+    public void testShowQuestion() {
         assertTrue(
                 "Question is displayed",
                 solo.searchText("What is the answer to life, the universe, and everything?"));
@@ -49,4 +51,19 @@ public class ShowQuestionsActivityTest extends
         assertFalse("Next question button is disabled",
                 nextQuestionButton.isEnabled());
     }
+
+    public void testWrongAnswerDialogDisplayed() {
+        solo.clickOnText("Twenty-seven");
+        getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
+        assertTrue("Wrong answer dialog is displayed",
+                solo.searchText("\u2718"));
+    }
+
+    public void testRightAnswerDialogDisplayed() {
+        solo.clickOnText("Forty-two");
+        getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
+        assertTrue("Right answer dialog is displayed",
+                solo.searchText("\u2714"));
+    }
+
 }
