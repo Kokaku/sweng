@@ -3,6 +3,7 @@ package epfl.sweng.test;
 import org.apache.http.HttpStatus;
 
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
@@ -97,18 +98,46 @@ public class EditQuestionActivityTest extends
 	}
 	
 	public void testCheckButtonIsCorrectAfterBeingClicked(){
-	    Button checkButton = solo.getButton("\u2718");
-        solo.clickOnButton("\u2718");
+        Button wrongButton = solo.getButton("\u2718");
+        final LinearLayout parentLayout = (LinearLayout) wrongButton.getParent();
+        runAndWaitFor(new Runnable() {
+            
+            @Override
+            public void run() {
+                solo.clickOnView(parentLayout.getChildAt(0));
+            }
+        }, TTChecks.QUESTION_EDITED);
+        Button correctButton = solo.getButton("\u2714");
+        LinearLayout ll = (LinearLayout) correctButton.getParent();
+        correctButton = (Button) ll.getChildAt(0);
 	    assertTrue("Check button must be displayed as correct after click",
-	            checkButton.getText().equals("\u2714"));
+	            correctButton.getText().equals("\u2714"));
 	}
 	
 	public void testCheckButtonIsWrongAfterBeingReClicked() {
-	    Button checkButton = solo.getButton("\u2718");
-	    solo.clickOnButton("\u2718");
-        solo.clickOnButton("\u2714");
-        assertTrue("Check button must be displayed as correct after click",
-                checkButton.getText().equals("\u2718"));
+        Button wrongButton = solo.getButton("\u2718");
+        final LinearLayout firstParentLayout = (LinearLayout) wrongButton.getParent();
+        runAndWaitFor(new Runnable() {
+            
+            @Override
+            public void run() {
+                solo.clickOnView(firstParentLayout.getChildAt(0));
+            }
+        }, TTChecks.QUESTION_EDITED);
+        wrongButton = solo.getButton("\u2714");
+        final LinearLayout secondParentLayout = (LinearLayout) wrongButton.getParent();
+        runAndWaitFor(new Runnable() {
+            
+            @Override
+            public void run() {
+                solo.clickOnView(secondParentLayout.getChildAt(0));
+            }
+        }, TTChecks.QUESTION_EDITED);
+        wrongButton = solo.getButton("\u2718");
+        LinearLayout ll = (LinearLayout) wrongButton.getParent();
+        wrongButton = (Button) ll.getChildAt(0);
+        assertTrue("Check button must be displayed as wrong after double click",
+                wrongButton.getText().equals("\u2718"));
 	}
 	
 }
