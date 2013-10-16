@@ -81,8 +81,8 @@ public class EditQuestionActivityTest extends
 	}
 
 	public void testCheckAnswerButtonDisplayed() {
-		assertTrue("Button for checking an answer is desplayed as wrong",
-				solo.searchButton("\u2714"));
+		assertTrue("Button for checking an answer is displayed as wrong",
+				solo.searchButton("\u2718"));
 	}
 
 	public void testSubmitButtonDisplayed() {
@@ -93,6 +93,21 @@ public class EditQuestionActivityTest extends
 		Button submitButton = solo.getButton("Submit");
 		assertFalse("Submit button is initially disabled",
 				submitButton.isEnabled());
+	}
+	
+	public void testCheckButtonIsCorrectAfterBeingClicked(){
+	    Button checkButton = solo.getButton("\u2718");
+        solo.clickOnButton("\u2718");
+	    assertTrue("Check button must be displayed as correct after click",
+	            checkButton.getText().equals("\u2714"));
+	}
+	
+	public void testCheckButtonIsWrongAfterBeingReClicked() {
+	    Button checkButton = solo.getButton("\u2718");
+	    solo.clickOnButton("\u2718");
+        solo.clickOnButton("\u2714");
+        assertTrue("Check button must be displayed as correct after click",
+                checkButton.getText().equals("\u2718"));
 	}
 	
 }
