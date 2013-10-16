@@ -3,6 +3,7 @@ package epfl.sweng.test;
 import org.apache.http.HttpStatus;
 
 import android.widget.Button;
+import android.widget.ListView;
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.test.framework.QuizActivityTestCase;
@@ -27,31 +28,31 @@ public class EditQuestionActivityTest extends
 		mockHttpClient = new MockHttpClient();
 		SwengHttpClientFactory.setInstance(mockHttpClient);
 
-		mockHttpClient
-				.pushCannedResponse(
-						"GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
-						HttpStatus.SC_OK,
-						"{\"question\": \"What is the answer to life, the universe, and everything?\","
-								+ " \"answers\": [\"Forty-two\", \"Twenty-seven\"], \"owner\": \"sweng\","
-								+ " \"solutionIndex\": 0, \"tags\": [\"h2g2\", \"trivia\"], \"id\": \"1\" }",
-						"application/json");
+        mockHttpClient
+                .pushCannedResponse(
+                        "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+                        HttpStatus.SC_OK,
+                        "{\"question\": \"What is the answer to life, the universe, and everything?\","
+                                + " \"answers\": [\"Forty-two\", \"Twenty-seven\"], \"owner\": \"sweng\","
+                                + " \"solutionIndex\": 0, \"tags\": [\"h2g2\", \"trivia\"], \"id\": \"1\" }",
+                        "application/json");
 
 		getActivityAndWaitFor(TTChecks.EDIT_QUESTIONS_SHOWN);
 	}
 
-	private void addAnswer(){
-		
+	private void addAnswer() {
+	    clickOnButtonAndWaitFor("\u002B", TTChecks.QUESTION_EDITED);
 	}
 	
-	private void removeAnswer(){
-		
+	private void removeAnswer() {
+        clickOnButtonAndWaitFor("\u002D", TTChecks.QUESTION_EDITED);
 	}
 	
-	private void checkAsCorrect(){
-		
+	private void checkAsCorrect(final int index) {
 	}
-	private void submitQuestion(){
-		
+	
+	private void submitQuestion() {
+        clickOnButtonAndWaitFor("submit", TTChecks.QUESTION_EDITED);
 	}
 	
 	
@@ -82,7 +83,7 @@ public class EditQuestionActivityTest extends
 
 	public void testCheckAnswerButtonDisplayed() {
 		assertTrue("Button for checking an answer is desplayed as wrong",
-				solo.searchButton("\u2714"));
+				solo.searchButton("\u2718"));
 	}
 
 	public void testSubmitButtonDisplayed() {
