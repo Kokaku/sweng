@@ -73,8 +73,8 @@ public class QuizQuestionTest extends AndroidTestCase {
         try {
             @SuppressWarnings("unused")
             QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-                    LIST_OF_ANSWERS, LIST_OF_ANSWERS.length + 1, mTags);
-            fail("solutionIndex must be between 0 and answers.length-1");
+                    LIST_OF_ANSWERS, 1, new TreeSet<String>());
+            fail("Set of tags can't be empty");
         } catch (IllegalArgumentException e) { }
     }
 
@@ -91,8 +91,8 @@ public class QuizQuestionTest extends AndroidTestCase {
         try {
             @SuppressWarnings("unused")
             QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-                    LIST_OF_ANSWERS, 5, mTags);
-            fail("Constructor can't accept a negative solutionIndex");
+                    LIST_OF_ANSWERS, LIST_OF_ANSWERS.length + 1, mTags);
+            fail("solutionIndex must be between 0 and answers.length-1");
         } catch (IllegalArgumentException e) { }
     }
     

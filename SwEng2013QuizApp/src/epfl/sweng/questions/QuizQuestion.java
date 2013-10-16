@@ -38,6 +38,8 @@ public class QuizQuestion {
             throw new IllegalArgumentException("A question needs at least one tag");
         } else if (solutionIndex < 0) {
             throw new IllegalArgumentException("solutionIndex can't be negative");
+        } else if (solutionIndex >= answers.length) {
+            throw new IllegalArgumentException("solutionIndex can't be greater than answers.length");
         }
 	    
 		mQuestion = question;
