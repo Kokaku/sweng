@@ -21,6 +21,11 @@ public class QuizQuestion {
 	 * @param answers an array of possible answers
 	 * @param solutionIndex index of the right answer
 	 * @param tags set of keywords describing the question
+	 * @throws IllegalArgumentException if :
+	 * - question, answers or tags are null
+	 * - there is less than two answers
+	 * - there is less than one tag
+	 * - solutionIndex is negatif
 	 */
 	public QuizQuestion(String question, String[] answers, int solutionIndex, 
 	                    Set<String> tags) {

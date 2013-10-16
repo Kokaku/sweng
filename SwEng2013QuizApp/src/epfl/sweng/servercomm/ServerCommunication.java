@@ -61,6 +61,7 @@ public final class ServerCommunication {
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {
 		} catch (JSONException e) {
+		} catch (IllegalArgumentException e) {   
 		}
         
         return null;
