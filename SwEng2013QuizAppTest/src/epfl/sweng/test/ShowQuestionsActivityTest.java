@@ -3,6 +3,8 @@ package epfl.sweng.test;
 import org.apache.http.HttpStatus;
 
 import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
 import epfl.sweng.test.framework.QuizActivityTestCase;
@@ -40,16 +42,27 @@ public class ShowQuestionsActivityTest extends
         getActivityAndWaitFor(TTChecks.QUESTION_SHOWN);
     }
 
-    public void testShowQuestion() {
+    public void testQuestionCorrectlyDisplayed() {
         assertTrue(
                 "Question is displayed",
                 solo.searchText("What is the answer to life, the universe, and everything?"));
         assertTrue("Correct answer is displayed", solo.searchText("Forty-two"));
         assertTrue("Incorrect answer is displayed",
                 solo.searchText("Twenty-seven"));
+        assertTrue("Button Next question is displayed",
+                solo.searchButton("Next question"));
+    }
+
+    public void testNextQuestionButtonInitiallyDisabled() {
         Button nextQuestionButton = solo.getButton("Next question");
         assertFalse("Next question button is disabled",
                 nextQuestionButton.isEnabled());
+    }
+
+    public void testAnswersInitiallyClickable() {
+        TextView correctAnswer = solo.getText("Forty-two");
+        ListView listView = (ListView) correctAnswer.getParent();
+        assertTrue("Answers are clickable", listView.isEnabled());
     }
 
     public void testWrongAnswerDialogDisplayed() {
@@ -64,6 +77,30 @@ public class ShowQuestionsActivityTest extends
         getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
         assertTrue("Right answer dialog is displayed",
                 solo.searchText("\u2714"));
+    }
+
+    public void testNextQuestionButtonEnabledAfterRightAnswer() {
+        solo.clickOnText("Forty-two");
+        getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
+        Button nextQuestionButton = solo.getButton("Next question");
+        assertTrue("Next question button is disabled",
+                nextQuestionButton.isEnabled());
+    }
+
+    public void testAnswersNotClickableAfterRightAnswer() {
+        solo.clickOnText("Forty-two");
+        getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
+        TextView correctAnswer = solo.getText("Forty-two");
+        ListView listView = (ListView) correctAnswer.getParent();
+        assertFalse("Answers are not clickable", listView.isEnabled());
+    }
+
+    public void testAnswersClickableAfterWrongAnswer() {
+        solo.clickOnText("Twenty-seven");
+        getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
+        TextView correctAnswer = solo.getText("Forty-two");
+        ListView listView = (ListView) correctAnswer.getParent();
+        assertTrue("Answers are clickable", listView.isEnabled());
     }
 
 }
