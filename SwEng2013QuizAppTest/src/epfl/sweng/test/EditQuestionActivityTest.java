@@ -1,5 +1,7 @@
 package epfl.sweng.test;
 
+import org.apache.http.HttpStatus;
+
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.test.framework.QuizActivityTestCase;
@@ -23,6 +25,16 @@ public class EditQuestionActivityTest extends
 		super.setUp();
 		mockHttpClient = new MockHttpClient();
 		SwengHttpClientFactory.setInstance(mockHttpClient);
+		
+		mockHttpClient
+        .pushCannedResponse(
+                "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+                HttpStatus.SC_OK,
+                "{\"question\": \"What is the answer to life, the universe, and everything?\","
+                        + " \"answers\": [\"Forty-two\", \"Twenty-seven\"], \"owner\": \"sweng\","
+                        + " \"solutionIndex\": 0, \"tags\": [\"h2g2\", \"trivia\"], \"id\": \"1\" }",
+                "application/json");
+		
 		getActivityAndWaitFor(TTChecks.EDIT_QUESTIONS_SHOWN);
 	}
 
