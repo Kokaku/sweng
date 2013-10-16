@@ -9,24 +9,21 @@ import epfl.sweng.questions.QuizQuestion;
 import epfl.sweng.utils.JSONUtilities;
 
 /**
- * This class allow communication with the question server
- * It allows to fetch questions and send new questions
+ * This class allows communication with the question server.
+ * Used to fetch questions and send new ones to the server.
+ * 
  * @author kokaku
  * 
  */
 public final class ServerCommunication {
 
-    /**
-     * SERVER_URL is the server address
-     */
     public static final String SERVER_URL = 
     		"https://sweng-quiz.appspot.com/quizquestions/";
     
-    private ServerCommunication() {
-    }
+    private ServerCommunication() { }
     
     /**
-     * Send the question in parameter to the server
+     * Sends a question to the server
      * @param question to send to the server
      * @return true if the question has been correctly sent
      */
@@ -36,6 +33,7 @@ public final class ServerCommunication {
                     JSONUtilities.getJSONString(question)).get();
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {
+        } catch (JSONException e) {
         }
 
 		return false;

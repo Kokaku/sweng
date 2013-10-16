@@ -1,6 +1,6 @@
 package epfl.sweng.editquestions;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.text.Editable;
@@ -25,7 +25,7 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
  */
 public class AnswersListAdapter extends ArrayAdapter<String> {
 	private final Context mContext;
-	private final ArrayList<String> mAnswersArrayList;
+	private final List<String> mAnswersArrayList;
 	private int mCorrectAnswerPosition;
 	private boolean mQuestionBodyValidity;
 	private Button mSubmitButton;
@@ -37,7 +37,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 	 * @param answersArg
 	 * @param submit
 	 */
-	public AnswersListAdapter(Context contextArg, ArrayList<String> answersArg,
+	public AnswersListAdapter(Context contextArg, List<String> answersArg,
 			Button submit) {
 		super(contextArg, epfl.sweng.R.layout.rowlayout_view_list_answers,
 				answersArg);
@@ -135,7 +135,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 	 * Updates the submit button
 	 */
 	public void updateSubmitButton() {
-		if (mCorrectAnswerPosition != -1 && mQuestionBodyValidity == true
+		if (mCorrectAnswerPosition != -1 && mQuestionBodyValidity
 				&& mAnswersArrayList.size() >= 2 && hasOnlyValidAnswers()) {
 			mSubmitButton.setEnabled(true);
 		} else {

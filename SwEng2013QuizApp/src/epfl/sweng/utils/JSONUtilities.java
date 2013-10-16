@@ -31,48 +31,22 @@ public class JSONUtilities {
      * + "\"tags\": <tags_array>
      * + " }"
      * 
-     * The question and the tags are double-checked
-     *  with the method {@link #protectTwiceSpecialChars(String)}
-     *  
      * @param question to format
      * @return String representing the formatted question
      */
-    public static String getJSONString(QuizQuestion question) {
+    public static String getJSONString(QuizQuestion question)
+        throws JSONException {
         if (question == null) {
             throw new IllegalArgumentException("");
         }
         
-        return "{"
-                + " \"question\": \""
-                + protectTwiceSpecialChars(question.getQuestion())
-                + "\","
-                + " \"answers\": "
-                + convertIterableToJSONString(Arrays
-                        .asList(question.getAnswers()))
-                + ","
-                + " \"solutionIndex\": "
-                + question.getSolutionIndex() + ","
-                + " \"tags\": "
-                + convertIterableToJSONString(question.getTags())
-                + " }";
-    }
-    
-    /**
-     * Converts an {@link Iterable} to a String in the following format:
-     *  "[ \"<element_1>\", \"<element_2\" , ... , \"<element_n>\" ]"
-     *  
-     * @param iterable to be formatted
-     * @return String representing the formatted {@link Iterable}
-     */
-    public static String convertIterableToJSONString(Iterable<String> iterable) {
-        String jsonString = "[";
-        for (String element : iterable) {
-            jsonString += " \"" + protectTwiceSpecialChars(element) + "\",";
-        }
-        jsonString = jsonString.substring(0, jsonString.length()-1);
-        jsonString += " ]";
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("question", question.getQuestion());
+        jsonObject.put("answers", new JSONArray(Arrays.asList(question.getAnswers())));
+        jsonObject.put("solutionIndex", question.getSolutionIndex());
+        jsonObject.put("tags", new JSONArray(question.getTags()));
         
-        return jsonString;
+        return jsonObject.toString();
     }
     
     /**
@@ -106,16 +80,5 @@ public class JSONUtilities {
         }
         return tags;
     }
-    
-    /**
-     * Protects twice any special char that could interfere with the translation
-     * of the question or tags on the server, i.e: \ " '
-     * @param str the {@link String} to check 
-     * @return a {@link String} where the chars presented above are protected twice
-     */
-    private static String protectTwiceSpecialChars(String str) {
-        return str.replace("\\", "\\\\").
-                replace("\"", "\\\"").
-                replace("\'", "\\\'");
-    }
+
 }

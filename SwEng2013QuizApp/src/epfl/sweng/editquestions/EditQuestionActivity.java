@@ -2,6 +2,7 @@ package epfl.sweng.editquestions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -35,7 +36,7 @@ public class EditQuestionActivity extends ListActivity {
     private AnswersListAdapter mAnswersAdapter;
     private Button mSubmitButton;
 
-    private ArrayList<String> mAnswersArrayList;
+    private List<String> mAnswersArrayList;
     private boolean mValidQuestion;
     private boolean mValidTags;
 
@@ -92,6 +93,7 @@ public class EditQuestionActivity extends ListActivity {
         int correctAnswer = mAnswersAdapter.getCorrectAnswerPosition();
         Set<String> tagsSet = extractTags();
 
+        //TODO handle Exception on QuizQuestion construction and Server comm errors
         QuizQuestion question = new QuizQuestion(questionText, finalAnswers,
                 correctAnswer, tagsSet);
         ServerCommunication.send(question);
@@ -158,7 +160,7 @@ public class EditQuestionActivity extends ListActivity {
 
         @Override
         public void afterTextChanged(Editable newText) {
-            if (mOnReset == false) {
+            if (!mOnReset) {
                 mValidQuestion = !newText.toString().replaceAll("\\s+", "")
                         .equals("");
                 mAnswersAdapter.setQuestionBodyValidity(mValidTags
@@ -188,12 +190,9 @@ public class EditQuestionActivity extends ListActivity {
         @Override
         public void afterTextChanged(Editable newText) {
 
-            if (mOnReset == false) {
-                if (!newText.toString().replaceAll("\\W+", "").equals("")) {
-                    mValidTags = true;
-                } else {
-                    mValidTags = false;
-                }
+            if (!mOnReset) {
+                mValidTags = !newText.toString()
+                        .replaceAll("\\W+", "").equals("");
                 mAnswersAdapter.setQuestionBodyValidity(mValidTags
                         && mValidQuestion);
 
