@@ -42,36 +42,81 @@ public class JSONUtilitiesTest extends AndroidTestCase {
         try {
             JSONUtilities.getJSONString(null);
             fail("getJSONString can't accept a null argument");
-        } catch (IllegalArgumentException e) { }
+        } catch (JSONException e) {
+            fail("Wrong exception thrown");
+        } catch (IllegalArgumentException e) {
+        }
     }
     
-    // Refactor this !
-    // Add strings to asserts
     public void testGetJSONString() {
-        String jsonString = JSONUtilities.getJSONString(mQuestion);
         JSONObject jsonObject;
         try {
+            String jsonString = JSONUtilities.getJSONString(mQuestion);
+            
+            System.out.println(jsonString);
+            
             jsonObject = new JSONObject(jsonString);
             assertEquals(QUESTION_TEXT, jsonObject.getString("question"));
-            JSONArray jsonAnswers = jsonObject.getJSONArray("answers");
-            String[] answers = new String[jsonAnswers.length()];
-            for (int i = 0; i < jsonAnswers.length(); ++i) {
-                answers[i] = jsonAnswers.getString(i);
-            }
+            
+            String[] answers = parseAnswers(jsonObject.getJSONArray("answers"));
             assertTrue(Arrays.equals(LIST_OF_ANSWERS, answers));
+            
             assertEquals(CORRECT_ANSWER_ID, jsonObject.getInt("solutionIndex"));
-            JSONArray jsonTags = jsonObject.getJSONArray("tags");
-            Set<String> tags = new TreeSet<String>();
-            for (int i = 0; i < jsonTags.length(); ++i) {
-                tags.add(jsonTags.getString(i));
-            }
+            
+            Set<String> tags = parseTags(jsonObject.getJSONArray("tags"));
             assertEquals("Tags not equal", mTags, tags);
         } catch (JSONException e) {
             fail("JSONException while parsing the string or getting a value : " +
                 e.getMessage());
         }
     }
-
-    // TODO : I'm working on it (Louis)
+    
+    public void testGetJSONStringWithQuotesAndBackslashes() {
+        String dangerousString = "I have some \"quotes\" and \\backslashes\\";
+        QuizQuestion dangerousQuestion = new QuizQuestion(dangerousString, 
+            LIST_OF_ANSWERS, CORRECT_ANSWER_ID, mTags);
+        
+        JSONObject jsonObject;
+        try {
+            String jsonString = JSONUtilities.getJSONString(dangerousQuestion);
+            jsonObject = new JSONObject(jsonString);
+            assertEquals(dangerousString, jsonObject.getString("question"));
+        } catch (JSONException e) {
+            fail("JSONException while parsing the string or getting a value : " +
+                e.getMessage());
+        }
+    }
+    
+    private String[] parseAnswers(JSONArray jsonAnswers)
+        throws JSONException {
+        if (jsonAnswers == null) {
+            throw new IllegalArgumentException();
+        }
+        
+        int length = jsonAnswers.length();
+        String[] answers = new String[length];
+        
+        for (int i = 0; i < length; ++i) {
+            answers[i] = jsonAnswers.getString(i);
+        }
+        
+        return answers;
+    }
+    
+    private Set<String> parseTags(JSONArray jsonTags)
+        throws JSONException {
+        if (jsonTags == null) {
+            throw new IllegalArgumentException();
+        }
+        
+        int length = jsonTags.length();
+        Set<String> tags = new TreeSet<String>();
+        
+        for (int i = 0; i < length; ++i) {
+            tags.add(jsonTags.getString(i));
+        }
+        
+        return tags;
+    }
     
 }
