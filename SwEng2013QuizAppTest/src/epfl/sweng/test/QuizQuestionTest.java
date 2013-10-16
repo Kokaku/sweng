@@ -33,12 +33,57 @@ public class QuizQuestionTest extends AndroidTestCase {
             LIST_OF_ANSWERS, CORRECT_ANSWER_ID, mTags);
     }
 
-    public void testCreateQuestionWithNull() {
+    public void testCreateQuestionWithNullQuestion() {
         try {
             @SuppressWarnings("unused")
-            QuizQuestion illegalQuestion = new QuizQuestion(null, null, 0,
-                null);
+            QuizQuestion illegalQuestion = new QuizQuestion(null,
+            LIST_OF_ANSWERS, 0, mTags);
             fail("Constructor can't accept null arguments");
+        } catch (IllegalArgumentException e) { }
+    }
+
+    public void testCreateQuestionWithNullAnswers() {
+        try {
+            @SuppressWarnings("unused")
+            QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
+            null, 0, mTags);
+            fail("Constructor can't accept null arguments");
+        } catch (IllegalArgumentException e) { }
+    }
+
+    public void testCreateQuestionWithNullTags() {
+        try {
+            @SuppressWarnings("unused")
+            QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
+            LIST_OF_ANSWERS, 0, null);
+            fail("Constructor can't accept null arguments");
+        } catch (IllegalArgumentException e) { }
+    }
+
+    public void testCreateQuestionWithOneAnswer() {
+        try {
+            @SuppressWarnings("unused")
+            QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
+            new String[] {"answer1"}, 0, mTags);
+            fail("Constructor must be called with more than one answer");
+        } catch (IllegalArgumentException e) { }
+    }
+
+    public void testCreateQuestionWithNoTags() {
+        try {
+            @SuppressWarnings("unused")
+            QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
+                    LIST_OF_ANSWERS, 0, new TreeSet<String>());
+            fail("Constructor must be called with at least one tag");
+        } catch (IllegalArgumentException e) { }
+    }
+
+    public void testCreateQuestionWithNegatifSolutionIndex() {
+        try {
+            @SuppressWarnings("unused")
+            QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
+                    LIST_OF_ANSWERS, -1, mTags);
+            fail("Constructor can't accept negatif SolutionIndex");
         } catch (IllegalArgumentException e) { }
     }
     
