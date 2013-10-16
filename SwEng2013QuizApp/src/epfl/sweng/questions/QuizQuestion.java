@@ -33,14 +33,11 @@ public class QuizQuestion {
 	        throw new IllegalArgumentException("Question can't be instanciated"
 	            + "with null parameters");
 	    } else if (answers.length < 2) {
-            throw new IllegalArgumentException("Question can't be instanciated"
-                    + "with less than two answers");
+            throw new IllegalArgumentException("A question needs at least two answers");
         } else if (tags.size() < 1) {
-            throw new IllegalArgumentException("Question can't be instanciated"
-                    + "with less than one tag");
+            throw new IllegalArgumentException("A question needs at least one tag");
         } else if (solutionIndex < 0) {
-            throw new IllegalArgumentException("Question can't be instanciated"
-                    + "with a negatif solutionIndex");
+            throw new IllegalArgumentException("solutionIndex can't be negative");
         }
 	    
 		mQuestion = question;

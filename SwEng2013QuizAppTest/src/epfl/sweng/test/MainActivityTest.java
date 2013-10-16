@@ -41,15 +41,21 @@ public class MainActivityTest extends QuizActivityTestCase<MainActivity> {
     }
     
     public void testRandomQuestionButtonStartsActivity() {
-        solo.clickOnButton(SHOW_QUESTION_TEXT);
-        getActivityAndWaitFor(TTChecks.QUESTION_SHOWN);
+        runAndWaitFor(new Runnable() {
+            public void run() {
+                solo.clickOnButton(SHOW_QUESTION_TEXT);
+            }
+        }, TTChecks.QUESTION_SHOWN);
         solo.assertCurrentActivity("Show question button doesn't start activity",
                 ShowQuestionsActivity.class);
     }
     
     public void testSubmitQuestionButtonStartsActivity() {
-        solo.clickOnButton(SUBMIT_QUESTION_TEXT);
-        getActivityAndWaitFor(TTChecks.EDIT_QUESTIONS_SHOWN);
+        runAndWaitFor(new Runnable() {
+            public void run() {
+                solo.clickOnButton(SUBMIT_QUESTION_TEXT);
+            }
+        }, TTChecks.EDIT_QUESTIONS_SHOWN);
         solo.assertCurrentActivity("Edit question button doesn't start activity",
                 EditQuestionActivity.class);
     }

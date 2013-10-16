@@ -41,6 +41,22 @@ public class ShowQuestionsActivityTest extends
 
         getActivityAndWaitFor(TTChecks.QUESTION_SHOWN);
     }
+    
+    private void selectRightAnswer() {
+        runAndWaitFor(new Runnable() {
+            public void run() {
+                solo.clickOnText("Forty-two");
+            }
+        },TTChecks.ANSWER_SELECTED);
+    }
+    
+    private void selectWrongAnswer() {
+        runAndWaitFor(new Runnable() {
+            public void run() {
+                solo.clickOnText("Twenty-seven");
+            }
+        },TTChecks.ANSWER_SELECTED);
+    }
 
     public void testQuestionCorrectlyDisplayed() {
         assertTrue(
@@ -65,39 +81,34 @@ public class ShowQuestionsActivityTest extends
         assertTrue("Answers are clickable", listView.isEnabled());
     }
 
-    public void testWrongAnswerDialogDisplayed() {
-        solo.clickOnText("Twenty-seven");
-        getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
+    public void testWrongAnswerDisplayed() {
+        selectWrongAnswer();
         assertTrue("Wrong answer dialog is displayed",
                 solo.searchText("\u2718"));
     }
 
-    public void testRightAnswerDialogDisplayed() {
-        solo.clickOnText("Forty-two");
-        getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
+    public void testRightAnswerDisplayed() {
+        selectRightAnswer();
         assertTrue("Right answer dialog is displayed",
                 solo.searchText("\u2714"));
     }
 
     public void testNextQuestionButtonEnabledAfterRightAnswer() {
-        solo.clickOnText("Forty-two");
-        getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
+        selectRightAnswer();
         Button nextQuestionButton = solo.getButton("Next question");
         assertTrue("Next question button is disabled",
                 nextQuestionButton.isEnabled());
     }
 
     public void testAnswersNotClickableAfterRightAnswer() {
-        solo.clickOnText("Forty-two");
-        getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
+        selectRightAnswer();
         TextView correctAnswer = solo.getText("Forty-two");
         ListView listView = (ListView) correctAnswer.getParent();
         assertFalse("Answers are not clickable", listView.isEnabled());
     }
 
     public void testAnswersClickableAfterWrongAnswer() {
-        solo.clickOnText("Twenty-seven");
-        getActivityAndWaitFor(TTChecks.ANSWER_SELECTED);
+        selectWrongAnswer();
         TextView correctAnswer = solo.getText("Forty-two");
         ListView listView = (ListView) correctAnswer.getParent();
         assertTrue("Answers are clickable", listView.isEnabled());

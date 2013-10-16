@@ -34,25 +34,33 @@ public abstract class QuizActivityTestCase<T extends Activity>
         super.tearDown();
     }
     
-    protected void getActivityAndWaitFor(final TestCoordinator.TTChecks expected) {
+    protected void runAndWaitFor(final Runnable runnable, final TestCoordinator.TTChecks expected) {
         TestCoordinator.run(getInstrumentation(), new TestingTransaction() {
-          @Override
-          public void initiate() {
-            getActivity();
-          }
-
-          @Override
-          public void verify(TestCoordinator.TTChecks notification) {
-            assertEquals(String.format(
-                "Expected notification %s, but received %s", expected,
-                notification), expected, notification);
-          }
-
-          @Override
-          public String toString() {
-            return String.format("getActivityAndWaitFor(%s)", expected);
-          }
+            @Override
+            public void initiate() {
+                runnable.run();
+            }
+            
+            @Override
+            public void verify(TestCoordinator.TTChecks notification) {
+                assertEquals(String.format(
+                    "Expected notification %s, but received %s", expected,
+                    notification), expected, notification);
+            }
+            
+            @Override
+            public String toString() {
+                return String.format("runAndWaitFor(%s)", expected);
+            }
         });
-      }
+    }
+    
+    protected void getActivityAndWaitFor(final TestCoordinator.TTChecks expected) {
+        runAndWaitFor(new Runnable() {
+            public void run() {
+                getActivity();
+            }
+        }, expected);
+    }
     
 }
