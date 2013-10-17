@@ -23,19 +23,20 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	private MockHttpClient mockHttpClient;
 	private QuizQuestion mQuestion;
-	
+
+	private String mQuestionText = "How many rings the Olympic flag Five has?";
+	private String[] mAnswers = { "One", "Six", "Five" };
+	private Set<String> mTags = new TreeSet<String>();
+	private int mSolutionIndex = 2;
 
 	protected void setUp() throws Exception {
 		super.setUp();
 		mockHttpClient = new MockHttpClient();
 		SwengHttpClientFactory.setInstance(mockHttpClient);
-		mockHttpClient
-		.pushCannedResponse(
+		mockHttpClient.pushCannedResponse(
 				"GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
-				HttpStatus.SC_OK,
-				"",
-				"application/json");
-		
+				HttpStatus.SC_OK, "", "application/json");
+
 	}
 
 	private void pushIncorrectQuestion() {
@@ -49,73 +50,82 @@ public class ServerCommunicationTest extends AndroidTestCase {
 								+ " \"solutionIndex\": 2, \"tags\": [\"Tag1\", \"Tag2\"], \"Tag3\": \"Tag4\" }",
 						"application/json");
 	}
-	
-	private void pushCorrectQuestion(){
+
+	private void pushCorrectQuestion() {
 		mockHttpClient.popCannedResponse();
 		mockHttpClient
-		.pushCannedResponse(
-				"GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
-				HttpStatus.SC_OK,
-				"{\"question\": \"How many rings the Olympic flag Five has?\","
-						+ " \"answers\": [\"One\", \"Six\", \"Five\"], \"owner\": \"sweng\","
-						+ " \"solutionIndex\": 2, \"tags\": [\"Tag1\", \"Tag2\"], \"Tag3\": \"Tag4\" }",
-				"application/json");
+				.pushCannedResponse(
+						"GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+						HttpStatus.SC_OK,
+						"{\"question\": \"How many rings the Olympic flag Five has?\","
+								+ " \"answers\": [\"One\", \"Six\", \"Five\"], \"owner\": \"sweng\","
+								+ " \"solutionIndex\": 2, \"tags\": [\"Tag1\", \"Tag2\"], \"Tag3\": \"Tag4\" }",
+						"application/json");
 	}
 
 	public void testGetRandomQuestion() {
 		pushCorrectQuestion();
 		mQuestion = ServerCommunication.getRandomQuestion();
-		assertFalse("Question is fetched", mQuestion == null);
+		assertTrue("Question is fetched", mQuestion != null);
 	}
 
 	public void testQuestionTextCorrectlyFetched() {
 		pushCorrectQuestion();
 		mQuestion = ServerCommunication.getRandomQuestion();
-		
+
 		assertTrue("Question text is correctly fetched",
-				"How many rings the Olympic flag Five has?".equals(mQuestion
-						.getQuestion()));
+				mQuestionText.equals(mQuestion.getQuestion()));
 	}
 
 	public void testQuestionTagsCorrectlyFetched() {
 		pushCorrectQuestion();
 		mQuestion = ServerCommunication.getRandomQuestion();
 
-		Set<String> tags = new TreeSet<String>();
-		tags.add("Tag1");
-		tags.add("Tag2");
+		mTags.add("Tag1");
+		mTags.add("Tag2");
 
 		assertTrue("Question tags are correctly fetced",
-				tags.equals(mQuestion.getTags()));
+				mTags.equals(mQuestion.getTags()));
 	}
 
 	public void testQuestionAnswersCorrectlyFetched() {
 		pushCorrectQuestion();
 		mQuestion = ServerCommunication.getRandomQuestion();
 
-
-		String[] answers = { "One", "Six", "Five" };
-
 		assertTrue("Question answers are correctly fetched",
-				Arrays.equals(answers, mQuestion.getAnswers()));
+				Arrays.equals(mAnswers, mQuestion.getAnswers()));
 	}
 
 	public void testSolutionIndexCorrectlyFetched() {
 		pushCorrectQuestion();
 		mQuestion = ServerCommunication.getRandomQuestion();
 
-		int correctAnswer = 2;
-
 		assertTrue("Solution index is correctly fetched",
-				correctAnswer == mQuestion.getSolutionIndex());
+				mSolutionIndex == mQuestion.getSolutionIndex());
 	}
 
 	public void testGetRandomIncorrectQuestion() {
 		pushIncorrectQuestion();
 		mQuestion = ServerCommunication.getRandomQuestion();
-		
+
 		assertTrue("Incorrect question is not fetched", null == mQuestion);
 
 	}
 
+	public void testSendQuestion() {
+		mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
+				mTags);
+		boolean questionSent = ServerCommunication.send(mQuestion);
+		assertTrue("Valid question is sent", questionSent);
+		//mockHttpClient.clearCannedResponses();
+	}
+	
+	public void testQuestionWellRecieved() {
+		mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
+				mTags);
+		boolean questionSent = ServerCommunication.send(mQuestion);
+		//mQuestion = mockHttpClient.getLastRequest();
+		assertTrue("Valid question is sent", questionSent);
+		//mockHttpClient.clearCannedResponses();
+	}
 }
