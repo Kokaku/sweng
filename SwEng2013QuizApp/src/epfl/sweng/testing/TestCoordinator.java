@@ -50,6 +50,7 @@ public final class TestCoordinator {
      * to some finished action.
      */
     public enum TTChecks {
+        DIALOG_SHOWN,
         NONE,
         QUESTION_SHOWN,
         ANSWER_SELECTED,
