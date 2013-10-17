@@ -6,6 +6,7 @@ import org.apache.http.HttpStatus;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -70,7 +71,7 @@ public class EditQuestionActivityTest extends
 	}
 	
 	private void submitQuestion() {
-        clickOnButtonAndWaitFor("submit", TTChecks.QUESTION_EDITED);
+        clickOnButtonAndWaitFor("Submit", TTChecks.NEW_QUESTION_SUBMITTED);
 	}
 
     private LinearLayout getLinearLayout(String textDisplayed) {
@@ -312,5 +313,38 @@ public class EditQuestionActivityTest extends
         solo.enterText(solo.getEditText("tag1 tag2"), "");
         assertFalse("Submit button must be disabled after removing tags",
                 submitButton.isEnabled());
+    }
+    
+    //TODO Doesn't work without MockServer
+    public void testScreenIsResetAfterSubmit() {
+        solo.enterText(solo.getEditText("Type in the question's text body"),
+                "This is my question");
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer1");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer2");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer3");
+        solo.enterText(solo.getEditText("Type in the question's tags"),
+                "tag1 tag2");
+        clickOnViewInListView(0, "answer2");
+        Button submitButton = solo.getButton("Submit");
+        assertTrue("Submit button must be enabled with valid question",
+                submitButton.isEnabled());
+        
+        //submitQuestion();
+        
+        LinearLayout topLevelLayout = 
+                (LinearLayout) submitButton.getParent().getParent();
+        List<View> listViews = solo.getViews(topLevelLayout);
+        for (View view : listViews) {
+            if(view instanceof EditText) {
+                assertTrue("EditText not empty after submit", 
+                        ((EditText) view).getText().toString().equals(""));
+            }
+            
+        }
     }
 }
