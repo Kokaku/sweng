@@ -43,19 +43,11 @@ public class ShowQuestionsActivityTest extends
     }
     
     private void selectRightAnswer() {
-        runAndWaitFor(new Runnable() {
-            public void run() {
-                solo.clickOnText("Forty-two");
-            }
-        },TTChecks.ANSWER_SELECTED);
+        clickOnTextViewAndWaitFor("Forty-two", TTChecks.ANSWER_SELECTED);
     }
     
     private void selectWrongAnswer() {
-        runAndWaitFor(new Runnable() {
-            public void run() {
-                solo.clickOnText("Twenty-seven");
-            }
-        },TTChecks.ANSWER_SELECTED);
+        clickOnTextViewAndWaitFor("Twenty-seven", TTChecks.ANSWER_SELECTED);
     }
 
     public void testQuestionCorrectlyDisplayed() {
@@ -67,6 +59,8 @@ public class ShowQuestionsActivityTest extends
                 solo.searchText("Twenty-seven"));
         assertTrue("Button Next question is displayed",
                 solo.searchButton("Next question"));
+        assertTrue("tag is displayed", solo.searchText("h2g2"));
+        assertTrue("tag is displayed", solo.searchText("trivia"));
     }
 
     public void testNextQuestionButtonInitiallyDisabled() {
@@ -100,6 +94,13 @@ public class ShowQuestionsActivityTest extends
                 nextQuestionButton.isEnabled());
     }
 
+    public void testNextQuestionButtonDisabledAfterWrongAnswer() {
+        selectWrongAnswer();
+        Button nextQuestionButton = solo.getButton("Next question");
+        assertFalse("Next question button is disabled",
+                nextQuestionButton.isEnabled());
+    }
+
     public void testAnswersNotClickableAfterRightAnswer() {
         selectRightAnswer();
         TextView correctAnswer = solo.getText("Forty-two");
@@ -112,6 +113,84 @@ public class ShowQuestionsActivityTest extends
         TextView correctAnswer = solo.getText("Forty-two");
         ListView listView = (ListView) correctAnswer.getParent();
         assertTrue("Answers are clickable", listView.isEnabled());
+    }
+    
+    public void testNextQuestion() {
+        mockHttpClient
+                .pushCannedResponse(
+                        "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+                        HttpStatus.SC_OK,
+                        "{\"question\": \"1+1?\","
+                                + " \"answers\": [\"3\", \"2\"], \"owner\": \"me\","
+                                + " \"solutionIndex\": 1, \"tags\": [\"calcul\", \"trivia\"], \"id\": \"1\" }",
+                        "application/json");
+
+        selectRightAnswer();
+        clickOnTextViewAndWaitFor("Next question", TTChecks.QUESTION_SHOWN);
+
+        assertTrue(
+                "Question is displayed",
+                solo.searchText("1+1?"));
+        assertTrue("Correct answer is displayed", solo.searchText("3"));
+        assertTrue("Incorrect answer is displayed",
+                solo.searchText("2"));
+        assertTrue("Button Next question is displayed",
+                solo.searchButton("Next question"));
+        assertTrue("tag is displayed", solo.searchText("calcul"));
+        assertTrue("tag is displayed", solo.searchText("trivia"));
+    }
+    
+    public void testInvalidQuestion() {
+        mockHttpClient
+                .pushCannedResponse(
+                        "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+                        HttpStatus.SC_OK,
+                        "{\"question\": \"1+1?\","
+                                + " \"answers\": [\"3\", \"2\"], \"owner\": \"me\","
+                                + " \"solutionIndex\": 1, \"id\": \"1\" }",
+                        "application/json");
+
+        selectRightAnswer();
+        clickOnTextViewAndWaitFor("Next question", TTChecks.DIALOG_SHOWN);
+
+        assertTrue("Question is displayed", solo.searchText("Retry"));
+        assertTrue("Question is displayed", solo.searchText("Abort"));
+    }
+    
+    public void testInvalidQuestionAndRetry() {
+        mockHttpClient
+                .pushCannedResponse(
+                        "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+                        HttpStatus.SC_OK,
+                        "{\"question\": \"1+1?\","
+                                + " \"answers\": [\"3\", \"2\"], \"owner\": \"me\","
+                                + " \"solutionIndex\": 1, \"id\": \"1\" }",
+                        "application/json");
+
+        selectRightAnswer();
+        clickOnTextViewAndWaitFor("Next question", TTChecks.DIALOG_SHOWN);
+
+        mockHttpClient .pushCannedResponse(
+                "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+                HttpStatus.SC_OK,
+                "{\"question\": \"1+1?\","
+                        + " \"answers\": [\"3\", \"2\"], \"owner\": \"me\","
+                        + " \"solutionIndex\": 1, \"tags\": [\"calcul\", \"trivia\"], \"id\": \"1\" }",
+                "application/json");
+
+        clickOnTextViewAndWaitFor("Retry", TTChecks.QUESTION_SHOWN);
+        
+        assertTrue(
+                "Question is displayed",
+                solo.searchText("1+1?"));
+        assertTrue("Correct answer is displayed", solo.searchText("3"));
+        assertTrue("Incorrect answer is displayed",
+                solo.searchText("2"));
+        assertTrue("Button Next question is displayed",
+                solo.searchButton("Next question"));
+        assertTrue("tag is displayed", solo.searchText("calcul"));
+        assertTrue("tag is displayed", solo.searchText("trivia"));
+        
     }
 
 }
