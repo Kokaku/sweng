@@ -47,11 +47,11 @@ public class EditQuestionActivityTest extends
 	}
 
 	private void addAnswer() {
-	    clickOnButtonAndWaitFor("\u002B", TTChecks.QUESTION_EDITED);
+	    clickOnTextViewAndWaitFor("\u002B", TTChecks.QUESTION_EDITED);
 	}
 	
 	private void removeAnswer() {
-        clickOnButtonAndWaitFor("\u002D", TTChecks.QUESTION_EDITED);
+        clickOnTextViewAndWaitFor("\u002D", TTChecks.QUESTION_EDITED);
 	}
 	
 	/**
@@ -71,7 +71,7 @@ public class EditQuestionActivityTest extends
 	}
 	
 	private void submitQuestion() {
-        clickOnButtonAndWaitFor("Submit", TTChecks.NEW_QUESTION_SUBMITTED);
+        clickOnTextViewAndWaitFor("Submit", TTChecks.NEW_QUESTION_SUBMITTED);
 	}
 
     private LinearLayout getLinearLayout(String textDisplayed) {

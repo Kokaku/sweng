@@ -63,11 +63,11 @@ public abstract class QuizActivityTestCase<T extends Activity>
         }, expected);
     }
     
-    protected void clickOnButtonAndWaitFor(final String buttonText, 
+    protected void clickOnTextViewAndWaitFor(final String textViewText, 
         final TestCoordinator.TTChecks expected) {
         runAndWaitFor(new Runnable() {
             public void run() {
-                solo.clickOnButton(buttonText);
+                solo.clickOnText(textViewText);
             }
         }, expected);
     }

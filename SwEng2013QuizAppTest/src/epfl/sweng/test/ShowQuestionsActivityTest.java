@@ -43,19 +43,11 @@ public class ShowQuestionsActivityTest extends
     }
     
     private void selectRightAnswer() {
-        runAndWaitFor(new Runnable() {
-            public void run() {
-                solo.clickOnText("Forty-two");
-            }
-        },TTChecks.ANSWER_SELECTED);
+        clickOnTextViewAndWaitFor("Forty-two", TTChecks.ANSWER_SELECTED);
     }
     
     private void selectWrongAnswer() {
-        runAndWaitFor(new Runnable() {
-            public void run() {
-                solo.clickOnText("Twenty-seven");
-            }
-        },TTChecks.ANSWER_SELECTED);
+        clickOnTextViewAndWaitFor("Twenty-seven", TTChecks.ANSWER_SELECTED);
     }
 
     public void testQuestionCorrectlyDisplayed() {
