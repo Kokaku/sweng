@@ -286,6 +286,31 @@ public class EditQuestionActivityTest extends
     }
     
     public void testCannotSubmitWithEmptyTags() {
-        Button submit = solo.getButton("Submit");
+        
+        solo.enterText(solo.getEditText("Type in the question's text body"),
+                "This is my question");
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer1");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer2");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer3");
+
+        clickOnViewInListView(0, "answer2");
+        Button submitButton = solo.getButton("Submit");
+        
+        assertFalse("Submit button must be disabled without tags",
+                submitButton.isEnabled());
+        
+        solo.enterText(solo.getEditText("Type in the question's tags"),
+                "tag1 tag2");
+        assertTrue("Submit button must be enabled with valid question",
+                submitButton.isEnabled());
+        
+        solo.enterText(solo.getEditText("tag1 tag2"), "");
+        assertFalse("Submit button must be disabled after removing tags",
+                submitButton.isEnabled());
     }
 }
