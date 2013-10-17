@@ -1,5 +1,8 @@
 package epfl.sweng.test.minimalmock;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +10,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -16,6 +20,7 @@ import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.RedirectHandler;
 import org.apache.http.client.RequestDirector;
 import org.apache.http.client.UserTokenHandler;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.routing.HttpRoutePlanner;
@@ -50,6 +55,8 @@ public class MockHttpClient extends DefaultHttpClient {
     }
 
     private final List<CannedResponse> responses = new ArrayList<CannedResponse>();
+    
+    private HttpRequest lastRequest;
 
     public void pushCannedResponse(String requestRegex, int status, String responseBody, String contentType) {
         responses.add(0, new CannedResponse(Pattern.compile(requestRegex), status, responseBody, contentType));
@@ -60,6 +67,10 @@ public class MockHttpClient extends DefaultHttpClient {
             throw new IllegalStateException("Canned response stack is empty!");
         }
         responses.remove(0);
+    }
+    
+    public void clearCannedResponses() {
+        responses.clear();
     }
 
     @Override
@@ -80,6 +91,8 @@ public class MockHttpClient extends DefaultHttpClient {
     }
 
     public HttpResponse processRequest(HttpRequest request) {
+        lastRequest = request;
+        
         for (CannedResponse cr : responses) {
             if (cr.pattern.matcher(request.getRequestLine().toString()).find()) {
                 Log.v("HTTP", "Mocking request since it matches pattern " + cr.pattern);
@@ -89,6 +102,26 @@ public class MockHttpClient extends DefaultHttpClient {
         }
 
         return null;
+    }
+    
+    public String getLastPostRequestContent()
+            throws IOException {
+        if (lastRequest.getRequestLine().getMethod() == "POST") {
+            StringBuilder sb = new StringBuilder();
+            HttpEntity entity = ((HttpPost) lastRequest).getEntity();
+            String line;
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
+                while ((line = br.readLine()) != null) {
+                    sb.append(line + "\n");
+                }
+                return sb.toString();
+            } catch (Exception e) {
+                throw new IOException("Can't read POST content");
+            }
+        } else {
+            return null;
+        }
     }
 }
 
