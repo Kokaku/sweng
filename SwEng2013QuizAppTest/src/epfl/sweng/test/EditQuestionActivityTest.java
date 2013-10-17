@@ -4,7 +4,6 @@ import org.apache.http.HttpStatus;
 
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.test.framework.QuizActivityTestCase;
@@ -49,12 +48,32 @@ public class EditQuestionActivityTest extends
         clickOnButtonAndWaitFor("\u002D", TTChecks.QUESTION_EDITED);
 	}
 	
-	private void checkAsCorrect(final int index) {
+	/**
+	 * @param index three index per line:
+     * index%3==0 match checkButton
+     * index%3==1 match editText
+     * index%3==2 match removeButton
+     * 
+     * And index/3== line number 
+	 * @param textButton a String of on button that exist in the LinearLayout
+	 */
+	private void clickOnCheckButton(final int index, final String textButton) {
+	    runAndWaitFor(new Runnable() {
+            @Override
+            public void run() {
+                solo.clickOnView(getLinearLayout(textButton).getChildAt(index));
+            }
+        }, TTChecks.QUESTION_EDITED);
 	}
 	
 	private void submitQuestion() {
         clickOnButtonAndWaitFor("submit", TTChecks.QUESTION_EDITED);
 	}
+
+    public LinearLayout getLinearLayout(String textButton) {
+        Button button = solo.getButton(textButton);
+        return (LinearLayout) button.getParent();
+    }
 	
 	
 	public void testQuestionFieldDisplayed() {
@@ -98,46 +117,145 @@ public class EditQuestionActivityTest extends
 	}
 	
 	public void testCheckButtonIsCorrectAfterBeingClicked(){
-        Button wrongButton = solo.getButton("\u2718");
-        final LinearLayout parentLayout = (LinearLayout) wrongButton.getParent();
-        runAndWaitFor(new Runnable() {
-            
-            @Override
-            public void run() {
-                solo.clickOnView(parentLayout.getChildAt(0));
-            }
-        }, TTChecks.QUESTION_EDITED);
-        Button correctButton = solo.getButton("\u2714");
-        LinearLayout ll = (LinearLayout) correctButton.getParent();
-        correctButton = (Button) ll.getChildAt(0);
-	    assertTrue("Check button must be displayed as correct after click",
-	            correctButton.getText().equals("\u2714"));
+	  clickOnCheckButton(0, "\u2718");
+	  Button correctButton = (Button) getLinearLayout("\u2714").getChildAt(0);
+      assertTrue("Check button must be displayed as correct after click",
+            correctButton.getText().equals("\u2714"));
 	}
 	
 	public void testCheckButtonIsWrongAfterBeingReClicked() {
-        Button wrongButton = solo.getButton("\u2718");
-        final LinearLayout firstParentLayout = (LinearLayout) wrongButton.getParent();
-        runAndWaitFor(new Runnable() {
-            
-            @Override
-            public void run() {
-                solo.clickOnView(firstParentLayout.getChildAt(0));
-            }
-        }, TTChecks.QUESTION_EDITED);
-        wrongButton = solo.getButton("\u2714");
-        final LinearLayout secondParentLayout = (LinearLayout) wrongButton.getParent();
-        runAndWaitFor(new Runnable() {
-            
-            @Override
-            public void run() {
-                solo.clickOnView(secondParentLayout.getChildAt(0));
-            }
-        }, TTChecks.QUESTION_EDITED);
-        wrongButton = solo.getButton("\u2718");
-        LinearLayout ll = (LinearLayout) wrongButton.getParent();
-        wrongButton = (Button) ll.getChildAt(0);
+        clickOnCheckButton(0, "\u2718");
+        clickOnCheckButton(0, "\u2714");
+        
+        Button wrongButton = (Button) getLinearLayout("\u2718").getChildAt(0);
         assertTrue("Check button must be displayed as wrong after double click",
                 wrongButton.getText().equals("\u2718"));
 	}
 	
+	public void testAddAnswerThenRemoveFirst() {
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer1");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer2");
+
+        assertTrue("Answer field is displayed",
+                solo.searchEditText("answer1"));
+        assertTrue("Answer field is displayed",
+                solo.searchEditText("answer2"));
+        
+        clickOnCheckButton(2, "\u002D");
+
+        assertFalse("Answer field is displayed",
+                solo.searchEditText("answer1"));
+        assertTrue("Answer field is displayed",
+                solo.searchEditText("answer2"));
+	}
+    
+    public void testAddAnswerThenRemoveSecond() {
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer1");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer2");
+
+        assertTrue("Answer field is displayed",
+                solo.searchEditText("answer1"));
+        assertTrue("Answer field is displayed",
+                solo.searchEditText("answer2"));
+        
+        //TODO seem like click on button index doesn't works on others lines
+//        clickOnCheckButton(5, "\u002D");
+
+//        assertFalse("Answer field is displayed",
+//                solo.searchEditText("answer2"));
+//        assertTrue("Answer field is displayed",
+//                solo.searchEditText("answer1"));
+    }
+    
+    public void testCannotSubmitWithAllAnswersRemoved() {
+        solo.enterText(solo.getEditText("Type in the question's text body"),
+                "This is my question");
+        solo.enterText(solo.getEditText("Type in the question's tags"),
+                "tag1 tag2");
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer1");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer2");
+        
+        Button submitButton = solo.getButton("Submit");
+        clickOnCheckButton(0, "\u2718");
+        assertTrue("Submit button is initially disabled",
+                submitButton.isEnabled());
+        
+        removeAnswer();
+        removeAnswer();
+        submitButton = solo.getButton("Submit");
+        assertFalse("Submit button is initially disabled",
+                submitButton.isEnabled());
+    }
+    
+    public void testCannotSubmitWithEmptyAnswer() {
+        solo.enterText(solo.getEditText("Type in the question's text body"),
+                "This is my question");
+        solo.enterText(solo.getEditText("Type in the question's tags"),
+                "tag1 tag2");
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer1");
+        addAnswer();
+        clickOnCheckButton(0, "\u2718");
+        
+        Button submitButton = solo.getButton("Submit");
+        assertFalse("Submit button is initially disabled",
+                submitButton.isEnabled());
+    }
+    
+    public void testCannotSubmitWithoutCorrectAnswer() {
+        solo.enterText(solo.getEditText("Type in the question's text body"),
+                "This is my question");
+        solo.enterText(solo.getEditText("Type in the question's tags"),
+                "tag1 tag2");
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer1");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer2");
+        
+        Button submitButton = solo.getButton("Submit");
+        assertFalse("Submit button is initially disabled",
+                submitButton.isEnabled());
+    }
+    
+    public void testClickAddAnswerButton() {
+        assertTrue("Answer field is displayed",
+                solo.searchEditText("Type in the answer"));
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer1");
+        assertFalse("Answer field is displayed",
+                solo.searchEditText("Type in the answer"));
+        addAnswer();
+        assertTrue("Answer field is displayed",
+                solo.searchEditText("Type in the answer"));
+    }
+    
+    public void testCannotSubmitWithoutQuestion() {
+        solo.enterText(solo.getEditText("Type in the question's tags"),
+                "tag1 tag2");
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer1");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer2");
+        clickOnCheckButton(0, "\u2718");
+        
+        Button submitButton = solo.getButton("Submit");
+        assertFalse("Submit button is initially disabled",
+                submitButton.isEnabled());
+    }
+    
+    public void testOnlyOneAnswerIsCorrect() {
+        //TODO
+        assertTrue(true);
+    }
 }
