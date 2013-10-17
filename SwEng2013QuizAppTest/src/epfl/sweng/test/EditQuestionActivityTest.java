@@ -1,9 +1,13 @@
 package epfl.sweng.test;
 
+import java.util.List;
+
 import org.apache.http.HttpStatus;
 
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
@@ -270,12 +274,18 @@ public class EditQuestionActivityTest extends
         clickOnViewInListView(0, "answer1");
         clickOnViewInListView(0, "answer3");
         clickOnViewInListView(0, "answer2");
-
-        Button correctButton = (Button) getLinearLayout("\u2714").getChildAt(0);
-        assertTrue("Check button must be displayed as correct after click",
-              correctButton.getText().equals("\u2714"));
-        clickOnViewInListView(0, "\u2714");
-        assertFalse("There must be no correct buttons",
-                solo.searchButton("\u2714"));
+        int nbCorrectAnswers = 0;
+        List<View> listViews = solo.getViews((ListView) (getLinearLayout("answer1").getParent()));
+        for (View view : listViews) {
+            if(view instanceof Button && ((Button)view).getText().equals("\u2714")) {
+                nbCorrectAnswers++;
+            }
+        }
+        
+        assertTrue("There must be one and only one correct aswer", nbCorrectAnswers == 1);
+    }
+    
+    public void testCannotSubmitWithEmptyTags() {
+        Button submit = solo.getButton("Submit");
     }
 }
