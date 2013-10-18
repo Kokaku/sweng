@@ -16,28 +16,33 @@ import android.os.AsyncTask;
  * @author ValentinRutz
  * 
  */
-public class PostQuestionTask extends
-        AsyncTask<String, Integer, Boolean> {
+public class HttpPostTask extends
+        AsyncTask<String, Integer, String> {
 
+    private enum HttpParams {
+        URL, REQUEST, HEADER_NAME, HEADER_CONTENT;
+    }
     /*
      * (non-Javadoc)
      * 
      * @see android.os.AsyncTask#doInBackground(Params[])
      */
     @Override
-    protected Boolean doInBackground(String... jsonString) {
+    protected String doInBackground(String... postParams) {
         try {
-        	HttpPost post = new HttpPost(ServerCommunication.SERVER_URL);
-            post.setEntity(new StringEntity(jsonString[0]));
-            post.setHeader("Content-type", "application/json");
+        	HttpPost post = new HttpPost(postParams[HttpParams.URL.ordinal()]);
+            post.setEntity(new StringEntity(
+                    postParams[HttpParams.REQUEST.ordinal()]));
+            post.setHeader(
+                    postParams[HttpParams.HEADER_NAME.ordinal()],
+                    postParams[HttpParams.HEADER_CONTENT.ordinal()]);
             ResponseHandler<String> handler = new BasicResponseHandler();
             /* returns a string corresponding to the response HTTP */
-            SwengHttpClientFactory.getInstance().execute(post, handler);
-            return true;
+            return SwengHttpClientFactory.getInstance().execute(post, handler);
         } catch (UnsupportedEncodingException e1) {
         } catch (IOException e) {
         }
-        return false;
+        return "error";
     }
 
 }

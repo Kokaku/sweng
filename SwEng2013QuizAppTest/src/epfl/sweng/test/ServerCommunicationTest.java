@@ -93,7 +93,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	private void pushCannedAnswerForOKPostRequest() {
 		mockHttpClient.clearCannedResponses();
-		mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_OK, null,
+		mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_OK, "correctly sent",
 				null);
 
 	}

@@ -28,12 +28,19 @@ public final class ServerCommunication {
      * @return true if the question has been correctly sent
      */
     public static boolean send(QuizQuestion question) {
-        try {
-            return new PostQuestionTask().execute(
-                    JSONUtilities.getJSONString(question)).get();
-        } catch (InterruptedException e) {
-        } catch (ExecutionException e) {
-        } catch (JSONException e) {
+        if (question != null) {
+            try {
+                String httpAnswer = new HttpPostTask().execute(
+                        SERVER_URL,
+                        JSONUtilities.getJSONString(question),
+                        "Content-type",
+                        "application/json").get();
+                return httpAnswer != null &&
+                       !httpAnswer.equalsIgnoreCase("error");
+            } catch (InterruptedException e) {
+            } catch (ExecutionException e) {
+            } catch (JSONException e) {
+            }
         }
 
 		return false;
@@ -45,17 +52,16 @@ public final class ServerCommunication {
      */
     public static QuizQuestion getRandomQuestion() {
         try {
-        	JSONObject json = new GetQuestionTask().execute(
-        			SERVER_URL + "random").get();
-        	if (json == null) {
-        		return null;
-        	}
-        	return new QuizQuestion(
-        			json.getString("question"),
-        			JSONUtilities.parseAnswers(json),
-        			json.getInt("solutionIndex"),
-        			JSONUtilities.parseTags(json));
-        	
+            String httpAnswer = new HttpGetTask().execute(
+                    SERVER_URL + "random").get();
+            if (httpAnswer != null) {
+            	JSONObject json = new JSONObject(httpAnswer);
+            	return new QuizQuestion(
+            			json.getString("question"),
+            			JSONUtilities.parseAnswers(json),
+            			json.getInt("solutionIndex"),
+            			JSONUtilities.parseTags(json));
+            }
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {
 		} catch (JSONException e) {
