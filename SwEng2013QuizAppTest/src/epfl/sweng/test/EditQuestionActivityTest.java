@@ -333,8 +333,10 @@ public class EditQuestionActivityTest extends
         Button submitButton = solo.getButton("Submit");
         assertTrue("Submit button must be enabled with valid question",
                 submitButton.isEnabled());
-        
-        //submitQuestion();
+
+        mockHttpClient.clearCannedResponses();
+        mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_OK, null, null);
+        submitQuestion();
         
         LinearLayout topLevelLayout = 
                 (LinearLayout) submitButton.getParent().getParent();
