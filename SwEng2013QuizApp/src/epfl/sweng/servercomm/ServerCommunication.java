@@ -65,4 +65,7 @@ public final class ServerCommunication {
         return null;
     }
     
+    public static boolean login() {
+        return false;
+    }
 }
