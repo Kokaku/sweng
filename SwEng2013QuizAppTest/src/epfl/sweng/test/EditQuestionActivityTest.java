@@ -34,14 +34,17 @@ public class EditQuestionActivityTest extends
 		mockHttpClient = new MockHttpClient();
 		SwengHttpClientFactory.setInstance(mockHttpClient);
 
-        mockHttpClient
-                .pushCannedResponse(
-                        "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
-                        HttpStatus.SC_OK,
-                        "{\"question\": \"What is the answer to life, the universe, and everything?\","
-                                + " \"answers\": [\"Forty-two\", \"Twenty-seven\"], \"owner\": \"sweng\","
-                                + " \"solutionIndex\": 0, \"tags\": [\"h2g2\", \"trivia\"], \"id\": \"1\" }",
-                        "application/json");
+		mockHttpClient
+        .pushCannedResponse(
+                "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+                HttpStatus.SC_OK,
+                "{\"question\": \"What is the answer to life, the universe, and everything?\","
+                        + " \"answers\": [\"Forty-two\", \"Twenty-seven\"], \"owner\": \"sweng\","
+                        + " \"solutionIndex\": 0, \"tags\": [\"h2g2\", \"trivia\"], \"id\": \"1\" }",
+                "application/json");
+		
+        mockHttpClient.pushCannedResponse("POST [^/]+",
+                HttpStatus.SC_BAD_REQUEST, null, null);
 
 		getActivityAndWaitFor(TTChecks.EDIT_QUESTIONS_SHOWN);
 	}
@@ -315,7 +318,6 @@ public class EditQuestionActivityTest extends
                 submitButton.isEnabled());
     }
     
-    //TODO Doesn't work without MockServer
     public void testScreenIsResetAfterSubmit() {
         solo.enterText(solo.getEditText("Type in the question's text body"),
                 "This is my question");
@@ -334,8 +336,6 @@ public class EditQuestionActivityTest extends
         assertTrue("Submit button must be enabled with valid question",
                 submitButton.isEnabled());
 
-        mockHttpClient.clearCannedResponses();
-        mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_OK, null, null);
         submitQuestion();
         
         LinearLayout topLevelLayout = 
@@ -348,5 +348,29 @@ public class EditQuestionActivityTest extends
             }
             
         }
+    }
+    
+    public void testToastAppearsWhenBADRequest() {
+        solo.enterText(solo.getEditText("Type in the question's text body"),
+                "This is my question");
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer1");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer2");
+        addAnswer();
+        solo.enterText(solo.getEditText("Type in the answer"),
+                "answer3");
+        solo.enterText(solo.getEditText("Type in the question's tags"),
+                "tag1 tag2");
+        clickOnViewInListView(0, "answer2");
+        Button submitButton = solo.getButton("Submit");
+        assertTrue("Submit button must be enabled with valid question",
+                submitButton.isEnabled());
+
+        submitQuestion();
+        
+        assertTrue("EditQuestionActivity should show a Toast if bad request"
+                , solo.searchText("There was an error retrieving the question"));
     }
 }
