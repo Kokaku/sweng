@@ -57,6 +57,8 @@ public class MockHttpClient extends DefaultHttpClient {
     private final List<CannedResponse> responses = new ArrayList<CannedResponse>();
     
     private HttpRequest lastRequest;
+    
+    
 
     public void pushCannedResponse(String requestRegex, int status, String responseBody, String contentType) {
         responses.add(0, new CannedResponse(Pattern.compile(requestRegex), status, responseBody, contentType));
@@ -109,7 +111,7 @@ public class MockHttpClient extends DefaultHttpClient {
         if (lastRequest.getRequestLine().getMethod() == "POST") {
             StringBuilder sb = new StringBuilder();
             HttpEntity entity = ((HttpPost) lastRequest).getEntity();
-            String line;
+            String line = null;
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
                 while ((line = br.readLine()) != null) {
