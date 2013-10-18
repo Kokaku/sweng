@@ -37,16 +37,10 @@ public class MainActivity extends Activity {
         mTequilaLogin = (Button) findViewById(R.id.tequila_login_button);
     }
 
+    @Override
     protected void onResume() {
-        if (AuthenticationState.getState() != AuthenticationState.AUTHENTICATED) {
-            mShowQuestions.setEnabled(false);
-            mEditQuestion.setEnabled(false);
-            mTequilaLogin.setEnabled(true);
-        } else {
-            mShowQuestions.setEnabled(true);
-            mEditQuestion.setEnabled(true);
-            mTequilaLogin.setEnabled(false);
-        }
+        super.onResume();
+        updateButtonStates(AuthenticationState.getState());
     }
 
     /**
@@ -78,6 +72,27 @@ public class MainActivity extends Activity {
     public void tequilaLogin(View view) {
         if (AuthenticationState.getState() != AuthenticationState.AUTHENTICATED) {
             startActivity(new Intent(this, AuthenticationActivity.class));
+        } else {
+            AuthenticationState.setState(AuthenticationState.UNAUTHENTICATED);
+            // TODO delete credentials from the persistent storage
+        }
+    }
+
+    /**
+     * Updates the buttons according to the current state of the application.
+     * 
+     * @param crrentState
+     */
+
+    private void updateButtonStates(AuthenticationState crrentState) {
+        if (crrentState != AuthenticationState.AUTHENTICATED) {
+            mShowQuestions.setEnabled(false);
+            mEditQuestion.setEnabled(false);
+            mTequilaLogin.setText(R.string.tequila_login);
+        } else {
+            mShowQuestions.setEnabled(true);
+            mEditQuestion.setEnabled(true);
+            mTequilaLogin.setText(R.string.tequila_logout);
         }
     }
 
