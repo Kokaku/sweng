@@ -51,7 +51,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 						HttpStatus.SC_OK,
 						"{\"question\": \"How many rings the Olympic flag Five has?\","
 								+ " \"answers\": [], \"owner\": \"sweng\","
-								+ " \"solutionIndex\": 2, \"tags\": [\"Tag1\", \"Tag2\"], \"Tag3\": \"Tag4\" }",
+								+ " \"solutionIndex\": 2, \"tags\": [\"Tag1\", \"Tag2\"],  \"id\": \"1\" }",
 						"application/json");
 	}
 
@@ -63,21 +63,48 @@ public class ServerCommunicationTest extends AndroidTestCase {
 						HttpStatus.SC_OK,
 						"{\"question\": \"How many rings the Olympic flag Five has?\","
 								+ " \"answers\": [\"One\", \"Six\", \"Five\"], \"owner\": \"sweng\","
-								+ " \"solutionIndex\": 2, \"tags\": [\"Tag1\", \"Tag2\"], \"Tag3\": \"Tag4\" }",
+								+ " \"solutionIndex\": 2, \"tags\": [\"Tag1\", \"Tag2\"],  \"id\": \"1\" }",
 						"application/json");
 	}
 
-	private void pushCannedAnswerForOKPostRequest(){
+	private void pushCannedAnswerWithInvalidJSONObject() {
 		mockHttpClient.clearCannedResponses();
-		mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_OK, null, null);
-		
+		mockHttpClient
+				.pushCannedResponse(
+						"GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+						HttpStatus.SC_OK,
+						"{\"question\" \"How many rings the Olympic flag Five has?\","
+								+ " ], \"owner\" \"sweng\","
+								+ " \"solutionIndex\" 2, \"tags\" \"Tag2\"],  \"i \"1\" }",
+						"application/json");
 	}
-	
-	private void pushCannedAnswerForBADPostRequest(){
+
+	private void pushCannedAnswerWithMissingJSONFieldAnswers() {
 		mockHttpClient.clearCannedResponses();
-		mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_BAD_REQUEST, null, null);
-		
+		mockHttpClient
+				.pushCannedResponse(
+						"GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+						HttpStatus.SC_OK,
+						"{\"question\": \"How many rings the Olympic flag Five has?\","
+								+ " \"an\": [\"One\", \"Six\", \"Five\"], \"owner\": \"sweng\","
+								+ " \"solutionIndex\": 2, \"tags\": [\"Tag1\", \"Tag2\"],  \"id\": \"1\" }",
+						"application/json");
 	}
+
+	private void pushCannedAnswerForOKPostRequest() {
+		mockHttpClient.clearCannedResponses();
+		mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_OK, null,
+				null);
+
+	}
+
+	private void pushCannedAnswerForBADPostRequest() {
+		mockHttpClient.clearCannedResponses();
+		mockHttpClient.pushCannedResponse("POST [^/]+",
+				HttpStatus.SC_BAD_REQUEST, null, null);
+
+	}
+
 	public void testGetRandomQuestion() {
 		pushCannedAnswerForCorrectQuestion();
 		mQuestion = ServerCommunication.getRandomQuestion();
@@ -127,6 +154,22 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	}
 
+	public void testGetRandomQuestionWithBadJSONObject() {
+		pushCannedAnswerWithInvalidJSONObject();
+		mQuestion = ServerCommunication.getRandomQuestion();
+
+		assertTrue("Question should not be created when invalid JSONObject "
+				+ "returned by server", null == mQuestion);
+	}
+
+	public void testGetRandomQuestionWithMissingJSONFielAnswers() {
+		pushCannedAnswerWithMissingJSONFieldAnswers();
+		mQuestion = ServerCommunication.getRandomQuestion();
+
+		assertTrue("Question should not be parsed when missing fields in"
+				+ "the JSONObject retrurned by server", null == mQuestion);
+	}
+
 	public void testSendQuestion() {
 		mTags.add("tag1");
 		pushCannedAnswerForOKPostRequest();
@@ -141,37 +184,39 @@ public class ServerCommunicationTest extends AndroidTestCase {
 		mTags.add("tag1");
 		mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
 				mTags);
-		
+
 		pushCannedAnswerForOKPostRequest();
 		ServerCommunication.send(mQuestion);
 		QuizQuestion questionOnServer = null;
 		try {
-			JSONObject json = new JSONObject(mockHttpClient.getLastPostRequestContent());
-			
-			questionOnServer = new QuizQuestion(
-        			json.getString("question"),
-        			JSONUtilities.parseAnswers(json),
-        			json.getInt("solutionIndex"),
-        			JSONUtilities.parseTags(json));
+			JSONObject json = new JSONObject(
+					mockHttpClient.getLastPostRequestContent());
+
+			questionOnServer = new QuizQuestion(json.getString("question"),
+					JSONUtilities.parseAnswers(json),
+					json.getInt("solutionIndex"), JSONUtilities.parseTags(json));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 		}
-		
-		assertTrue("Question text is well recieved", 
-				mQuestion.getQuestion().equals(questionOnServer.getQuestion()));
-		assertTrue("Question answers are well recieved", 
-				Arrays.equals(mQuestion.getAnswers(), questionOnServer.getAnswers()));
-		assertTrue("Question tags are well recieved", 
-				mQuestion.getTags().equals(questionOnServer.getTags()));
-		assertTrue("Question solution index is well recieved", 
-				mQuestion.getSolutionIndex() == questionOnServer.getSolutionIndex());
-		
+
+		assertTrue("Question text is well recieved", mQuestion.getQuestion()
+				.equals(questionOnServer.getQuestion()));
+		assertTrue(
+				"Question answers are well recieved",
+				Arrays.equals(mQuestion.getAnswers(),
+						questionOnServer.getAnswers()));
+		assertTrue("Question tags are well recieved", mQuestion.getTags()
+				.equals(questionOnServer.getTags()));
+		assertTrue("Question solution index is well recieved",
+				mQuestion.getSolutionIndex() == questionOnServer
+						.getSolutionIndex());
+
 		mockHttpClient.clearCannedResponses();
 	}
-	
-	public void testQuestionNotRecieved(){
+
+	public void testQuestionNotRecieved() {
 		pushCannedAnswerForBADPostRequest();
 		mTags.add("tag1");
 		mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
@@ -179,4 +224,5 @@ public class ServerCommunicationTest extends AndroidTestCase {
 		boolean questionSent = ServerCommunication.send(mQuestion);
 		assertFalse("The server did not accept the request", questionSent);
 	}
+
 }
