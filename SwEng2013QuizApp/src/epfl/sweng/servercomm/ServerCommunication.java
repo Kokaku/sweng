@@ -17,8 +17,12 @@ import epfl.sweng.utils.JSONUtilities;
  */
 public final class ServerCommunication {
 
-    public static final String SERVER_URL = 
+    private static final String SERVER_URL = 
     		"https://sweng-quiz.appspot.com/quizquestions/";
+    private final static String SERVER_LOGIN_URL =
+            "https://sweng-quiz.appspot.com/login";
+    private final static String TEQUILA_URL = 
+            "https://tequila.epfl.ch/cgi-bin/tequila/login";
     
     private ServerCommunication() { }
     
@@ -69,6 +73,26 @@ public final class ServerCommunication {
 		}
         
         return null;
+    }
+
+    /**
+     * @return
+     */
+    public static boolean login(String username, String password) {
+
+        String httpAnswer;
+        try {
+            httpAnswer = new HttpGetTask().execute(SERVER_LOGIN_URL).get();
+            if(httpAnswer!=null) {
+                JSONObject json = new JSONObject(httpAnswer);
+                String token = json.getString("token");
+            }
+        } catch (InterruptedException e) {}
+          catch (ExecutionException e) {}
+          catch (JSONException e) {}
+        
+    
+        return false;
     }
     
 }

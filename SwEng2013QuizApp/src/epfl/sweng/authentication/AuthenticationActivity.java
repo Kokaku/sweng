@@ -42,7 +42,8 @@ public class AuthenticationActivity extends Activity {
      * credentials and finishes if the login is successful
      */
     public void onClickLogin(View view) {
-        if (ServerCommunication.login() == true) {
+        if (ServerCommunication.login(mUsername.getText().toString(),
+                mPassword.getText().toString()) == true) {
             finish();
         } else {
             mUsername.setText("");
