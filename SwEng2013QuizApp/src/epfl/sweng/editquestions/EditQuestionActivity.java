@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 import epfl.sweng.R;
 import epfl.sweng.questions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
@@ -96,8 +97,13 @@ public class EditQuestionActivity extends ListActivity {
         //TODO handle Exception on QuizQuestion construction and Server comm errors
         QuizQuestion question = new QuizQuestion(questionText, finalAnswers,
                 correctAnswer, tagsSet);
-        ServerCommunication.send(question);
-
+        boolean sendSuccess = ServerCommunication.send(question);
+        
+        if (sendSuccess == false) {
+            Toast.makeText(this, R.string.failed_to_send_question,
+                    Toast.LENGTH_SHORT).show();
+        }
+        
         resetScreen();
         TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
         mOnReset = false;

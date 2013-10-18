@@ -16,6 +16,7 @@
     <string name="type_in_answer">Type in the answer</string>
     <string name="button_submit">Submit</string>
     <string name="button_clear_answer">Clear</string>
+    <string name="failed_to_send_question">There was an error retrieving the question</string>
     
     <!-- ShowQuestionsActivity -->
     <string name="title_activity_show_questions">Let\'s take a quiz!</string>
