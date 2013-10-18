@@ -50,7 +50,6 @@ public final class TestCoordinator {
      * to some finished action.
      */
     public enum TTChecks {
-        DIALOG_SHOWN,
         NONE,
         QUESTION_SHOWN,
         ANSWER_SELECTED,
@@ -61,7 +60,8 @@ public final class TestCoordinator {
         QUESTION_EDITED,
         NEW_QUESTION_SUBMITTED,
         AUTHENTICATION_ACTIVITY_SHOWN,
-        LOGGED_OUT
+        LOGGED_OUT,
+        DIALOG_SHOWN
     };
 
     private TTChecks currentCheck = TTChecks.NONE;
