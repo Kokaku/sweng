@@ -1,77 +1,90 @@
 package epfl.sweng.servercomm;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import epfl.sweng.authentication.AuthenticationState;
 import epfl.sweng.questions.QuizQuestion;
 import epfl.sweng.utils.JSONUtilities;
 
 /**
- * This class allows communication with the question server.
- * Used to fetch questions and send new ones to the server.
+ * This class allows communication with the question server. Used to fetch
+ * questions and send new ones to the server.
  * 
  * @author kokaku
  * 
  */
 public final class ServerCommunication {
 
-    private static final String SERVER_URL = 
-    		"https://sweng-quiz.appspot.com/quizquestions/";
-    private final static String SERVER_LOGIN_URL =
-            "https://sweng-quiz.appspot.com/login";
-    private final static String TEQUILA_URL = 
-            "https://tequila.epfl.ch/cgi-bin/tequila/login";
-    
-    private ServerCommunication() { }
-    
+    private static final String SERVER_URL = "https://sweng-quiz.appspot.com/quizquestions/";
+    private final static String SERVER_LOGIN_URL = "https://sweng-quiz.appspot.com/login";
+    private final static String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
+
+    private ServerCommunication() {
+    }
+
     /**
      * Sends a question to the server
-     * @param question to send to the server
+     * 
+     * @param question
+     *            to send to the server
      * @return true if the question has been correctly sent
      */
     public static boolean send(QuizQuestion question) {
         if (question != null) {
             try {
-                String httpAnswer = new HttpPostTask().execute(
-                        SERVER_URL,
-                        JSONUtilities.getJSONString(question),
-                        "Content-type",
-                        "application/json").get();
+                HttpPost request = new HttpPost(SERVER_URL);
+                request.setEntity(new StringEntity(
+                        JSONUtilities.getJSONString(question)));
+                request.setHeader("Content-type", "application/json");
+                
+                String httpAnswer = new HttpTask().execute(request).get();
                 return httpAnswer != null &&
-                       !httpAnswer.equalsIgnoreCase("error");
+                        !httpAnswer.equals("error");
             } catch (InterruptedException e) {
             } catch (ExecutionException e) {
             } catch (JSONException e) {
+            } catch (UnsupportedEncodingException e) {
             }
         }
 
-		return false;
-	}
+        return false;
+    }
 
     /**
      * Fetch a random question from the server
+     * 
      * @return the random question fetched, null if an error occurred
      */
     public static QuizQuestion getRandomQuestion() {
         try {
-            String httpAnswer = new HttpGetTask().execute(
-                    SERVER_URL + "random").get();
-            if (httpAnswer != null) {
-            	JSONObject json = new JSONObject(httpAnswer);
-            	return new QuizQuestion(
-            			json.getString("question"),
-            			JSONUtilities.parseAnswers(json),
-            			json.getInt("solutionIndex"),
-            			JSONUtilities.parseTags(json));
+            HttpUriRequest request = new HttpGet(SERVER_URL + "random");
+            
+            String httpAnswer = new HttpTask().execute(request).get();
+            if (httpAnswer != null  && !httpAnswer.equals("error")) {
+                JSONObject json = new JSONObject(httpAnswer);
+                return new QuizQuestion(json.getString("question"),
+                        JSONUtilities.parseAnswers(json),
+                        json.getInt("solutionIndex"),
+                        JSONUtilities.parseTags(json));
             }
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {
-		} catch (JSONException e) {
-		} catch (IllegalArgumentException e) {   
-		}
-        
+        } catch (JSONException e) {
+        } catch (IllegalArgumentException e) {
+        }
+
         return null;
     }
 
@@ -79,20 +92,42 @@ public final class ServerCommunication {
      * @return
      */
     public static boolean login(String username, String password) {
-
-        String httpAnswer;
         try {
-            httpAnswer = new HttpGetTask().execute(SERVER_LOGIN_URL).get();
-            if(httpAnswer!=null) {
+            HttpUriRequest request = new HttpGet(SERVER_LOGIN_URL);
+            String httpAnswer = new HttpTask().execute(request).get();
+            if (httpAnswer != null) {
                 JSONObject json = new JSONObject(httpAnswer);
                 String token = json.getString("token");
+                AuthenticationState.setState(AuthenticationState.TOKEN);
+
+                ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
+                params.add(new BasicNameValuePair("requestkey", token));
+                params.add(new BasicNameValuePair("username", username));
+                params.add(new BasicNameValuePair("password", password));
+
+                HttpPost postRequest = new HttpPost(TEQUILA_URL);
+                postRequest.setEntity(new UrlEncodedFormEntity(params));
+                postRequest.setHeader("Content-type", "application/json");
+                
+                httpAnswer = new HttpTask().execute(postRequest).get();
+                System.out.println("BANANA1 "+ httpAnswer);
+                if (httpAnswer == null) {
+                    AuthenticationState.setState(AuthenticationState.TEQUILA);
+                    
+                    postRequest = new HttpPost(SERVER_LOGIN_URL);
+                    postRequest.setEntity(new StringEntity("\"token\": \""+token+"\""));
+                    postRequest.setHeader("Content-type", "application/json");
+                    
+                    System.out.println("BANANA2 "+ httpAnswer);
+                }
             }
-        } catch (InterruptedException e) {}
-          catch (ExecutionException e) {}
-          catch (JSONException e) {}
-        
-    
+        } catch (InterruptedException e) {
+        } catch (ExecutionException e) {
+        } catch (JSONException e) {
+        } catch (UnsupportedEncodingException e) {
+        }
+
         return false;
     }
-    
+
 }

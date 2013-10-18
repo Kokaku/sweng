@@ -3,7 +3,7 @@ package epfl.sweng.servercomm;
 import java.io.IOException;
 
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.BasicResponseHandler;
 
 import android.os.AsyncTask;
@@ -15,7 +15,7 @@ import android.os.AsyncTask;
  * @author kokaku
  * 
  */
-public class HttpGetTask extends AsyncTask<String, Integer, String> {
+public class HttpTask extends AsyncTask<HttpUriRequest, Integer, String> {
 
     /*
      * (non-Javadoc)
@@ -23,17 +23,16 @@ public class HttpGetTask extends AsyncTask<String, Integer, String> {
      * @see android.os.AsyncTask#doInBackground(Params[])
      */
     @Override
-    protected String doInBackground(String... serverURL) {
+    protected String doInBackground(HttpUriRequest... request) {
         try {
-            HttpGet request = new HttpGet(serverURL[0]);
             ResponseHandler<String> handler = new BasicResponseHandler();
             String httpAnswer = SwengHttpClientFactory.getInstance().execute(
-                    request, handler);
+                    request[0], handler);
             return httpAnswer;
         } catch (IOException e) {
         }
 
-        return null;
+        return "error";
     }
 
 }
