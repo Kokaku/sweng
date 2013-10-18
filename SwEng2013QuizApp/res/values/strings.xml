@@ -32,5 +32,10 @@
     <string name="remove_answer">\u002D</string>
     <string name="title_activity_authentication">AuthenticationActivity</string>
     <string name="hello_world">Hello world!</string>
-
+    
+    <!-- AuthenticationActivity -->
+    <string name="GASPAR_username">GASPAR username</string>
+    <string name="GASPAR_password">GASPAR password</string>
+    <string name="tequila_login">Log in using Tequila</string>
+    
 </resources>
