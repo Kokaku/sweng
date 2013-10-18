@@ -71,7 +71,7 @@ public final class ServerCommunication {
         return null;
     }
     
-    public static boolean login() {
+    public static boolean login(final String username, final String password) {
         return false;
     }
 }

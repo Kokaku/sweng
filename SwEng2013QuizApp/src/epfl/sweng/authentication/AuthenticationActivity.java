@@ -3,7 +3,6 @@ package epfl.sweng.authentication;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
-import android.widget.Button;
 import android.widget.EditText;
 import epfl.sweng.R;
 import epfl.sweng.servercomm.ServerCommunication;
@@ -14,7 +13,6 @@ public class AuthenticationActivity extends Activity {
 
     private EditText mUsername;
     private EditText mPassword;
-    private Button mLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +21,6 @@ public class AuthenticationActivity extends Activity {
         
         mUsername = (EditText) findViewById(R.id.user_name);
         mPassword = (EditText) findViewById(R.id.user_password);
-        mLogin = (Button) findViewById(R.id.log_in);
         
         TestCoordinator.check(TTChecks.AUTHENTICATION_ACTIVITY_SHOWN);
     }
@@ -36,7 +33,8 @@ public class AuthenticationActivity extends Activity {
     }
     
     public void onClickLogin() {
-        if(ServerCommunication.login() == false) {
+        if (ServerCommunication.login(mUsername.getText().toString(),
+                mPassword.getText().toString()) == false) {
             mUsername.setText("");
             mPassword.setText("");
         } else {
