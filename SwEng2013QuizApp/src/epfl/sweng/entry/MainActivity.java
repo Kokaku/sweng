@@ -80,6 +80,7 @@ public class MainActivity extends Activity {
         } else {
             UserCredentials.INSTANCE.clearUserCredentials();
             updateStateAndButtons();
+            TestCoordinator.check(TTChecks.LOGGED_OUT);
         }
     }
     
