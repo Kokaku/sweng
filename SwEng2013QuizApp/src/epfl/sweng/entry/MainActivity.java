@@ -2,12 +2,14 @@ package epfl.sweng.entry;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import epfl.sweng.R;
 import epfl.sweng.authentication.AuthenticationActivity;
 import epfl.sweng.authentication.AuthenticationState;
+import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
 import epfl.sweng.testing.TestCoordinator;
@@ -30,17 +32,20 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        AuthenticationState.setState(AuthenticationState.UNAUTHENTICATED);
-        TestCoordinator.check(TTChecks.MAIN_ACTIVITY_SHOWN);
+
         mShowQuestions = (Button) findViewById(R.id.show_random_question_button);
         mEditQuestion = (Button) findViewById(R.id.edit_question_button);
         mTequilaLogin = (Button) findViewById(R.id.tequila_login_button);
+
+        UserCredentials.INSTANCE.initializeSharedPreferences(this);
+        updateStateAndButtons();
+        TestCoordinator.check(TTChecks.MAIN_ACTIVITY_SHOWN);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        updateButtonStates(AuthenticationState.getState());
+        updateStateAndButtons();
     }
 
     /**
@@ -73,8 +78,27 @@ public class MainActivity extends Activity {
         if (AuthenticationState.getState() != AuthenticationState.AUTHENTICATED) {
             startActivity(new Intent(this, AuthenticationActivity.class));
         } else {
+            UserCredentials.INSTANCE.clearUserCredentials();
+            updateStateAndButtons();
+        }
+    }
+    
+    private void updateStateAndButtons() {
+        updateState();
+        updateButtons();
+    }
+
+    /**
+     * Updates the state according to the user credentials stored in the
+     * SharedPreferences
+     */
+    private void updateState() {
+        SharedPreferences sharedPreferences = UserCredentials.INSTANCE.getPreferences();
+        String sessionId = sharedPreferences.getString("SESSION_ID", "");
+        if (sessionId.equals("")) {
             AuthenticationState.setState(AuthenticationState.UNAUTHENTICATED);
-            // TODO delete credentials from the persistent storage
+        } else {
+            AuthenticationState.setState(AuthenticationState.AUTHENTICATED);
         }
     }
 
@@ -84,8 +108,8 @@ public class MainActivity extends Activity {
      * @param crrentState
      */
 
-    private void updateButtonStates(AuthenticationState crrentState) {
-        if (crrentState != AuthenticationState.AUTHENTICATED) {
+    private void updateButtons() {
+        if (AuthenticationState.getState() != AuthenticationState.AUTHENTICATED) {
             mShowQuestions.setEnabled(false);
             mEditQuestion.setEnabled(false);
             mTequilaLogin.setText(R.string.tequila_login);

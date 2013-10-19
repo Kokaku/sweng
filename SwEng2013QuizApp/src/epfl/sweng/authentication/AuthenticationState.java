@@ -11,6 +11,10 @@ public enum AuthenticationState {
     
     private static AuthenticationState current;
     
+    private AuthenticationState() {
+        
+    }
+    
     public static void setState(AuthenticationState newState) {
         current = newState;
     }
