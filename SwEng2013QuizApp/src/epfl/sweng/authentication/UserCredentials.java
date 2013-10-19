@@ -24,10 +24,23 @@ public enum UserCredentials {
     }
     
     public SharedPreferences getPreferences() {
+        /* 
+         * You cannot return the object like it,
+         * giving the address of it, we can modify it
+         * 
+         * May be a "public String getSessionId()" would be enough since we do
+         * not need the SharedPreferences outside
+         * 
+         */
         return user_session;
     }
     
     public void saveUserCredentials(String sessionIdValue) {
+        /*
+         * You should check that we are indeed in state "authenticated"
+         * before accepting to store a sessionId
+         * 
+         */
         SharedPreferences.Editor preferencesEditor = user_session.edit();
         preferencesEditor.putString("SESSION_ID", sessionIdValue);
         preferencesEditor.commit();
