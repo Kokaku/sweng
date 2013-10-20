@@ -27,11 +27,6 @@ public class MainActivityUnauthenticatedTest extends
     public void setUp() throws Exception {
         super.setUp();
         getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
-    }
-
-    // First test to be executed, makes sure the application is in
-    // UNAUTHENTICATED states for the next test
-    public void testAaInitialisation() {
         UserCredentials.INSTANCE.clearUserCredentials();
     }
 
@@ -74,11 +69,8 @@ public class MainActivityUnauthenticatedTest extends
     }
 
     public void testTequilaLoginButtonStartsActivity() {
-        runAndWaitFor(new Runnable() {
-            public void run() {
-                solo.clickOnButton(TEQUILA_LOGIN);
-            }
-        }, TTChecks.AUTHENTICATION_ACTIVITY_SHOWN);
+        clickOnTextViewAndWaitFor(TEQUILA_LOGIN, 
+                TTChecks.AUTHENTICATION_ACTIVITY_SHOWN);
         solo.assertCurrentActivity(
                 "Tequila login button doesn't start activity",
                 AuthenticationActivity.class);
