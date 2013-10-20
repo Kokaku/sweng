@@ -38,7 +38,7 @@ public class AuthenticationActivityTest extends QuizActivityTestCase<Authenticat
 
 	public void testLogInButtonDisplayed() {
 		assertTrue("Log in button is displayed",
-				solo.searchButton("Log in Tequila"));
+				solo.searchButton("Log in using Tequila"));
 	}
 
 }
