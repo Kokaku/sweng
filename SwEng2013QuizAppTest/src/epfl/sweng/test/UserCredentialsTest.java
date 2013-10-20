@@ -12,8 +12,8 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
  */
 public class UserCredentialsTest extends QuizActivityTestCase<MainActivity> {
 
-    public UserCredentialsTest(Class<MainActivity> activityClass) {
-        super(activityClass);
+    public UserCredentialsTest() {
+        super(MainActivity.class);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class UserCredentialsTest extends QuizActivityTestCase<MainActivity> {
         UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
         super.tearDown();
     }
-
+    
     public void testCantAddUserCredentialsWhenUnauthenticated() {
         UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
         UserCredentials.INSTANCE.saveUserCredentials("test");
