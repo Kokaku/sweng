@@ -107,13 +107,13 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testGetRandomQuestion() {
 		pushCannedAnswerForCorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 		assertTrue("Question is fetched", mQuestion != null);
 	}
 
 	public void testQuestionTextCorrectlyFetched() {
 		pushCannedAnswerForCorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Question text is correctly fetched",
 				mQuestionText.equals(mQuestion.getQuestion()));
@@ -121,7 +121,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testQuestionTagsCorrectlyFetched() {
 		pushCannedAnswerForCorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		mTags.add("Tag1");
 		mTags.add("Tag2");
@@ -132,7 +132,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testQuestionAnswersCorrectlyFetched() {
 		pushCannedAnswerForCorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Question answers are correctly fetched",
 				Arrays.equals(mAnswers, mQuestion.getAnswers()));
@@ -140,7 +140,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testSolutionIndexCorrectlyFetched() {
 		pushCannedAnswerForCorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Solution index is correctly fetched",
 				mSolutionIndex == mQuestion.getSolutionIndex());
@@ -148,7 +148,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testGetRandomIncorrectQuestion() {
 		pushCannedAnswerForIncorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Incorrect question is not fetched", null == mQuestion);
 
@@ -156,7 +156,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testGetRandomQuestionWithBadJSONObject() {
 		pushCannedAnswerWithInvalidJSONObject();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Question should not be created when invalid JSONObject "
 				+ "returned by server", null == mQuestion);
@@ -164,7 +164,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testGetRandomQuestionWithMissingJSONFielAnswers() {
 		pushCannedAnswerWithMissingJSONFieldAnswers();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Question should not be parsed when missing fields in"
 				+ "the JSONObject retrurned by server", null == mQuestion);
@@ -175,7 +175,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 		pushCannedAnswerForOKPostRequest();
 		mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
 				mTags);
-		boolean questionSent = ServerCommunication.send(mQuestion);
+		boolean questionSent = ServerCommunication.getInstance().send(mQuestion);
 		assertTrue("Valid question is sent", questionSent);
 		mockHttpClient.clearCannedResponses();
 	}
@@ -186,7 +186,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 				mTags);
 
 		pushCannedAnswerForOKPostRequest();
-		ServerCommunication.send(mQuestion);
+		ServerCommunication.getInstance().send(mQuestion);
 		QuizQuestion questionOnServer = null;
 		try {
 			JSONObject json = new JSONObject(
@@ -221,7 +221,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 		mTags.add("tag1");
 		mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
 				mTags);
-		boolean questionSent = ServerCommunication.send(mQuestion);
+		boolean questionSent = ServerCommunication.getInstance().send(mQuestion);
 		assertFalse("The server did not accept the request", questionSent);
 	}
 
