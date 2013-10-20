@@ -36,11 +36,12 @@ public final class ServerCommunication {
 	private static final String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
 	private static ServerCommunication serverCommInstance = null;
 
-	private static String responseHeader = "";
+	private static String responseStatus = "";
 	private static final HttpResponseInterceptor RESPONSE_INTERCEPTOR = new HttpResponseInterceptor() {
 		@Override
 		public void process(HttpResponse response, HttpContext context) {
-			responseHeader = response.getStatusLine().toString();
+		    System.out.println("WOKEUP "+response.getStatusLine().toString());
+			responseStatus = response.getStatusLine().toString();
 		}
 	};
 
@@ -78,8 +79,9 @@ public final class ServerCommunication {
 						+ UserCredentials.INSTANCE.getSessionID());
 
 				String httpAnswer = new HttpTask().execute(request).get();
+				System.out.println("PATATOS "+responseStatus);
 				return httpAnswer != null && !httpAnswer.equals("error")
-						&& responseHeader.contains("201");
+						/*&& responseStatus.contains("201")*/;
 			} catch (InterruptedException e) {
 			} catch (ExecutionException e) {
 			} catch (JSONException e) {
@@ -107,7 +109,7 @@ public final class ServerCommunication {
 			String httpAnswer = new HttpTask().execute(request).get();
 
 			if (httpAnswer != null && !httpAnswer.equals("error")
-					&& responseHeader.contains("200 OK")) {
+					/*&& responseStatus.contains("200 OK")*/) {
 
 				JSONObject json = new JSONObject(httpAnswer);
 				return new QuizQuestion(json.getString("question"),
@@ -144,7 +146,7 @@ public final class ServerCommunication {
 		try {
 		    UserCredentials.INSTANCE.setState(AuthenticationState.TOKEN);
 			String httpAnswer = requestToken();
-			if (httpAnswer == null || !responseHeader.contains("200 OK")) {
+			if (httpAnswer == null || !responseStatus.contains("200 OK")) {
 				return false;
 			}
 
@@ -152,13 +154,13 @@ public final class ServerCommunication {
 			String token = json.getString("token");
 			UserCredentials.INSTANCE.setState(AuthenticationState.TEQUILA);
 			httpAnswer = authTequila(token, username, password);
-			if (!responseHeader.contains("302 Found")) {
+			if (!responseStatus.contains("302 Found")) {
 				return false;
 			}
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.CONFIRMATION);
 			httpAnswer = requestSessionID(token);
-			if (httpAnswer == null || !responseHeader.contains("200 OK")) {
+			if (httpAnswer == null || !responseStatus.contains("200 OK")) {
 				return false;
 			}
 
