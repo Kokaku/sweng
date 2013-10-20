@@ -371,6 +371,6 @@ public class EditQuestionActivityTest extends
         submitQuestion();
         
         assertTrue("EditQuestionActivity should show a Toast if bad request"
-                , solo.searchText("There was an error retrieving the question"));
+                , solo.searchText("Could not upload the question to the server"));
     }
 }
