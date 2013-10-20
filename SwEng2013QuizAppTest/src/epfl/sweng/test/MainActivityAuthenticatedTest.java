@@ -29,11 +29,6 @@ public class MainActivityAuthenticatedTest extends
     public void setUp() throws Exception {
         super.setUp();
         getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
-    }
-
-    // First test to be executed, makes sure the application is in
-    // AUTHENTICATED states for the next test
-    public void testAaInitialisation() {
         UserCredentials.INSTANCE.clearUserCredentials();
         UserCredentials.INSTANCE.saveUserCredentials("test");
     }
@@ -62,25 +57,16 @@ public class MainActivityAuthenticatedTest extends
     }
 
     public void testLogoutButtonDeleteCredentials() {
-        runAndWaitFor(new Runnable() {
-            public void run() {
-                solo.clickOnButton(TEQUILA_LOGOUT);
-            }
-        }, TTChecks.LOGGED_OUT);
+        clickOnTextViewAndWaitFor(TEQUILA_LOGOUT, TTChecks.LOGGED_OUT);
         SharedPreferences userCredentials = UserCredentials.INSTANCE
                 .getPreferences();
         UserCredentials.INSTANCE.clearUserCredentials();
         assertFalse("User credentials don't contain a SESSION_ID",
                 userCredentials.contains("SESSION_ID"));
-        UserCredentials.INSTANCE.saveUserCredentials("test");
     }
 
     public void testButtonsUpdatedWhenLogoutClicked() {
-        runAndWaitFor(new Runnable() {
-            public void run() {
-                solo.clickOnButton(TEQUILA_LOGOUT);
-            }
-        }, TTChecks.LOGGED_OUT);
+        clickOnTextViewAndWaitFor(TEQUILA_LOGOUT, TTChecks.LOGGED_OUT);
 
         Button randomQuestion = solo.getButton(SHOW_QUESTION_TEXT);
         assertFalse("Show a random question button is disabled",
@@ -92,27 +78,17 @@ public class MainActivityAuthenticatedTest extends
 
         assertTrue("Login button is displayed",
                 solo.searchButton(TEQUILA_LOGIN));
-        UserCredentials.INSTANCE.saveUserCredentials("test");
-
     }
 
     public void testRandomQuestionButtonStartsActivity() {
-        runAndWaitFor(new Runnable() {
-            public void run() {
-                solo.clickOnButton(SHOW_QUESTION_TEXT);
-            }
-        }, TTChecks.QUESTION_SHOWN);
+        clickOnTextViewAndWaitFor(SHOW_QUESTION_TEXT, TTChecks.QUESTION_SHOWN);
         solo.assertCurrentActivity(
                 "Show question button doesn't start activity",
                 ShowQuestionsActivity.class);
     }
 
     public void testSubmitQuestionButtonStartsActivity() {
-        runAndWaitFor(new Runnable() {
-            public void run() {
-                solo.clickOnButton(SUBMIT_QUESTION_TEXT);
-            }
-        }, TTChecks.EDIT_QUESTIONS_SHOWN);
+        clickOnTextViewAndWaitFor(SUBMIT_QUESTION_TEXT, TTChecks.EDIT_QUESTIONS_SHOWN);
         solo.assertCurrentActivity(
                 "Edit question button doesn't start activity",
                 EditQuestionActivity.class);
