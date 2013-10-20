@@ -29,6 +29,8 @@ public class MainActivityAuthenticatedTest extends
     public void setUp() throws Exception {
         super.setUp();
         getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
+//        UserCredentials.INSTANCE.clearUserCredentials();
+//        UserCredentials.INSTANCE.saveUserCredentials("test");
     }
 
     // First test to be executed, makes sure the application is in

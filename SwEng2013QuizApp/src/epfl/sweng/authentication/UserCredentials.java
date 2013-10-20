@@ -35,6 +35,11 @@ public enum UserCredentials {
         return user_session;
     }
     
+    public String getSessionID(){
+    	return user_session.getString("SESSION_ID", "");
+    	
+    }
+    
     public void saveUserCredentials(String sessionIdValue) {
         /*
          * You should check that we are indeed in state "authenticated"
