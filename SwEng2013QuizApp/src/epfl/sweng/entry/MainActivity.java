@@ -37,6 +37,7 @@ public class MainActivity extends Activity {
         mTequilaLogin = (Button) findViewById(R.id.tequila_login_button);
 
         UserCredentials.INSTANCE.initializeSharedPreferences(this);
+        System.out.println("User credentials: " + UserCredentials.INSTANCE.getSessionID());
         updateButtons();
         TestCoordinator.check(TTChecks.MAIN_ACTIVITY_SHOWN);
     }

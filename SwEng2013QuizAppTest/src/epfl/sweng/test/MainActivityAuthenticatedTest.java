@@ -28,6 +28,19 @@ public class MainActivityAuthenticatedTest extends
     public void setUp() throws Exception {
         super.setUp();
         getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
+        UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
+        UserCredentials.INSTANCE.saveUserCredentials("test");
+        super.tearDown();
+    }
+    
+    public void test0RightActivityIsDisplayed() {
+        solo.assertCurrentActivity("Display activity is not displayed",
+                MainActivity.class);
     }
 
     public void testActivityInitiallyInTheRightState() {
@@ -83,16 +96,10 @@ public class MainActivityAuthenticatedTest extends
     }
 
     public void testSubmitQuestionButtonStartsActivity() {
-        clickOnTextViewAndWaitFor(SUBMIT_QUESTION_TEXT, TTChecks.EDIT_QUESTIONS_SHOWN);
+        clickOnTextViewAndWaitFor(SUBMIT_QUESTION_TEXT,
+                TTChecks.EDIT_QUESTIONS_SHOWN);
         solo.assertCurrentActivity(
                 "Edit question button doesn't start activity",
                 EditQuestionActivity.class);
-    }
-    
-    @Override
-    protected void tearDown() throws Exception {
-        UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
-        UserCredentials.INSTANCE.saveUserCredentials("test");
-        super.tearDown();
     }
 }

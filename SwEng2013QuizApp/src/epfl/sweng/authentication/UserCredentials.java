@@ -22,6 +22,9 @@ public enum UserCredentials {
             userSession = context.getSharedPreferences("user_session",
                     Context.MODE_PRIVATE);
         }
+        if (!getSessionID().equals("")) {
+            currentState = AuthenticationState.AUTHENTICATED;
+        }
     }
 
     public String getSessionID() {
@@ -29,7 +32,7 @@ public enum UserCredentials {
     }
 
     public boolean saveUserCredentials(String sessionIdValue) {
-        if (currentState == AuthenticationState.AUTHENTICATED) {
+        if (currentState == AuthenticationState.AUTHENTICATED && !sessionIdValue.equals("")) {
             SharedPreferences.Editor preferencesEditor = userSession.edit();
             preferencesEditor.putString("SESSION_ID", sessionIdValue);
             preferencesEditor.commit();

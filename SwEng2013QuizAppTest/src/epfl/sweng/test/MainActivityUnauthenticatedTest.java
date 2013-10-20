@@ -28,6 +28,12 @@ public class MainActivityUnauthenticatedTest extends
         super.setUp();
         getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
     }
+    
+    @Override
+    protected void tearDown() throws Exception {
+        UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
+        super.tearDown();
+    }
 
     public void test0RightActivityIsDisplayed() {
         solo.assertCurrentActivity("Display activity is not displayed",
@@ -81,11 +87,5 @@ public class MainActivityUnauthenticatedTest extends
         String userCredentials = UserCredentials.INSTANCE.getSessionID();
         assertTrue("User creditentials correctly stored",
                 userCredentials.equals("test"));
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
-        super.tearDown();
     }
 }
