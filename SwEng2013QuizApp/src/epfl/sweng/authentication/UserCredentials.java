@@ -5,54 +5,53 @@ import android.content.SharedPreferences;
 
 /**
  * @author MathieuMonney
- *
+ * 
  */
 public enum UserCredentials {
     INSTANCE;
-    
-    // TODO check if this is really what they ask in the homework statement
-    private static SharedPreferences user_session = null;
-    
-    private UserCredentials() {
-        
+
+    private SharedPreferences userSession = null;
+    private AuthenticationState currentState = AuthenticationState.UNAUTHENTICATED;
+
+    public enum AuthenticationState {
+        UNAUTHENTICATED, TOKEN, TEQUILA, CONFIRMATION, AUTHENTICATED;
     }
-    
+
     public void initializeSharedPreferences(Context context) {
-        if (user_session == null) {
-            user_session = context.getSharedPreferences("epfl.sweng.authentication", Context.MODE_PRIVATE);
+        if (userSession == null) {
+            userSession = context.getSharedPreferences("user_session",
+                    Context.MODE_PRIVATE);
         }
     }
-    
-    public SharedPreferences getPreferences() {
-        /* 
-         * You cannot return the object like it,
-         * giving the address of it, we can modify it
-         * 
-         * May be a "public String getSessionId()" would be enough since we do
-         * not need the SharedPreferences outside
-         * 
-         */
-        return user_session;
+
+    public String getSessionID() {
+        return userSession.getString("SESSION_ID", "");
     }
-    
-    public String getSessionID(){
-    	return user_session.getString("SESSION_ID", "");
-    	
+
+    public boolean saveUserCredentials(String sessionIdValue) {
+        if (currentState == AuthenticationState.AUTHENTICATED) {
+            SharedPreferences.Editor preferencesEditor = userSession.edit();
+            preferencesEditor.putString("SESSION_ID", sessionIdValue);
+            preferencesEditor.commit();
+            return true;
+        }
+        return false;
     }
-    
-    public void saveUserCredentials(String sessionIdValue) {
-        /*
-         * You should check that we are indeed in state "authenticated"
-         * before accepting to store a sessionId
-         * 
-         */
-        SharedPreferences.Editor preferencesEditor = user_session.edit();
-        preferencesEditor.putString("SESSION_ID", sessionIdValue);
-        preferencesEditor.commit();
+
+    public void setState(AuthenticationState newState) {
+        if (newState != AuthenticationState.AUTHENTICATED
+                && !getSessionID().equals("")) {
+            clearUserCredentials();
+        }
+        currentState = newState;
     }
-    
-    public void clearUserCredentials() {
-        SharedPreferences.Editor preferencesEditor = user_session.edit();
+
+    public AuthenticationState getState() {
+        return currentState;
+    }
+
+    private void clearUserCredentials() {
+        SharedPreferences.Editor preferencesEditor = userSession.edit();
         preferencesEditor.clear();
         preferencesEditor.commit();
     }

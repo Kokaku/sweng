@@ -1,9 +1,8 @@
 package epfl.sweng.test;
 
-import android.content.SharedPreferences;
 import android.widget.Button;
-import epfl.sweng.authentication.AuthenticationState;
 import epfl.sweng.authentication.UserCredentials;
+import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.entry.MainActivity;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
@@ -29,14 +28,12 @@ public class MainActivityAuthenticatedTest extends
     public void setUp() throws Exception {
         super.setUp();
         getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
-        UserCredentials.INSTANCE.clearUserCredentials();
-        UserCredentials.INSTANCE.saveUserCredentials("test");
     }
 
     public void testActivityInitiallyInTheRightState() {
         assertTrue(
                 "The state is initially AUTHENTICATED",
-                AuthenticationState.getState() == AuthenticationState.AUTHENTICATED);
+                UserCredentials.INSTANCE.getState() == AuthenticationState.AUTHENTICATED);
     }
 
     public void testRandomQuestionButtonIsInitiallyEnabled() {
@@ -58,11 +55,9 @@ public class MainActivityAuthenticatedTest extends
 
     public void testLogoutButtonDeleteCredentials() {
         clickOnTextViewAndWaitFor(TEQUILA_LOGOUT, TTChecks.LOGGED_OUT);
-        SharedPreferences userCredentials = UserCredentials.INSTANCE
-                .getPreferences();
-        UserCredentials.INSTANCE.clearUserCredentials();
-        assertFalse("User credentials don't contain a SESSION_ID",
-                userCredentials.contains("SESSION_ID"));
+        String sessionId = UserCredentials.INSTANCE.getSessionID();
+        assertTrue("User credentials don't contain a SESSION_ID",
+                sessionId.equals(""));
     }
 
     public void testButtonsUpdatedWhenLogoutClicked() {
@@ -92,5 +87,12 @@ public class MainActivityAuthenticatedTest extends
         solo.assertCurrentActivity(
                 "Edit question button doesn't start activity",
                 EditQuestionActivity.class);
+    }
+    
+    @Override
+    protected void tearDown() throws Exception {
+        UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
+        UserCredentials.INSTANCE.saveUserCredentials("test");
+        super.tearDown();
     }
 }

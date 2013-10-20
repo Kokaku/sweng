@@ -17,8 +17,8 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import epfl.sweng.authentication.AuthenticationState;
 import epfl.sweng.authentication.UserCredentials;
+import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.questions.QuizQuestion;
 import epfl.sweng.utils.JSONUtilities;
 
@@ -64,7 +64,7 @@ public final class ServerCommunication {
 	 * @return true if the question has been correctly sent
 	 */
 	public boolean send(QuizQuestion question) {
-		if (AuthenticationState.getState() != AuthenticationState.AUTHENTICATED) {
+		if (UserCredentials.INSTANCE.getState() != AuthenticationState.AUTHENTICATED) {
 			return false;
 		}
 
@@ -96,13 +96,12 @@ public final class ServerCommunication {
 	 * @return the random question fetched, null if an error occurred
 	 */
 	public QuizQuestion getRandomQuestion() {
-		if (AuthenticationState.getState() != AuthenticationState.AUTHENTICATED) {
+		if (UserCredentials.INSTANCE.getState() != AuthenticationState.AUTHENTICATED) {
 			return null;
 		}
 
 		try {
 			HttpUriRequest request = new HttpGet(SERVER_URL + "random");
-			// TODO waiting for UserCredentials completion to get sessionID
 			request.setHeader("Authorization", "Tequila "
 					+ UserCredentials.INSTANCE.getSessionID());
 			String httpAnswer = new HttpTask().execute(request).get();
@@ -138,12 +137,12 @@ public final class ServerCommunication {
 	 * @return true if correctly authenticated
 	 */
 	public boolean login(String username, String password) {
-		if (AuthenticationState.getState() != AuthenticationState.UNAUTHENTICATED) {
+		if (UserCredentials.INSTANCE.getState() != AuthenticationState.UNAUTHENTICATED) {
 			return false;
 		}
 
 		try {
-			AuthenticationState.setState(AuthenticationState.TOKEN);
+		    UserCredentials.INSTANCE.setState(AuthenticationState.TOKEN);
 			String httpAnswer = requestToken();
 			if (httpAnswer == null || !responseHeader.contains("200 OK")) {
 				return false;
@@ -151,13 +150,13 @@ public final class ServerCommunication {
 
 			JSONObject json = new JSONObject(httpAnswer);
 			String token = json.getString("token");
-			AuthenticationState.setState(AuthenticationState.TEQUILA);
+			UserCredentials.INSTANCE.setState(AuthenticationState.TEQUILA);
 			httpAnswer = authTequila(token, username, password);
 			if (!responseHeader.contains("302 Found")) {
 				return false;
 			}
 
-			AuthenticationState.setState(AuthenticationState.CONFIRMATION);
+			UserCredentials.INSTANCE.setState(AuthenticationState.CONFIRMATION);
 			httpAnswer = requestSessionID(token);
 			if (httpAnswer == null || !responseHeader.contains("200 OK")) {
 				return false;
@@ -165,7 +164,7 @@ public final class ServerCommunication {
 
 			json = new JSONObject(httpAnswer);
 			String session = json.getString("session");
-			AuthenticationState.setState(AuthenticationState.AUTHENTICATED);
+			UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
 			UserCredentials.INSTANCE.saveUserCredentials(session);
 			return true;
 		} catch (InterruptedException e) {

@@ -2,8 +2,8 @@ package epfl.sweng.test;
 
 import android.widget.Button;
 import epfl.sweng.authentication.AuthenticationActivity;
-import epfl.sweng.authentication.AuthenticationState;
 import epfl.sweng.authentication.UserCredentials;
+import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.entry.MainActivity;
 import epfl.sweng.test.framework.QuizActivityTestCase;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
@@ -27,10 +27,9 @@ public class MainActivityUnauthenticatedTest extends
     public void setUp() throws Exception {
         super.setUp();
         getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
-        UserCredentials.INSTANCE.clearUserCredentials();
     }
 
-    public void testRightActivityIsDisplayed() {
+    public void test0RightActivityIsDisplayed() {
         solo.assertCurrentActivity("Display activity is not displayed",
                 MainActivity.class);
     }
@@ -38,7 +37,7 @@ public class MainActivityUnauthenticatedTest extends
     public void testActivityInitiallyInTheRightState() {
         assertTrue(
                 "The state is initially UNAUTHENTICATED",
-                AuthenticationState.getState() == AuthenticationState.UNAUTHENTICATED);
+                UserCredentials.INSTANCE.getState() == AuthenticationState.UNAUTHENTICATED);
     }
 
     public void testRandomQuestionButtonIsDisplayed() {
@@ -77,12 +76,16 @@ public class MainActivityUnauthenticatedTest extends
     }
 
     public void testUserCredentialsStored() {
+        UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
         UserCredentials.INSTANCE.saveUserCredentials("test");
-        String userCredentials = UserCredentials.INSTANCE.getPreferences()
-                .getString("SESSION_ID", "");
+        String userCredentials = UserCredentials.INSTANCE.getSessionID();
         assertTrue("User creditentials correctly stored",
                 userCredentials.equals("test"));
-        UserCredentials.INSTANCE.clearUserCredentials();
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
+        super.tearDown();
+    }
 }
