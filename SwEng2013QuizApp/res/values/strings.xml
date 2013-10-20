@@ -35,8 +35,8 @@
     <string name="hello_world">Hello world!</string>
     
     <!-- AuthenticationActivity -->
-    <string name="GASPAR_username">GASPAR username</string>
-    <string name="GASPAR_password">GASPAR password</string>
+    <string name="GASPAR_username">GASPAR Username</string>
+    <string name="GASPAR_password">GASPAR Password</string>
     <string name="tequila_login">Log in using Tequila</string>
     
 </resources>
