@@ -79,7 +79,7 @@ public final class ServerCommunication {
 
 				String httpAnswer = new HttpTask().execute(request).get();
 				return httpAnswer != null && !httpAnswer.equals("error")
-				        && responseStatus.contains("201");
+						/*&& responseStatus.contains("201")*/;
 			} catch (InterruptedException e) {
 			} catch (ExecutionException e) {
 			} catch (JSONException e) {
@@ -107,7 +107,7 @@ public final class ServerCommunication {
 			String httpAnswer = new HttpTask().execute(request).get();
 
 			if (httpAnswer != null && !httpAnswer.equals("error")
-					&& responseStatus.contains("200 OK")) {
+					/*&& responseStatus.contains("200 OK")*/) {
 
 				JSONObject json = new JSONObject(httpAnswer);
 				return new QuizQuestion(json.getString("question"),
