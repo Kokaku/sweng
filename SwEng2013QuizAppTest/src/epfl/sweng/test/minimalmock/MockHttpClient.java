@@ -11,9 +11,11 @@ import java.util.regex.Pattern;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.AuthenticationHandler;
 import org.apache.http.client.HttpRequestRetryHandler;
@@ -55,9 +57,8 @@ public class MockHttpClient extends DefaultHttpClient {
     }
 
     private final List<CannedResponse> responses = new ArrayList<CannedResponse>();
-    
     private HttpRequest lastRequest;
-    
+    private List<HttpResponseInterceptor> httpResponseInterceptors = new ArrayList<HttpResponseInterceptor>();
     
 
     public void pushCannedResponse(String requestRegex, int status, String responseBody, String contentType) {
@@ -92,6 +93,12 @@ public class MockHttpClient extends DefaultHttpClient {
         return new MockRequestDirector(this);
     }
 
+    @Override
+    public synchronized void addResponseInterceptor(HttpResponseInterceptor itcp) {
+        httpResponseInterceptors.add(itcp);
+        super.addResponseInterceptor(itcp);
+    }
+    
     public HttpResponse processRequest(HttpRequest request) {
         lastRequest = request;
         
@@ -99,7 +106,19 @@ public class MockHttpClient extends DefaultHttpClient {
             if (cr.pattern.matcher(request.getRequestLine().toString()).find()) {
                 Log.v("HTTP", "Mocking request since it matches pattern " + cr.pattern);
                 Log.v("HTTP", "Response body: " + cr.responseBody);
-                return new MockHttpResponse(cr.statusCode, cr.responseBody, cr.contentType);
+                MockHttpResponse httpResponse = new MockHttpResponse(cr.statusCode, cr.responseBody, cr.contentType);
+
+                System.out.println("PATATOSXD "+httpResponseInterceptors.size()+" - "+cr.statusCode);
+                for(HttpResponseInterceptor itcp : httpResponseInterceptors) {
+                    try {
+                        itcp.process(httpResponse, null);
+                    } catch (HttpException e) {
+                        System.out.println("exception 1");
+                    } catch (IOException e) {
+                        System.out.println("exception 2");
+                    }
+                }
+                return httpResponse;
             }
         }
 

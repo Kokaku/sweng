@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
+
     <string name="app_name">SwEng2013QuizApp</string>
     <string name="action_settings">Settings</string>
-    
+
     <!-- MainActivity -->
     <string name="title_activity_main">MainActivity</string>
     <string name="show_random_question">Show a random question.</string>
     <string name="submit_question">Submit a quiz question.</string>
-    
+    <string name ="tequila_logout">Log out</string>
+
     <!-- EditQuestionActivity -->
     <string name="title_activity_edit_question">EditQuestionActivity</string>
     <string name="type_in_question">Type in the question\'s text body</string>
@@ -17,18 +18,25 @@
     <string name="button_submit">Submit</string>
     <string name="button_clear_answer">Clear</string>
     <string name="failed_to_send_question">There was an error retrieving the question</string>
-    
+
     <!-- ShowQuestionsActivity -->
     <string name="title_activity_show_questions">Let\'s take a quiz!</string>
     <string name="button_next">Next question</string>
     <string name="dialog_showquestions_error">Impossible to get a new question! Do you want to retry?</string>
     <string name="text_retry">Retry</string>
     <string name="text_abort">Abort</string>
-    
+
     <!-- Unicode characters -->
-	<string name="wrong_answer">\u2718</string>
-	<string name="correct_answer">\u2714</string>
-	<string name="button_add_answer">\u002B</string>
-	<string name="remove_answer">\u002D</string>
-	
+    <string name="wrong_answer">\u2718</string>
+    <string name="correct_answer">\u2714</string>
+    <string name="button_add_answer">\u002B</string>
+    <string name="remove_answer">\u002D</string>
+    <string name="title_activity_authentication">AuthenticationActivity</string>
+    <string name="hello_world">Hello world!</string>
+    
+    <!-- AuthenticationActivity -->
+    <string name="GASPAR_username">GASPAR username</string>
+    <string name="GASPAR_password">GASPAR password</string>
+    <string name="tequila_login">Log in using Tequila</string>
+    
 </resources>

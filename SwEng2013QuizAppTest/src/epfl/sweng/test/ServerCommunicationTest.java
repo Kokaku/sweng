@@ -12,36 +12,52 @@ import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.test.AndroidTestCase;
+import epfl.sweng.authentication.UserCredentials;
+import epfl.sweng.authentication.UserCredentials.AuthenticationState;
+import epfl.sweng.entry.MainActivity;
 import epfl.sweng.questions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
+import epfl.sweng.test.framework.QuizActivityTestCase;
 import epfl.sweng.test.minimalmock.MockHttpClient;
+import epfl.sweng.testing.TestCoordinator.TTChecks;
 import epfl.sweng.utils.JSONUtilities;
 
 /**
  * @author Zhivka Gucevska
  * 
  */
-public class ServerCommunicationTest extends AndroidTestCase {
+public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> {
 
-	private MockHttpClient mockHttpClient;
+	private final MockHttpClient mockHttpClient = new MockHttpClient();
 	private QuizQuestion mQuestion;
 
 	private String mQuestionText = "How many rings the Olympic flag Five has?";
 	private String[] mAnswers = { "One", "Six", "Five" };
 	private Set<String> mTags = new TreeSet<String>();
 	private int mSolutionIndex = 2;
+    
+    public ServerCommunicationTest() {
+        super(MainActivity.class);
+    }
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		mockHttpClient = new MockHttpClient();
+        getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
+        UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
+        UserCredentials.INSTANCE.saveUserCredentials("test");
 		SwengHttpClientFactory.setInstance(mockHttpClient);
 		mockHttpClient.pushCannedResponse(
 				"GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
 				HttpStatus.SC_OK, "", "application/json");
 
 	}
+
+    @Override
+    protected void tearDown() throws Exception {
+        mockHttpClient.clearCannedResponses();
+        super.tearDown();
+    }
 
 	private void pushCannedAnswerForIncorrectQuestion() {
 		mockHttpClient.clearCannedResponses();
@@ -93,7 +109,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	private void pushCannedAnswerForOKPostRequest() {
 		mockHttpClient.clearCannedResponses();
-		mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_OK, null,
+		mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_CREATED, "correctly sent",
 				null);
 
 	}
@@ -107,13 +123,13 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testGetRandomQuestion() {
 		pushCannedAnswerForCorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 		assertTrue("Question is fetched", mQuestion != null);
 	}
 
 	public void testQuestionTextCorrectlyFetched() {
 		pushCannedAnswerForCorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Question text is correctly fetched",
 				mQuestionText.equals(mQuestion.getQuestion()));
@@ -121,7 +137,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testQuestionTagsCorrectlyFetched() {
 		pushCannedAnswerForCorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		mTags.add("Tag1");
 		mTags.add("Tag2");
@@ -132,7 +148,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testQuestionAnswersCorrectlyFetched() {
 		pushCannedAnswerForCorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Question answers are correctly fetched",
 				Arrays.equals(mAnswers, mQuestion.getAnswers()));
@@ -140,7 +156,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testSolutionIndexCorrectlyFetched() {
 		pushCannedAnswerForCorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Solution index is correctly fetched",
 				mSolutionIndex == mQuestion.getSolutionIndex());
@@ -148,7 +164,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testGetRandomIncorrectQuestion() {
 		pushCannedAnswerForIncorrectQuestion();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Incorrect question is not fetched", null == mQuestion);
 
@@ -156,7 +172,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testGetRandomQuestionWithBadJSONObject() {
 		pushCannedAnswerWithInvalidJSONObject();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Question should not be created when invalid JSONObject "
 				+ "returned by server", null == mQuestion);
@@ -164,7 +180,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testGetRandomQuestionWithMissingJSONFielAnswers() {
 		pushCannedAnswerWithMissingJSONFieldAnswers();
-		mQuestion = ServerCommunication.getRandomQuestion();
+		mQuestion = ServerCommunication.getInstance().getRandomQuestion();
 
 		assertTrue("Question should not be parsed when missing fields in"
 				+ "the JSONObject retrurned by server", null == mQuestion);
@@ -172,10 +188,12 @@ public class ServerCommunicationTest extends AndroidTestCase {
 
 	public void testSendQuestion() {
 		mTags.add("tag1");
+		System.out.println("APPLE1 "+ mockHttpClient.getResponseInterceptorCount());
 		pushCannedAnswerForOKPostRequest();
 		mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
 				mTags);
-		boolean questionSent = ServerCommunication.send(mQuestion);
+		boolean questionSent = ServerCommunication.getInstance().send(mQuestion);
+        System.out.println("APPLE2 "+ mockHttpClient.getResponseInterceptorCount());
 		assertTrue("Valid question is sent", questionSent);
 		mockHttpClient.clearCannedResponses();
 	}
@@ -186,7 +204,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 				mTags);
 
 		pushCannedAnswerForOKPostRequest();
-		ServerCommunication.send(mQuestion);
+		ServerCommunication.getInstance().send(mQuestion);
 		QuizQuestion questionOnServer = null;
 		try {
 			JSONObject json = new JSONObject(
@@ -221,8 +239,7 @@ public class ServerCommunicationTest extends AndroidTestCase {
 		mTags.add("tag1");
 		mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
 				mTags);
-		boolean questionSent = ServerCommunication.send(mQuestion);
+		boolean questionSent = ServerCommunication.getInstance().send(mQuestion);
 		assertFalse("The server did not accept the request", questionSent);
 	}
-
 }

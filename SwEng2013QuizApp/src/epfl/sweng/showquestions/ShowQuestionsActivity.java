@@ -122,7 +122,7 @@ public class ShowQuestionsActivity extends ListActivity {
      * Retrieve a new question and set views so that the question is displayed.
      */
     private void showNewQuestion() {
-        mCurrentQuestion = ServerCommunication.getRandomQuestion();
+        mCurrentQuestion = ServerCommunication.getInstance().getRandomQuestion();
         
         if (mCurrentQuestion == null) {
             showErrorDialog();
