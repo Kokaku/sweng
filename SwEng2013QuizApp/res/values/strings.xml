@@ -17,12 +17,12 @@
     <string name="type_in_answer">Type in the answer</string>
     <string name="button_submit">Submit</string>
     <string name="button_clear_answer">Clear</string>
-    <string name="failed_to_send_question">There was an error retrieving the question</string>
+    <string name="failed_to_send_question">Could not upload the question to the server</string>
 
     <!-- ShowQuestionsActivity -->
     <string name="title_activity_show_questions">Let\'s take a quiz!</string>
     <string name="button_next">Next question</string>
-    <string name="dialog_showquestions_error">Impossible to get a new question! Do you want to retry?</string>
+    <string name="dialog_showquestions_error">There was an error retrieving the question</string>
     <string name="text_retry">Retry</string>
     <string name="text_abort">Abort</string>
 

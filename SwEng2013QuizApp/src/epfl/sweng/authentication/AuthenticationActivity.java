@@ -48,6 +48,7 @@ public class AuthenticationActivity extends Activity {
         } else {
             mUsername.setText("");
             mPassword.setText("");
+            TestCoordinator.check(TTChecks.AUTHENTICATION_ACTIVITY_SHOWN);
         }
     }
 

@@ -46,6 +46,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         updateButtons();
+        TestCoordinator.check(TTChecks.MAIN_ACTIVITY_SHOWN);
     }
 
     /**
