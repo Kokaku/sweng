@@ -40,7 +40,6 @@ public final class ServerCommunication {
 	private static final HttpResponseInterceptor RESPONSE_INTERCEPTOR = new HttpResponseInterceptor() {
 		@Override
 		public void process(HttpResponse response, HttpContext context) {
-		    System.out.println("WOKEUP "+response.getStatusLine().toString());
 			responseStatus = response.getStatusLine().toString();
 		}
 	};
@@ -79,7 +78,6 @@ public final class ServerCommunication {
 						+ UserCredentials.INSTANCE.getSessionID());
 
 				String httpAnswer = new HttpTask().execute(request).get();
-				System.out.println("PATATOS "+responseStatus);
 				return httpAnswer != null && !httpAnswer.equals("error")
 						/*&& responseStatus.contains("201")*/;
 			} catch (InterruptedException e) {

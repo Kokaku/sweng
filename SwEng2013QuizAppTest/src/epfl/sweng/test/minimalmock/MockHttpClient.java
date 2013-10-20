@@ -108,14 +108,11 @@ public class MockHttpClient extends DefaultHttpClient {
                 Log.v("HTTP", "Response body: " + cr.responseBody);
                 MockHttpResponse httpResponse = new MockHttpResponse(cr.statusCode, cr.responseBody, cr.contentType);
 
-                System.out.println("PATATOSXD "+httpResponseInterceptors.size()+" - "+cr.statusCode);
                 for(HttpResponseInterceptor itcp : httpResponseInterceptors) {
                     try {
                         itcp.process(httpResponse, null);
                     } catch (HttpException e) {
-                        System.out.println("exception 1");
                     } catch (IOException e) {
-                        System.out.println("exception 2");
                     }
                 }
                 return httpResponse;

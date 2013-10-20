@@ -188,12 +188,10 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
 	public void testSendQuestion() {
 		mTags.add("tag1");
-		System.out.println("APPLE1 "+ mockHttpClient.getResponseInterceptorCount());
 		pushCannedAnswerForOKPostRequest();
 		mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
 				mTags);
 		boolean questionSent = ServerCommunication.getInstance().send(mQuestion);
-        System.out.println("APPLE2 "+ mockHttpClient.getResponseInterceptorCount());
 		assertTrue("Valid question is sent", questionSent);
 		mockHttpClient.clearCannedResponses();
 	}
