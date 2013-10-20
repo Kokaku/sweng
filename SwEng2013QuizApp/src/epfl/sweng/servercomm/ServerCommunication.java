@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -11,6 +13,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,10 +32,29 @@ import epfl.sweng.utils.JSONUtilities;
 public final class ServerCommunication {
 
     private static final String SERVER_URL = "https://sweng-quiz.appspot.com/quizquestions/";
-    private final static String SERVER_LOGIN_URL = "https://sweng-quiz.appspot.com/login";
-    private final static String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
+    private static final String SERVER_LOGIN_URL = "https://sweng-quiz.appspot.com/login";
+    private static final String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
+    private static ServerCommunication serverCommInstance = null;
+    
+    private static String responseHeader = "";
+    private static final HttpResponseInterceptor RESPONSE_INTERCEPTOR =
+        new HttpResponseInterceptor() {
+            @Override
+            public void process(HttpResponse response, HttpContext context) {
+                responseHeader = response.getStatusLine().toString();
+            }
+        };
 
     private ServerCommunication() {
+        SwengHttpClientFactory.getInstance().
+            addResponseInterceptor(RESPONSE_INTERCEPTOR);
+    }
+    
+    public static ServerCommunication getInstance() {
+        if (serverCommInstance == null) {
+            serverCommInstance = new ServerCommunication();
+        }
+        return serverCommInstance;
     }
 
     /**
@@ -42,7 +64,7 @@ public final class ServerCommunication {
      *            to send to the server
      * @return true if the question has been correctly sent
      */
-    public static boolean send(QuizQuestion question) {
+    public boolean send(QuizQuestion question) {
         if (AuthenticationState.getState() != AuthenticationState.AUTHENTICATED) {
             return false;
         }
@@ -57,7 +79,9 @@ public final class ServerCommunication {
                 request.setHeader("Authorization", "Tequila " + "sessionID");
 
                 String httpAnswer = new HttpTask().execute(request).get();
-                return httpAnswer != null && !httpAnswer.equals("error");
+                return httpAnswer != null &&
+                       !httpAnswer.equals("error") &&
+                       responseHeader.contains("201");
             } catch (InterruptedException e) {
             } catch (ExecutionException e) {
             } catch (JSONException e) {
@@ -73,7 +97,7 @@ public final class ServerCommunication {
      * 
      * @return the random question fetched, null if an error occurred
      */
-    public static QuizQuestion getRandomQuestion() {
+    public QuizQuestion getRandomQuestion() {
         if (AuthenticationState.getState() != AuthenticationState.AUTHENTICATED) {
             return null;
         }
@@ -82,9 +106,12 @@ public final class ServerCommunication {
             HttpUriRequest request = new HttpGet(SERVER_URL + "random");
             // TODO waiting for UserCredentials completion to get sessionID
             request.setHeader("Authorization", "Tequila " + "sessionID");
-
             String httpAnswer = new HttpTask().execute(request).get();
-            if (httpAnswer != null && !httpAnswer.equals("error")) {
+            
+            if (httpAnswer != null &&
+                !httpAnswer.equals("error") &&
+                !responseHeader.contains("200 OK")) {
+                
                 JSONObject json = new JSONObject(httpAnswer);
                 return new QuizQuestion(json.getString("question"),
                         JSONUtilities.parseAnswers(json),
@@ -110,34 +137,37 @@ public final class ServerCommunication {
      * @param password aString representing the password of the user
      * @return true if correctly authenticated
      */
-    public static boolean login(String username, String password) {
+    public boolean login(String username, String password) {
         if (AuthenticationState.getState() != AuthenticationState.UNAUTHENTICATED) {
             return false;
         }
 
         try {
-            String httpAnswer = requestToken();
             AuthenticationState.setState(AuthenticationState.TOKEN);
-            if (httpAnswer != null) {
-                JSONObject json = new JSONObject(httpAnswer);
-                String token = json.getString("token");
-                
-                //Don't know how to control if the request is a success or a fail
-                httpAnswer = authTequila(token, username, password);
-                AuthenticationState.setState(AuthenticationState.TEQUILA);
-
-                httpAnswer = requestSessionID(token);
-                AuthenticationState.setState(AuthenticationState.CONFIRMATION);
-                
-                if (httpAnswer != null) {
-                    json = new JSONObject(httpAnswer);
-                    String session = json.getString("session");
-                    AuthenticationState
-                            .setState(AuthenticationState.AUTHENTICATED);
-                    UserCredentials.INSTANCE.saveUserCredentials(session);
-                    return true;
-                }
+            String httpAnswer = requestToken();
+            if (httpAnswer == null || !responseHeader.contains("200 OK")) {
+                return false;
             }
+            
+            JSONObject json = new JSONObject(httpAnswer);
+            String token = json.getString("token");
+            AuthenticationState.setState(AuthenticationState.TEQUILA);
+            httpAnswer = authTequila(token, username, password);
+            if (!responseHeader.contains("302 Found")) {
+                return false;
+            }
+            
+            AuthenticationState.setState(AuthenticationState.CONFIRMATION);
+            httpAnswer = requestSessionID(token);
+            if (httpAnswer == null || !responseHeader.contains("200 OK")) {
+                return false;
+            }
+            
+            json = new JSONObject(httpAnswer);
+            String session = json.getString("session");
+            AuthenticationState.setState(AuthenticationState.AUTHENTICATED);
+            UserCredentials.INSTANCE.saveUserCredentials(session);
+            return true;
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {
         } catch (JSONException e) {
@@ -147,15 +177,14 @@ public final class ServerCommunication {
         return false;
     }
 
-    private static String requestToken() throws
+    private String requestToken() throws
         InterruptedException, ExecutionException {
         
         HttpUriRequest request = new HttpGet(SERVER_LOGIN_URL);
-        // Header is HTTP/1.1 200 ok
         return new HttpTask().execute(request).get();
     }
 
-    private static String authTequila(
+    private String authTequila(
             String token,
             String username,
             String password) throws InterruptedException,
@@ -170,18 +199,15 @@ public final class ServerCommunication {
         HttpPost postRequest = new HttpPost(TEQUILA_URL);
         postRequest.setEntity(new UrlEncodedFormEntity(params));
         postRequest.setHeader("Content-type", "application/json");
-        // Some errors possible ??
-        // Normal connection return string "error" due to a ioException
-        // But header is HTTP/1.1 302 Found but don't know how to read it
         return new HttpTask().execute(postRequest).get();
     }
 
-    private static String requestSessionID(String token) throws
+    private String requestSessionID(String token) throws
         UnsupportedEncodingException, InterruptedException, ExecutionException {
         
         HttpPost postRequest = new HttpPost(SERVER_LOGIN_URL);
-        postRequest.setEntity(new StringEntity("{\"token\": \"" + token
-                + "\"}"));
+        postRequest.setEntity(new StringEntity(
+                "{\"token\": \"" + token + "\"}"));
         postRequest.setHeader("Content-type", "application/json");
         return new HttpTask().execute(postRequest).get();
     }

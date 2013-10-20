@@ -97,7 +97,7 @@ public class EditQuestionActivity extends ListActivity {
         //TODO handle Exception on QuizQuestion construction and Server comm errors
         QuizQuestion question = new QuizQuestion(questionText, finalAnswers,
                 correctAnswer, tagsSet);
-        boolean sendSuccess = ServerCommunication.send(question);
+        boolean sendSuccess = ServerCommunication.getInstance().send(question);
         
         if (sendSuccess == false) {
             Toast.makeText(this, R.string.failed_to_send_question,
