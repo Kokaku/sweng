@@ -182,6 +182,6 @@ public class ShowQuestionsActivity extends ListActivity {
         dialogBuilder.setMessage(R.string.dialog_showquestions_error);
         dialogBuilder.show();
 
-        TestCoordinator.check(TTChecks.DIALOG_SHOWN);
+//        TestCoordinator.check(TTChecks.DIALOG_SHOWN);
     }
 }
