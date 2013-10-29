@@ -15,14 +15,16 @@ import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 /**
- * Main activity of the application. Shows a menu to choose which activity
- * should be launched.
+ * Main activity of the application.
+ * Shows a menu to choose which activity should be launched.
+ * The last button is used to log in / log out.
  * 
  * @author lseguy
  * 
  */
 
 public class MainActivity extends Activity {
+    
     private Button mShowQuestions;
     private Button mEditQuestion;
     private Button mTequilaLogin;
@@ -35,8 +37,6 @@ public class MainActivity extends Activity {
         mShowQuestions = (Button) findViewById(R.id.show_random_question_button);
         mEditQuestion = (Button) findViewById(R.id.edit_question_button);
         mTequilaLogin = (Button) findViewById(R.id.tequila_login_button);
-
-        UserCredentials.INSTANCE.initializeSharedPreferences(this);
     }
 
     @Override
@@ -47,30 +47,28 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * When the first button is pressed, starts ShowQuestionsActivity
+     * When the first button is pressed, starts ShowQuestionsActivity.
      * 
-     * @param view
-     *            the button which is pressed
+     * @param view the button which is pressed
      */
     public void showQuestion(View view) {
         startActivity(new Intent(this, ShowQuestionsActivity.class));
     }
 
     /**
-     * When the second button is pressed, starts EditQuestionActivity
+     * When the second button is pressed, starts EditQuestionActivity.
      * 
-     * @param view
-     *            the button which is pressed
+     * @param view the button which is pressed
      */
     public void submitQuestion(View view) {
         startActivity(new Intent(this, EditQuestionActivity.class));
     }
 
     /**
-     * When the second button is pressed, starts AuthenticationActivity
+     * When the third button is pressed, either starts AuthenticationActivity
+     * if the user is not currently logged in or log out the user.
      * 
-     * @param view
-     *            the button which is pressed
+     * @param view the button which is pressed
      */
     public void tequilaLogin(View view) {
         if (UserCredentials.INSTANCE.getState() != AuthenticationState.AUTHENTICATED) {
@@ -84,10 +82,7 @@ public class MainActivity extends Activity {
 
     /**
      * Updates the buttons according to the current state of the application.
-     * 
-     * @param crrentState
      */
-
     private void updateButtons() {
         if (UserCredentials.INSTANCE.getState() != AuthenticationState.AUTHENTICATED) {
             mShowQuestions.setEnabled(false);
