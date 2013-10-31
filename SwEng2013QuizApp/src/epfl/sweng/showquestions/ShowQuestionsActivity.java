@@ -2,10 +2,11 @@ package epfl.sweng.showquestions;
 
 import java.util.Set;
 
-import android.app.AlertDialog;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.ListActivity;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.text.method.ScrollingMovementMethod;
@@ -14,9 +15,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import epfl.sweng.R;
-import epfl.sweng.questions.QuizQuestion;
+import epfl.sweng.SwEng2013QuizApp;
+import epfl.sweng.exceptions.NotLoggedInException;
+import epfl.sweng.exceptions.ServerCommunicationException;
+import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
@@ -29,7 +34,6 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
  * @author lseguy
  * 
  */
-
 public class ShowQuestionsActivity extends ListActivity {
     
     //  How long the "correct" or "incorrect" symbol will be displayed (in milliseconds)
@@ -43,7 +47,9 @@ public class ShowQuestionsActivity extends ListActivity {
     private LinearLayout mTagsList;
     private Button mNextButton;
     private TextView mSymbol;
+    private ProgressBar mProgressBar;
     private Vibrator mVibrator;
+    private int mAnimationDuration;
     
     /**
      * Initialization of the activity.
@@ -57,7 +63,10 @@ public class ShowQuestionsActivity extends ListActivity {
         mNextButton = (Button) findViewById(R.id.button_next);
         mSymbol = (TextView) findViewById(R.id.text_check_answer);
         mTagsList = (LinearLayout) findViewById(R.id.list_tags);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressbar_questions);
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        mAnimationDuration = getResources().getInteger(
+            android.R.integer.config_shortAnimTime);
         
         // Enable scrolling for the question
         mQuestionText.setMovementMethod(new ScrollingMovementMethod());
@@ -89,18 +98,30 @@ public class ShowQuestionsActivity extends ListActivity {
         }
         
         getListView().setEnabled(false);
+        
+        mSymbol.setAlpha(0f);
         mSymbol.setVisibility(View.VISIBLE);
+        mSymbol.animate().alpha(1f)
+                         .setDuration(mAnimationDuration)   
+                         .setListener(null);
         
         mSymbol.postDelayed(new Runnable() {
             public void run() {
-                if (correctAnswer) {
-                    mNextButton.setEnabled(true);
-                } else {
-                    getListView().setEnabled(true);
-                }
-                
-                TestCoordinator.check(TTChecks.ANSWER_SELECTED);
-                mSymbol.setVisibility(View.INVISIBLE);
+                mSymbol.animate().alpha(0f)
+                                 .setDuration(mAnimationDuration)
+                                 .setListener(new AnimatorListenerAdapter() {
+                                     @Override
+                                     public void onAnimationEnd(Animator animation) {
+                                         mSymbol.setVisibility(View.GONE);
+                                         
+                                         if (correctAnswer) {
+                                             mNextButton.setEnabled(true);
+                                         } else {
+                                             getListView().setEnabled(true);
+                                         }
+                                         TestCoordinator.check(TTChecks.ANSWER_SELECTED);
+                                     }
+                                 });
             }
         }, SYMBOL_DISPLAY_TIME);
         
@@ -117,71 +138,95 @@ public class ShowQuestionsActivity extends ListActivity {
         mNextButton.setEnabled(false);
         showNewQuestion();
     }
-    
-    /**
-     * Retrieve a new question and set views so that the question is displayed.
-     */
+          
     private void showNewQuestion() {
-        mCurrentQuestion = ServerCommunication.getInstance().getRandomQuestion();
-        
-        if (mCurrentQuestion == null) {
-            showErrorDialog();
-        } else {
-            Set<String> tags = mCurrentQuestion.getTags();
-            String[] tagsArray = tags.toArray(new String[tags.size()]);
+        new GetQuestionTask().execute();
+    }
     
-            // Using an adapter to fill the LinearLayout with data from the array
-            ArrayAdapter<String> adapterTags = new ArrayAdapter<String>(this,
-                R.layout.list_of_tags, tagsArray);
+    private void showViews() {
+        mTagsList.setVisibility(View.VISIBLE);
+        mQuestionText.setVisibility(View.VISIBLE);
+        mNextButton.setVisibility(View.VISIBLE);
+        getListView().setVisibility(View.VISIBLE);
+    }
     
-            mTagsList.removeAllViews();
-            
-            for (int i = 0; i < adapterTags.getCount(); ++i) {
-                View item = adapterTags.getView(i, null, mTagsList);
-                mTagsList.addView(item);
-            }
+    private void hideViews() {
+        mTagsList.setVisibility(View.GONE);
+        mQuestionText.setVisibility(View.GONE);
+        mNextButton.setVisibility(View.GONE);
+        getListView().setVisibility(View.GONE);
+    }
+    
+    private void updateViews() {
+        Set<String> tags = mCurrentQuestion.getTags();
+        String[] tagsArray = tags.toArray(new String[tags.size()]);
 
-            mQuestionText.setText(mCurrentQuestion.getQuestion());
-            
-            // Sets the answer list
-            ArrayAdapter<String> adapterAnswers = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, mCurrentQuestion.getAnswers());
-            
-            setListAdapter(adapterAnswers);
-            
-            TestCoordinator.check(TTChecks.QUESTION_SHOWN);
-        }
+        // Using an adapter to fill the LinearLayout with data from the array
+        ArrayAdapter<String> adapterTags = new ArrayAdapter<String>(this,
+            R.layout.list_of_tags, tagsArray);
+
+        mTagsList.removeAllViews();
         
+        for (int i = 0; i < adapterTags.getCount(); ++i) {
+            View item = adapterTags.getView(i, null, mTagsList);
+            mTagsList.addView(item);
+        }
+
+        mQuestionText.setText(mCurrentQuestion.getQuestion());
+        
+        // Sets the answer list
+        ArrayAdapter<String> adapterAnswers = new ArrayAdapter<String>(this,
+            android.R.layout.simple_list_item_1, mCurrentQuestion.getAnswers());
+        
+        setListAdapter(adapterAnswers);
+        
+        TestCoordinator.check(TTChecks.QUESTION_SHOWN);
     }
     
     /**
-     * Displays an error dialog when the question can't be retrieved.
+     * Retrieves a new question in a separate thread then sets the views so
+     * that the question is displayed.
      */
-    private void showErrorDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+    private class GetQuestionTask extends AsyncTask<Void, Void, QuizQuestion> {
         
-        // The user can either try to get a new question
-        dialogBuilder.setPositiveButton(R.string.text_retry,
-            new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    showNewQuestion();
-                }
-            });
+        private Exception mException = null;
         
-        // Or close the activity
-        dialogBuilder.setNegativeButton(R.string.text_abort,
-            new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    finish();
-                }
-            });
+        @Override
+        protected void onPreExecute() {
+            hideViews();
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
         
-        dialogBuilder.setCancelable(false);
-        dialogBuilder.setMessage(R.string.dialog_showquestions_error);
-        dialogBuilder.show();
+        @Override
+        protected QuizQuestion doInBackground(Void... unused) {
+            try {
+                return ServerCommunication.INSTANCE.getRandomQuestion();
+            } catch (NotLoggedInException e) {
+                mException = e;
+            } catch (ServerCommunicationException e) {
+                mException = e;
+            }
 
-//        TestCoordinator.check(TTChecks.DIALOG_SHOWN);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(QuizQuestion question) {
+            mProgressBar.setVisibility(View.GONE);
+            
+            if (mException == null) {
+                showViews();
+                mCurrentQuestion = question;
+                updateViews();
+            } else {
+                if (mException instanceof NotLoggedInException) {
+                    SwEng2013QuizApp.displayToast(R.string.not_logged_in);
+                } else if (mException instanceof ServerCommunicationException) {
+                    SwEng2013QuizApp.displayToast(R.string.failed_to_get_question);
+                    TestCoordinator.check(TTChecks.QUESTION_SHOWN);
+                }
+            }
+        }
+
     }
 }

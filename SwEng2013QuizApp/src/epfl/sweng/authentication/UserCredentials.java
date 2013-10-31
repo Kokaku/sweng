@@ -13,9 +13,9 @@ import android.content.SharedPreferences;
 public enum UserCredentials {
     INSTANCE;
 
-    private SharedPreferences userSession = null;
-    private AuthenticationState currentState = AuthenticationState.UNAUTHENTICATED;
-
+    private SharedPreferences mUserSession = null;
+    private AuthenticationState mCurrentState = AuthenticationState.UNAUTHENTICATED;
+    
     public enum AuthenticationState {
         UNAUTHENTICATED, TOKEN, TEQUILA, CONFIRMATION, AUTHENTICATED;
     }
@@ -29,7 +29,7 @@ public enum UserCredentials {
      * otherwise.
      */
     public String getSessionID() {
-        return userSession.getString("SESSION_ID", "");
+        return mUserSession.getString("SESSION_ID", "");
     }
 
     /**
@@ -39,16 +39,16 @@ public enum UserCredentials {
      * @return true if successful, false otherwise
      */
     public boolean saveUserCredentials(String sessionIdValue) {
-        if (currentState == AuthenticationState.AUTHENTICATED
+        if (mCurrentState == AuthenticationState.AUTHENTICATED
                     && !sessionIdValue.equals("")) {
-            SharedPreferences.Editor preferencesEditor = userSession.edit();
+            SharedPreferences.Editor preferencesEditor = mUserSession.edit();
             preferencesEditor.putString("SESSION_ID", sessionIdValue);
             preferencesEditor.commit();
             return true;
         }
         return false;
     }
-
+    
     /**
      * Sets the authentication state. If not {@code AUTHENTICATED}, the
      * session ID is cleared.
@@ -60,14 +60,14 @@ public enum UserCredentials {
                 && !getSessionID().equals("")) {
             clearUserCredentials();
         }
-        currentState = newState;
+        mCurrentState = newState;
     }
 
     /**
      * @return the current authentication state
      */
     public AuthenticationState getState() {
-        return currentState;
+        return mCurrentState;
     }
     
     /**
@@ -77,16 +77,16 @@ public enum UserCredentials {
      * @param context a context to get the preferences
      */
     private void initializeSharedPreferences(Context context) {
-        userSession = context.getSharedPreferences("user_session", 
+        mUserSession = context.getSharedPreferences("user_session", 
                 Context.MODE_PRIVATE);
         
         if (!getSessionID().equals("")) {
-            currentState = AuthenticationState.AUTHENTICATED;
+            mCurrentState = AuthenticationState.AUTHENTICATED;
         }
     }
 
     private void clearUserCredentials() {
-        SharedPreferences.Editor preferencesEditor = userSession.edit();
+        SharedPreferences.Editor preferencesEditor = mUserSession.edit();
         preferencesEditor.clear();
         preferencesEditor.commit();
     }

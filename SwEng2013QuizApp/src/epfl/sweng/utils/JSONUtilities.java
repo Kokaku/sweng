@@ -3,15 +3,16 @@
  */
 package epfl.sweng.utils;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import epfl.sweng.questions.QuizQuestion;
+import epfl.sweng.quizquestions.QuizQuestion;
 
 /**
  * Class of utility methods to parse JSONObjects to String, String[], Set<String>
@@ -42,7 +43,7 @@ public class JSONUtilities {
         
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("question", question.getQuestion());
-        jsonObject.put("answers", new JSONArray(Arrays.asList(question.getAnswers())));
+        jsonObject.put("answers", new JSONArray(question.getAnswers()));
         jsonObject.put("solutionIndex", question.getSolutionIndex());
         jsonObject.put("tags", new JSONArray(question.getTags()));
         
@@ -56,11 +57,11 @@ public class JSONUtilities {
      * @return String[] of the answers
      * @throws JSONException if there is a problem getting the {@link JSONArray}
      */
-    public static String[] parseAnswers(JSONObject json) throws JSONException {
+    public static List<String> parseAnswers(JSONObject json) throws JSONException {
         JSONArray jsonAnswers = json.getJSONArray("answers");
-        String[] answers = new String[jsonAnswers.length()];
+        List<String> answers = new ArrayList<String>();
         for (int i = 0; i < jsonAnswers.length(); i++) {
-            answers[i] = jsonAnswers.getString(i);
+            answers.add(jsonAnswers.getString(i));
         }
         return answers;
     }

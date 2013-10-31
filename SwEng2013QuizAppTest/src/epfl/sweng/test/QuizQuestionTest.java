@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import android.test.AndroidTestCase;
-import epfl.sweng.questions.QuizQuestion;
+import epfl.sweng.quizquestions.QuizQuestion;
 
 /**
  * @author lseguy
