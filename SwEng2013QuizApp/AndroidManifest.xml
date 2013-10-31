@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
+        android:name="epfl.sweng.SwEng2013QuizApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"

@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.entry.MainActivity;
-import epfl.sweng.questions.QuizQuestion;
+import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.test.framework.QuizActivityTestCase;
@@ -123,13 +123,13 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
     public void testGetRandomQuestion() {
         pushCannedAnswerForCorrectQuestion();
-        mQuestion = ServerCommunication.getInstance().getRandomQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
         assertTrue("Question is fetched", mQuestion != null);
     }
 
     public void testQuestionTextCorrectlyFetched() {
         pushCannedAnswerForCorrectQuestion();
-        mQuestion = ServerCommunication.getInstance().getRandomQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
         assertTrue("Question text is correctly fetched",
                 mQuestionText.equals(mQuestion.getQuestion()));
@@ -137,7 +137,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
     public void testQuestionTagsCorrectlyFetched() {
         pushCannedAnswerForCorrectQuestion();
-        mQuestion = ServerCommunication.getInstance().getRandomQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
         mTags.add("Tag1");
         mTags.add("Tag2");
@@ -148,7 +148,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
     public void testQuestionAnswersCorrectlyFetched() {
         pushCannedAnswerForCorrectQuestion();
-        mQuestion = ServerCommunication.getInstance().getRandomQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
         assertTrue("Question answers are correctly fetched",
                 Arrays.equals(mAnswers, mQuestion.getAnswers()));
@@ -156,7 +156,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
     public void testSolutionIndexCorrectlyFetched() {
         pushCannedAnswerForCorrectQuestion();
-        mQuestion = ServerCommunication.getInstance().getRandomQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
         assertTrue("Solution index is correctly fetched",
                 mSolutionIndex == mQuestion.getSolutionIndex());
@@ -164,7 +164,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
     public void testGetRandomIncorrectQuestion() {
         pushCannedAnswerForIncorrectQuestion();
-        mQuestion = ServerCommunication.getInstance().getRandomQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
         assertTrue("Incorrect question is not fetched", null == mQuestion);
 
@@ -172,7 +172,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
     public void testGetRandomQuestionWithBadJSONObject() {
         pushCannedAnswerWithInvalidJSONObject();
-        mQuestion = ServerCommunication.getInstance().getRandomQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
         assertTrue("Question should not be created when invalid JSONObject "
                 + "returned by server", null == mQuestion);
@@ -180,7 +180,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
     public void testGetRandomQuestionWithMissingJSONFielAnswers() {
         pushCannedAnswerWithMissingJSONFieldAnswers();
-        mQuestion = ServerCommunication.getInstance().getRandomQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
         assertTrue("Question should not be parsed when missing fields in"
                 + "the JSONObject retrurned by server", null == mQuestion);
@@ -193,7 +193,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
         pushCannedAnswerForOKPostRequest();
         mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
                 mTags);
-        boolean questionSent = ServerCommunication.getInstance()
+        boolean questionSent = ServerCommunication.INSTANCE
                 .send(mQuestion);
         System.out.println("APPLE2 "
                 + mockHttpClient.getResponseInterceptorCount());
@@ -207,7 +207,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
                 mTags);
 
         pushCannedAnswerForOKPostRequest();
-        ServerCommunication.getInstance().send(mQuestion);
+        ServerCommunication.INSTANCE.send(mQuestion);
         QuizQuestion questionOnServer = null;
         try {
             JSONObject json = new JSONObject(
@@ -242,7 +242,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
         mTags.add("tag1");
         mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
                 mTags);
-        boolean questionSent = ServerCommunication.getInstance()
+        boolean questionSent = ServerCommunication.INSTANCE
                 .send(mQuestion);
         assertFalse("The server did not accept the request", questionSent);
     }

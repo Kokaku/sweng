@@ -12,7 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.test.AndroidTestCase;
-import epfl.sweng.questions.QuizQuestion;
+import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.utils.JSONUtilities;
 
 /**

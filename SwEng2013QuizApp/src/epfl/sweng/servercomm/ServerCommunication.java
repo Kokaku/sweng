@@ -1,209 +1,272 @@
 package epfl.sweng.servercomm;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
-import epfl.sweng.questions.QuizQuestion;
+import epfl.sweng.exceptions.InvalidCredentialsException;
+import epfl.sweng.exceptions.NotLoggedInException;
+import epfl.sweng.exceptions.ServerCommunicationException;
+import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.utils.JSONUtilities;
 
 /**
- * This class allows communication with the question server. Used to fetch
- * questions and send new ones to the server.
+ * This singleton class allows communication with servers such as the question
+ * server and the Tequila server.
+ * 
+ * It is used to get questions and send new ones to the server.
  * 
  * @author kokaku
  * 
  */
-public final class ServerCommunication {
+public enum ServerCommunication {
+    INSTANCE;
 
-	private static final String SERVER_URL = "https://sweng-quiz.appspot.com/quizquestions/";
-	private static final String SERVER_LOGIN_URL = "https://sweng-quiz.appspot.com/login";
-	private static final String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
-	private static ServerCommunication serverCommInstance = null;
+    private static final String SERVER_URL = "https://sweng-quiz.appspot.com/quizquestions";
+    private static final String SERVER_LOGIN_URL = "https://sweng-quiz.appspot.com/login";
+    private static final String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
 
-	private static String responseStatus = "";
-	private static final HttpResponseInterceptor RESPONSE_INTERCEPTOR = new HttpResponseInterceptor() {
-		@Override
-		public void process(HttpResponse response, HttpContext context) {
-			responseStatus = response.getStatusLine().toString();
-		}
-	};
+    private int mResponseStatus;
 
-	private ServerCommunication() {
-		SwengHttpClientFactory.getInstance().addResponseInterceptor(
-				RESPONSE_INTERCEPTOR);
-	}
+    private ServerCommunication() {
+        
+        /**
+         * Used to check if a request has been successful or not.
+         */
+        final HttpResponseInterceptor responseInterceptor = new HttpResponseInterceptor() {
+            @Override
+            public void process(HttpResponse response, HttpContext context) {
+                mResponseStatus = response.getStatusLine().getStatusCode();
+            }
+        };
+        
+        SwengHttpClientFactory.getInstance().addResponseInterceptor(
+                responseInterceptor);
+    }
 
-	public static ServerCommunication getInstance() {
-		if (serverCommInstance == null) {
-			serverCommInstance = new ServerCommunication();
-		}
-		return serverCommInstance;
-	}
+    /**
+     * Sends a question to the server. This is a blocking method and thus it
+     * should be called by a class extending {@link AsyncTask}.
+     * 
+     * @param question the question to be sent
+     * @throws NotLoggedInException if the user is not logged in
+     * @throws ServerCommunicationException if the network request is unsuccessful
+     */
+    public void send(QuizQuestion question)
+        throws NotLoggedInException, ServerCommunicationException {
+        
+        if (!isNetworkAvailable()) {
+            throw new ServerCommunicationException("Not connected.");
+        } else if (UserCredentials.INSTANCE.getState() != AuthenticationState.AUTHENTICATED) {
+            throw new NotLoggedInException();
+        }
 
-	/**
-	 * Sends a question to the server
-	 * 
-	 * @param question
-	 *            to send to the server
-	 * @return true if the question has been correctly sent
-	 */
-	public boolean send(QuizQuestion question) {
-		if (UserCredentials.INSTANCE.getState() != AuthenticationState.AUTHENTICATED) {
-			return false;
-		}
+        HttpPost request = new HttpPost(SERVER_URL);
+        
+        request.setHeader("Content-type", "application/json");
+        addAuthenticationHeader(request);
+        
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        String httpResponse = null;
+        try {
+            request.setEntity(new StringEntity(JSONUtilities
+                .getJSONString(question)));
+            
+            httpResponse = SwengHttpClientFactory.getInstance().execute(
+                    request, handler);
+        } catch (IOException e) {
+        } catch (JSONException e) {
+            throw new ServerCommunicationException("JSON badly formatted. " + e.getMessage());
+        }
+        
+        if (httpResponse == null || mResponseStatus != HttpStatus.SC_CREATED) {
+            throw new ServerCommunicationException("Unable to send the question to the server.");
+        }
+    }
 
-		if (question != null) {
-			try {
-				HttpPost request = new HttpPost(SERVER_URL);
-				request.setEntity(new StringEntity(JSONUtilities
-						.getJSONString(question)));
-				request.setHeader("Content-type", "application/json");
-				request.setHeader("Authorization", "Tequila "
-						+ UserCredentials.INSTANCE.getSessionID());
+    /**
+     * Fetches a random question from the server. This is a blocking method and
+     * thus it should be called by a class extending {@link AsyncTask}.
+     * 
+     * @return a question fetched from the server
+     * @throws NotLoggedInException if the user is not logged in
+     * @throws ServerCommunicationException if the network request is unsuccessful
+     */
+    public QuizQuestion getRandomQuestion()
+        throws ServerCommunicationException, NotLoggedInException {
+        
+        if (!isNetworkAvailable()) {
+            throw new ServerCommunicationException("Not connected.");
+        } else if (UserCredentials.INSTANCE.getState() != AuthenticationState.AUTHENTICATED) {
+            throw new NotLoggedInException();
+        }
 
-				String httpAnswer = new HttpTask().execute(request).get();
-				return httpAnswer != null && !httpAnswer.equals("error")
-						/*&& responseStatus.contains("201")*/;
-			} catch (InterruptedException e) {
-			} catch (ExecutionException e) {
-			} catch (JSONException e) {
-			} catch (UnsupportedEncodingException e) {
-			}
-		}
+        HttpUriRequest request = new HttpGet(SERVER_URL + "/random");
+        addAuthenticationHeader(request);
+        
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        String httpResponse = null;
+        try {
+            httpResponse = SwengHttpClientFactory.getInstance().execute(
+                    request, handler);
+        } catch (IOException e) {
+        }
+        
+        if (httpResponse == null || mResponseStatus != HttpStatus.SC_OK) {
+            throw new ServerCommunicationException("Unable to get a question from the server.");
+        }
+        
+        try {
+            return new QuizQuestion(httpResponse);
+        } catch (JSONException e) {
+            throw new ServerCommunicationException("JSON badly formatted.");
+        }
+    }
+    
+    /**
+     * Authenticate the user and get a session id.
+     * You must be in state @{code UNAUTHENTICATED} before calling this method.
+     * This is a blocking method and thus it should be called by a class
+     * extending {@link AsyncTask}.
+     * 
+     * @param username a String representing the user's name
+     * @param password a String representing the user's password
+     * @throws ServerCommunicationException if unable to log in
+     */
+    public void login(String username, String password)
+        throws ServerCommunicationException {
+        
+        if (!isNetworkAvailable()) {
+            throw new ServerCommunicationException("Not connected");
+        } else if (UserCredentials.INSTANCE.getState() != AuthenticationState.UNAUTHENTICATED) {
+            return; // already logged in or login in
+        }
+        
+        try {
+            UserCredentials.INSTANCE.setState(AuthenticationState.TOKEN);
+            String httpResponse = requestToken();
+            JSONObject json = new JSONObject(httpResponse);
+            String token = json.getString("token");
+            
+            UserCredentials.INSTANCE.setState(AuthenticationState.TEQUILA);
+            authTequila(token, username, password);
 
-		return false;
-	}
+            UserCredentials.INSTANCE.setState(AuthenticationState.CONFIRMATION);
+            httpResponse = requestSessionID(token);
 
-	/**
-	 * Fetch a random question from the server
-	 * 
-	 * @return the random question fetched, null if an error occurred
-	 */
-	public QuizQuestion getRandomQuestion() {
-		if (UserCredentials.INSTANCE.getState() != AuthenticationState.AUTHENTICATED) {
-			return null;
-		}
+            json = new JSONObject(httpResponse);
+            String session = json.getString("session");
+            UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
+            UserCredentials.INSTANCE.saveUserCredentials(session);
+        } catch (JSONException e) {
+            throw new ServerCommunicationException("JSON badly formatted.");
+        } catch (ServerCommunicationException e) {
+            UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
+            throw e;
+        }
+    }
+    
+    /**
+     * @return true if the device is connected, false otherwise.
+     */
+    private boolean isNetworkAvailable() {
+        Context context = SwEng2013QuizApp.getAppContext();
+        ConnectivityManager connectivityManager = (ConnectivityManager) 
+            context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        
+        return networkInfo != null && networkInfo.isConnected();
+    }
+    
+    private void addAuthenticationHeader(HttpUriRequest request) {
+        request.setHeader("Authorization", "Tequila "
+            + UserCredentials.INSTANCE.getSessionID());
+    }
+    
+    private String requestToken()
+        throws ServerCommunicationException {
 
-		try {
-			HttpUriRequest request = new HttpGet(SERVER_URL + "random");
-			request.setHeader("Authorization", "Tequila "
-					+ UserCredentials.INSTANCE.getSessionID());
-			String httpAnswer = new HttpTask().execute(request).get();
+        HttpUriRequest request = new HttpGet(SERVER_LOGIN_URL);
+        
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        String httpResponse = null;
+        try {
+            httpResponse = SwengHttpClientFactory.getInstance().execute(
+                    request, handler);
+        } catch (IOException e) {
+        }
+        
+        if (httpResponse == null || mResponseStatus != HttpStatus.SC_OK) {
+            throw new ServerCommunicationException("Unable to get a token.");
+        }
+        
+        return httpResponse;
+    }
 
-			if (httpAnswer != null && !httpAnswer.equals("error")
-					/*&& responseStatus.contains("200 OK")*/) {
+    private void authTequila(String token, String username, String password)
+        throws ServerCommunicationException {
 
-				JSONObject json = new JSONObject(httpAnswer);
-				return new QuizQuestion(json.getString("question"),
-						JSONUtilities.parseAnswers(json),
-						json.getInt("solutionIndex"),
-						JSONUtilities.parseTags(json));
-			}
-		} catch (InterruptedException e) {
-		} catch (ExecutionException e) {
-		} catch (JSONException e) {
-		} catch (IllegalArgumentException e) {
-		}
+        ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("requestkey", token));
+        params.add(new BasicNameValuePair("username", username));
+        params.add(new BasicNameValuePair("password", password));
+        
+        HttpPost request = new HttpPost(TEQUILA_URL);
+        
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        try {
+            request.setEntity(new UrlEncodedFormEntity(params));
+            SwengHttpClientFactory.getInstance().execute(
+                    request, handler);
+        } catch (IOException e) {
+        }
+        
+        if (mResponseStatus != HttpStatus.SC_MOVED_TEMPORARILY) {
+            throw new InvalidCredentialsException("Unable to authenticate with Tequila.");
+        }
+    }
 
-		return null;
-	}
+    private String requestSessionID(String token)
+        throws ServerCommunicationException {
 
-	/**
-	 * This method is called to authenticate user and get a session id You must
-	 * be in state "AuthenticationState.UNAUTHENTICATED" before calling this
-	 * method. If this method return false you can be in any state of
-	 * authentication
-	 * 
-	 * @param username
-	 *            a String representing the user to log
-	 * @param password
-	 *            aString representing the password of the user
-	 * @return true if correctly authenticated
-	 */
-	public boolean login(String username, String password) {
-		if (UserCredentials.INSTANCE.getState() != AuthenticationState.UNAUTHENTICATED) {
-			return false;
-		}
-
-		try {
-		    UserCredentials.INSTANCE.setState(AuthenticationState.TOKEN);
-			String httpAnswer = requestToken();
-			if (httpAnswer == null || !responseStatus.contains("200 OK")) {
-				return false;
-			}
-
-			JSONObject json = new JSONObject(httpAnswer);
-			String token = json.getString("token");
-			UserCredentials.INSTANCE.setState(AuthenticationState.TEQUILA);
-			httpAnswer = authTequila(token, username, password);
-			if (!responseStatus.contains("302 Found")) {
-				return false;
-			}
-
-			UserCredentials.INSTANCE.setState(AuthenticationState.CONFIRMATION);
-			httpAnswer = requestSessionID(token);
-			if (httpAnswer == null || !responseStatus.contains("200 OK")) {
-				return false;
-			}
-
-			json = new JSONObject(httpAnswer);
-			String session = json.getString("session");
-			UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
-			UserCredentials.INSTANCE.saveUserCredentials(session);
-			return true;
-		} catch (InterruptedException e) {
-		} catch (ExecutionException e) {
-		} catch (JSONException e) {
-		} catch (UnsupportedEncodingException e) {
-		}
-
-		return false;
-	}
-
-	private String requestToken() throws InterruptedException,
-			ExecutionException {
-
-		HttpUriRequest request = new HttpGet(SERVER_LOGIN_URL);
-		return new HttpTask().execute(request).get();
-	}
-
-	private String authTequila(String token, String username, String password)
-		throws InterruptedException, ExecutionException, UnsupportedEncodingException {
-
-		ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("requestkey", token));
-		params.add(new BasicNameValuePair("username", username));
-		params.add(new BasicNameValuePair("password", password));
-
-		HttpPost postRequest = new HttpPost(TEQUILA_URL);
-		postRequest.setEntity(new UrlEncodedFormEntity(params));
-		postRequest.setHeader("Content-type", "application/json");
-		return new HttpTask().execute(postRequest).get();
-	}
-
-	private String requestSessionID(String token)
-		throws UnsupportedEncodingException, InterruptedException, ExecutionException {
-
-		HttpPost postRequest = new HttpPost(SERVER_LOGIN_URL);
-		postRequest
-				.setEntity(new StringEntity("{\"token\": \"" + token + "\"}"));
-		postRequest.setHeader("Content-type", "application/json");
-		return new HttpTask().execute(postRequest).get();
-	}
+        HttpPost request = new HttpPost(SERVER_LOGIN_URL);
+        request.setHeader("Content-type", "application/json");
+        
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        String httpResponse = null;
+        
+        try {
+            request.setEntity(new StringEntity("{\"token\": \"" + token + "\"}"));
+            httpResponse = SwengHttpClientFactory.getInstance().execute(
+                request, handler);
+        } catch (IOException e) {
+        }
+        
+        if (httpResponse == null || mResponseStatus != HttpStatus.SC_OK) {
+            throw new ServerCommunicationException("Unable to confirm token.");
+        }
+        
+        return httpResponse;
+    }
 }

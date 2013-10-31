@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import android.app.ListActivity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,9 +15,11 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import epfl.sweng.R;
-import epfl.sweng.questions.QuizQuestion;
+import epfl.sweng.SwEng2013QuizApp;
+import epfl.sweng.exceptions.NotLoggedInException;
+import epfl.sweng.exceptions.ServerCommunicationException;
+import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
@@ -89,21 +92,15 @@ public class EditQuestionActivity extends ListActivity {
     public boolean onClickSubmit(View view) {
         mOnReset = true;
         String questionText = mQuestionEditText.getText().toString();
-        String[] finalAnswers = mAnswersArrayList
-                .toArray(new String[mAnswersArrayList.size()]);
+               
         int correctAnswer = mAnswersAdapter.getCorrectAnswerPosition();
         Set<String> tagsSet = extractTags();
 
-        //TODO handle Exception on QuizQuestion construction and Server comm errors
-        QuizQuestion question = new QuizQuestion(questionText, finalAnswers,
+        QuizQuestion question = new QuizQuestion(questionText, mAnswersArrayList,
                 correctAnswer, tagsSet);
-        boolean sendSuccess = ServerCommunication.getInstance().send(question);
-        
-        if (sendSuccess == false) {
-            Toast.makeText(this, R.string.failed_to_send_question,
-                    Toast.LENGTH_SHORT).show();
-        }
-        
+                
+        new SendQuestionTask().execute(question);
+   
         resetScreen();
         TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
         mOnReset = false;
@@ -216,5 +213,41 @@ public class EditQuestionActivity extends ListActivity {
                 int arg3) {
 
         }
+    }
+    
+    /**
+     * Sends a new question in a separate thread.
+     */    
+    private class SendQuestionTask extends AsyncTask<QuizQuestion, Void, Void> {
+        
+        private Exception mException = null;
+                
+        @Override
+        protected Void doInBackground(QuizQuestion... questions) {
+            try {
+                ServerCommunication.INSTANCE.send(questions[0]);
+            } catch (NotLoggedInException e) {
+                mException = e;
+            } catch (ServerCommunicationException e) {
+                mException = e;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            if (mException == null) {
+                SwEng2013QuizApp.displayToast(R.string.question_sent);
+            } else {
+                if (mException instanceof NotLoggedInException) {
+                    SwEng2013QuizApp.displayToast(R.string.not_logged_in);
+                } else if (mException instanceof ServerCommunicationException) {
+                    SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
+                    TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
+                }
+            }
+        }
+
     }
 }
