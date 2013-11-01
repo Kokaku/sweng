@@ -121,129 +121,129 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
     }
 
-//    public void testGetRandomQuestion() {
-//        pushCannedAnswerForCorrectQuestion();
-//        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-//        assertTrue("Question is fetched", mQuestion != null);
-//    }
-//
-//    public void testQuestionTextCorrectlyFetched() {
-//        pushCannedAnswerForCorrectQuestion();
-//        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-//
-//        assertTrue("Question text is correctly fetched",
-//                mQuestionText.equals(mQuestion.getQuestion()));
-//    }
-//
-//    public void testQuestionTagsCorrectlyFetched() {
-//        pushCannedAnswerForCorrectQuestion();
-//        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-//
-//        mTags.add("Tag1");
-//        mTags.add("Tag2");
-//
-//        assertTrue("Question tags are correctly fetced",
-//                mTags.equals(mQuestion.getTags()));
-//    }
-//
-//    public void testQuestionAnswersCorrectlyFetched() {
-//        pushCannedAnswerForCorrectQuestion();
-//        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-//
-//        assertTrue("Question answers are correctly fetched",
-//                Arrays.equals(mAnswers, mQuestion.getAnswers()));
-//    }
-//
-//    public void testSolutionIndexCorrectlyFetched() {
-//        pushCannedAnswerForCorrectQuestion();
-//        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-//
-//        assertTrue("Solution index is correctly fetched",
-//                mSolutionIndex == mQuestion.getSolutionIndex());
-//    }
-//
-//    public void testGetRandomIncorrectQuestion() {
-//        pushCannedAnswerForIncorrectQuestion();
-//        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-//
-//        assertTrue("Incorrect question is not fetched", null == mQuestion);
-//
-//    }
-//
-//    public void testGetRandomQuestionWithBadJSONObject() {
-//        pushCannedAnswerWithInvalidJSONObject();
-//        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-//
-//        assertTrue("Question should not be created when invalid JSONObject "
-//                + "returned by server", null == mQuestion);
-//    }
-//
-//    public void testGetRandomQuestionWithMissingJSONFielAnswers() {
-//        pushCannedAnswerWithMissingJSONFieldAnswers();
-//        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-//
-//        assertTrue("Question should not be parsed when missing fields in"
-//                + "the JSONObject retrurned by server", null == mQuestion);
-//    }
-//
-//    public void testSendQuestion() {
-//        mTags.add("tag1");
-//        System.out.println("APPLE1 "
-//                + mockHttpClient.getResponseInterceptorCount());
-//        pushCannedAnswerForOKPostRequest();
-//        mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
-//                mTags);
-//        boolean questionSent = ServerCommunication.INSTANCE
-//                .send(mQuestion);
-//        System.out.println("APPLE2 "
-//                + mockHttpClient.getResponseInterceptorCount());
-//        assertTrue("Valid question is sent", questionSent);
-//        mockHttpClient.clearCannedResponses();
-//    }
-//
-//    public void testQuestionWellRecieved() {
-//        mTags.add("tag1");
-//        mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
-//                mTags);
-//
-//        pushCannedAnswerForOKPostRequest();
-//        ServerCommunication.INSTANCE.send(mQuestion);
-//        QuizQuestion questionOnServer = null;
-//        try {
-//            JSONObject json = new JSONObject(
-//                    mockHttpClient.getLastPostRequestContent());
-//
-//            questionOnServer = new QuizQuestion(json.getString("question"),
-//                    JSONUtilities.parseAnswers(json),
-//                    json.getInt("solutionIndex"), JSONUtilities.parseTags(json));
-//        } catch (JSONException e) {
-//            // TODO Auto-generated catch block
-//        } catch (IOException e) {
-//            // TODO Auto-generated catch block
-//        }
-//
-//        assertTrue("Question text is well recieved", mQuestion.getQuestion()
-//                .equals(questionOnServer.getQuestion()));
-//        assertTrue(
-//                "Question answers are well recieved",
-//                Arrays.equals(mQuestion.getAnswers(),
-//                        questionOnServer.getAnswers()));
-//        assertTrue("Question tags are well recieved", mQuestion.getTags()
-//                .equals(questionOnServer.getTags()));
-//        assertTrue("Question solution index is well recieved",
-//                mQuestion.getSolutionIndex() == questionOnServer
-//                        .getSolutionIndex());
-//
-//        mockHttpClient.clearCannedResponses();
-//    }
-//
-//    public void testQuestionNotRecieved() {
-//        pushCannedAnswerForBADPostRequest();
-//        mTags.add("tag1");
-//        mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
-//                mTags);
-//        boolean questionSent = ServerCommunication.INSTANCE
-//                .send(mQuestion);
-//        assertFalse("The server did not accept the request", questionSent);
-//    }
+    public void testGetRandomQuestion() {
+        pushCannedAnswerForCorrectQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+        assertTrue("Question is fetched", mQuestion != null);
+    }
+
+    public void testQuestionTextCorrectlyFetched() {
+        pushCannedAnswerForCorrectQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+
+        assertTrue("Question text is correctly fetched",
+                mQuestionText.equals(mQuestion.getQuestion()));
+    }
+
+    public void testQuestionTagsCorrectlyFetched() {
+        pushCannedAnswerForCorrectQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+
+        mTags.add("Tag1");
+        mTags.add("Tag2");
+
+        assertTrue("Question tags are correctly fetced",
+                mTags.equals(mQuestion.getTags()));
+    }
+
+    public void testQuestionAnswersCorrectlyFetched() {
+        pushCannedAnswerForCorrectQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+
+        assertTrue("Question answers are correctly fetched",
+                Arrays.equals(mAnswers, mQuestion.getAnswers()));
+    }
+
+    public void testSolutionIndexCorrectlyFetched() {
+        pushCannedAnswerForCorrectQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+
+        assertTrue("Solution index is correctly fetched",
+                mSolutionIndex == mQuestion.getSolutionIndex());
+    }
+
+    public void testGetRandomIncorrectQuestion() {
+        pushCannedAnswerForIncorrectQuestion();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+
+        assertTrue("Incorrect question is not fetched", null == mQuestion);
+
+    }
+
+    public void testGetRandomQuestionWithBadJSONObject() {
+        pushCannedAnswerWithInvalidJSONObject();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+
+        assertTrue("Question should not be created when invalid JSONObject "
+                + "returned by server", null == mQuestion);
+    }
+
+    public void testGetRandomQuestionWithMissingJSONFielAnswers() {
+        pushCannedAnswerWithMissingJSONFieldAnswers();
+        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+
+        assertTrue("Question should not be parsed when missing fields in"
+                + "the JSONObject retrurned by server", null == mQuestion);
+    }
+
+    public void testSendQuestion() {
+        mTags.add("tag1");
+        System.out.println("APPLE1 "
+                + mockHttpClient.getResponseInterceptorCount());
+        pushCannedAnswerForOKPostRequest();
+        mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
+                mTags);
+        boolean questionSent = ServerCommunication.INSTANCE
+                .send(mQuestion);
+        System.out.println("APPLE2 "
+                + mockHttpClient.getResponseInterceptorCount());
+        assertTrue("Valid question is sent", questionSent);
+        mockHttpClient.clearCannedResponses();
+    }
+
+    public void testQuestionWellRecieved() {
+        mTags.add("tag1");
+        mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
+                mTags);
+
+        pushCannedAnswerForOKPostRequest();
+        ServerCommunication.INSTANCE.send(mQuestion);
+        QuizQuestion questionOnServer = null;
+        try {
+            JSONObject json = new JSONObject(
+                    mockHttpClient.getLastPostRequestContent());
+
+            questionOnServer = new QuizQuestion(json.getString("question"),
+                    JSONUtilities.parseAnswers(json),
+                    json.getInt("solutionIndex"), JSONUtilities.parseTags(json));
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+        }
+
+        assertTrue("Question text is well recieved", mQuestion.getQuestion()
+                .equals(questionOnServer.getQuestion()));
+        assertTrue(
+                "Question answers are well recieved",
+                Arrays.equals(mQuestion.getAnswers(),
+                        questionOnServer.getAnswers()));
+        assertTrue("Question tags are well recieved", mQuestion.getTags()
+                .equals(questionOnServer.getTags()));
+        assertTrue("Question solution index is well recieved",
+                mQuestion.getSolutionIndex() == questionOnServer
+                        .getSolutionIndex());
+
+        mockHttpClient.clearCannedResponses();
+    }
+
+    public void testQuestionNotRecieved() {
+        pushCannedAnswerForBADPostRequest();
+        mTags.add("tag1");
+        mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
+                mTags);
+        boolean questionSent = ServerCommunication.INSTANCE
+                .send(mQuestion);
+        assertFalse("The server did not accept the request", questionSent);
+    }
 }

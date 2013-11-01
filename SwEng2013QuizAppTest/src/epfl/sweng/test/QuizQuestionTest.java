@@ -4,7 +4,6 @@
 package epfl.sweng.test;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -22,7 +21,7 @@ public class QuizQuestionTest extends AndroidTestCase {
     
     public static final int CORRECT_ANSWER_ID = 1;
     public static final String QUESTION_TEXT = "This is the question";
-    public static final List<String> LIST_OF_ANSWERS = Arrays.asList(new String[] {"Answer 1", "Answer 2"});
+    public static final String[] LIST_OF_ANSWERS = {"Answer 1", "Answer 2"};
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -61,14 +60,14 @@ public class QuizQuestionTest extends AndroidTestCase {
         } catch (IllegalArgumentException e) { }
     }
 
-//    public void testCreateQuestionWithOneAnswer() {
-//        try {
-//            @SuppressWarnings("unused")
-//            QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-//            new String[] {"answer1"}, 0, mTags);
-//            fail("Constructor must be called with more than one answer");
-//        } catch (IllegalArgumentException e) { }
-//    }
+    public void testCreateQuestionWithOneAnswer() {
+        try {
+            @SuppressWarnings("unused")
+            QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
+            new String[] {"answer1"}, 0, mTags);
+            fail("Constructor must be called with more than one answer");
+        } catch (IllegalArgumentException e) { }
+    }
 
     public void testCreateQuestionWithNoTags() {
         try {
@@ -88,22 +87,22 @@ public class QuizQuestionTest extends AndroidTestCase {
         } catch (IllegalArgumentException e) { }
     }
     
-//    public void testCreateQuestionWithOutOfBoundsSolutionIndex() {
-//        try {
-//            @SuppressWarnings("unused")
-//            QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-//                    LIST_OF_ANSWERS, LIST_OF_ANSWERS.length + 1, mTags);
-//            fail("solutionIndex must be between 0 and answers.length-1");
-//        } catch (IllegalArgumentException e) { }
-//    }
-//    
-//    public void testConstructorCopiesAnswers() {
-//        String[] notSafeAnswers = {"Ping", "Pong"};
-//        mQuestion = new QuizQuestion(QUESTION_TEXT, notSafeAnswers, 0, mTags);
-//        notSafeAnswers[0] = "Bug!";
-//        assertFalse("Constructor must copy array of answers",
-//            Arrays.equals(notSafeAnswers, mQuestion.getAnswers()));
-//    }
+    public void testCreateQuestionWithOutOfBoundsSolutionIndex() {
+        try {
+            @SuppressWarnings("unused")
+            QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
+                    LIST_OF_ANSWERS, LIST_OF_ANSWERS.length + 1, mTags);
+            fail("solutionIndex must be between 0 and answers.length-1");
+        } catch (IllegalArgumentException e) { }
+    }
+    
+    public void testConstructorCopiesAnswers() {
+        String[] notSafeAnswers = {"Ping", "Pong"};
+        mQuestion = new QuizQuestion(QUESTION_TEXT, notSafeAnswers, 0, mTags);
+        notSafeAnswers[0] = "Bug!";
+        assertFalse("Constructor must copy array of answers",
+            Arrays.equals(notSafeAnswers, mQuestion.getAnswers()));
+    }
     
     public void testConstructorCopiesTags() {
         mTags.add("Bug!");
@@ -115,13 +114,13 @@ public class QuizQuestionTest extends AndroidTestCase {
         assertTrue(mQuestion.isSolutionCorrect(CORRECT_ANSWER_ID));
     }
     
-//    public void testCheckCorrectAnswerIsFalse() {
-//        for (int i = 0; i < LIST_OF_ANSWERS.length; ++i) {
-//            if (i != CORRECT_ANSWER_ID) {
-//                assertFalse(mQuestion.isSolutionCorrect(i));
-//            }
-//        }
-//    }
+    public void testCheckCorrectAnswerIsFalse() {
+        for (int i = 0; i < LIST_OF_ANSWERS.length; ++i) {
+            if (i != CORRECT_ANSWER_ID) {
+                assertFalse(mQuestion.isSolutionCorrect(i));
+            }
+        }
+    }
     
     public void testGetQuestionText() {
         assertEquals(QUESTION_TEXT, mQuestion.getQuestion());
@@ -131,15 +130,15 @@ public class QuizQuestionTest extends AndroidTestCase {
         assertEquals(CORRECT_ANSWER_ID, mQuestion.getSolutionIndex());
     }
     
-//    public void testGetAnswersCopy() {
-//        mQuestion.getAnswers()[0] = "Bug!";
-//        assertTrue("getAnswers getter must return a copy of the array",
-//            Arrays.equals(LIST_OF_ANSWERS, mQuestion.getAnswers()));
-//    }
-//    
-//    public void testGetAnswers() {
-//        assertTrue(Arrays.equals(LIST_OF_ANSWERS, mQuestion.getAnswers()));
-//    }
+    public void testGetAnswersCopy() {
+        mQuestion.getAnswers()[0] = "Bug!";
+        assertTrue("getAnswers getter must return a copy of the array",
+            Arrays.equals(LIST_OF_ANSWERS, mQuestion.getAnswers()));
+    }
+    
+    public void testGetAnswers() {
+        assertTrue(Arrays.equals(LIST_OF_ANSWERS, mQuestion.getAnswers()));
+    }
     
     public void testGetTagsCopy() {
         mQuestion.getTags().add("Bug!");

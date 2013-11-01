@@ -4,7 +4,6 @@
 package epfl.sweng.test;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,7 +26,7 @@ public class JSONUtilitiesTest extends AndroidTestCase {
     
     public static final int CORRECT_ANSWER_ID = 2;
     public static final String QUESTION_TEXT = "Dummy question";
-    public static final List<String> LIST_OF_ANSWERS = Arrays.asList(new String[]{"Answer 1", "Answer 2", "Answer 3"});
+    public static final String[] LIST_OF_ANSWERS = {"Answer 1", "Answer 2", "Answer 3"};
     
     protected void setUp() throws Exception {
         super.setUp();
@@ -49,28 +48,28 @@ public class JSONUtilitiesTest extends AndroidTestCase {
         }
     }
     
-//    public void testGetJSONString() {
-//        JSONObject jsonObject;
-//        try {
-//            String jsonString = JSONUtilities.getJSONString(mQuestion);
-//            
-//            System.out.println(jsonString);
-//            
-//            jsonObject = new JSONObject(jsonString);
-//            assertEquals(QUESTION_TEXT, jsonObject.getString("question"));
-//            
-//            String[] answers = parseAnswers(jsonObject.getJSONArray("answers"));
-//            assertTrue(Arrays.equals(LIST_OF_ANSWERS, answers));
-//            
-//            assertEquals(CORRECT_ANSWER_ID, jsonObject.getInt("solutionIndex"));
-//            
-//            Set<String> tags = parseTags(jsonObject.getJSONArray("tags"));
-//            assertEquals("Tags not equal", mTags, tags);
-//        } catch (JSONException e) {
-//            fail("JSONException while parsing the string or getting a value : " +
-//                e.getMessage());
-//        }
-//    }
+    public void testGetJSONString() {
+        JSONObject jsonObject;
+        try {
+            String jsonString = JSONUtilities.getJSONString(mQuestion);
+            
+            System.out.println(jsonString);
+            
+            jsonObject = new JSONObject(jsonString);
+            assertEquals(QUESTION_TEXT, jsonObject.getString("question"));
+            
+            String[] answers = parseAnswers(jsonObject.getJSONArray("answers"));
+            assertTrue(Arrays.equals(LIST_OF_ANSWERS, answers));
+            
+            assertEquals(CORRECT_ANSWER_ID, jsonObject.getInt("solutionIndex"));
+            
+            Set<String> tags = parseTags(jsonObject.getJSONArray("tags"));
+            assertEquals("Tags not equal", mTags, tags);
+        } catch (JSONException e) {
+            fail("JSONException while parsing the string or getting a value : " +
+                e.getMessage());
+        }
+    }
     
     public void testGetJSONStringWithQuotesAndBackslashes() {
         String dangerousString = "I have some \"quotes\" and \\backslashes\\";
