@@ -17,10 +17,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
+import epfl.sweng.exceptions.CommunicationException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
+import epfl.sweng.patterns.Proxy;
 import epfl.sweng.quizquestions.QuizQuestion;
-import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
 
@@ -225,10 +226,10 @@ public class EditQuestionActivity extends ListActivity {
         @Override
         protected Void doInBackground(QuizQuestion... questions) {
             try {
-                ServerCommunication.INSTANCE.send(questions[0]);
+                Proxy.INSTANCE.send(questions[0]);
             } catch (NotLoggedInException e) {
                 mException = e;
-            } catch (ServerCommunicationException e) {
+            } catch (CommunicationException e) {
                 mException = e;
             }
 

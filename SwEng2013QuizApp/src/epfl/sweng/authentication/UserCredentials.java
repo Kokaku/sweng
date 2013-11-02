@@ -39,8 +39,7 @@ public enum UserCredentials {
      * @return true if successful, false otherwise
      */
     public boolean saveUserCredentials(String sessionIdValue) {
-        if (mCurrentState == AuthenticationState.AUTHENTICATED
-                    && !sessionIdValue.equals("")) {
+        if (isAuthenticated() && !sessionIdValue.equals("")) {
             SharedPreferences.Editor preferencesEditor = mUserSession.edit();
             preferencesEditor.putString("SESSION_ID", sessionIdValue);
             preferencesEditor.commit();
@@ -68,6 +67,13 @@ public enum UserCredentials {
      */
     public AuthenticationState getState() {
         return mCurrentState;
+    }
+    
+    /**
+     * @return true if the user is currently authenticated
+     */
+    public boolean isAuthenticated() {
+        return mCurrentState == AuthenticationState.AUTHENTICATED;
     }
     
     /**
