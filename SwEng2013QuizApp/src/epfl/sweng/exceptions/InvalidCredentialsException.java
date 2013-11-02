@@ -1,6 +1,3 @@
-/**
- * 
- */
 package epfl.sweng.exceptions;
 
 /**
