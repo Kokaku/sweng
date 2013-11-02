@@ -40,7 +40,7 @@ import epfl.sweng.utils.JSONUtilities;
  * @author kokaku
  * 
  */
-public enum ServerCommunication {
+public enum ServerCommunication implements QuestionsCommunicator {
     INSTANCE;
 
     private static final String SERVER_URL = "https://sweng-quiz.appspot.com/quizquestions";
@@ -73,12 +73,13 @@ public enum ServerCommunication {
      * @throws NotLoggedInException if the user is not logged in
      * @throws ServerCommunicationException if the network request is unsuccessful
      */
+    @Override
     public void send(QuizQuestion question)
         throws NotLoggedInException, ServerCommunicationException {
         
         if (!isNetworkAvailable()) {
             throw new ServerCommunicationException("Not connected.");
-        } else if (UserCredentials.INSTANCE.getState() != AuthenticationState.AUTHENTICATED) {
+        } else if (!UserCredentials.INSTANCE.isAuthenticated()) {
             throw new NotLoggedInException();
         }
 
@@ -113,12 +114,13 @@ public enum ServerCommunication {
      * @throws NotLoggedInException if the user is not logged in
      * @throws ServerCommunicationException if the network request is unsuccessful
      */
+    @Override
     public QuizQuestion getRandomQuestion()
         throws ServerCommunicationException, NotLoggedInException {
         
         if (!isNetworkAvailable()) {
             throw new ServerCommunicationException("Not connected.");
-        } else if (UserCredentials.INSTANCE.getState() != AuthenticationState.AUTHENTICATED) {
+        } else if (!UserCredentials.INSTANCE.isAuthenticated()) {
             throw new NotLoggedInException();
         }
 
@@ -236,7 +238,7 @@ public enum ServerCommunication {
         
         ResponseHandler<String> handler = new BasicResponseHandler();
         try {
-            request.setEntity(new UrlEncodedFormEntity(params));
+            request.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
             SwengHttpClientFactory.getInstance().execute(
                     request, handler);
         } catch (IOException e) {

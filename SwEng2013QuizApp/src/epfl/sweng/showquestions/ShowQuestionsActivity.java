@@ -19,10 +19,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
+import epfl.sweng.exceptions.CommunicationException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
+import epfl.sweng.patterns.Proxy;
 import epfl.sweng.quizquestions.QuizQuestion;
-import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
 
@@ -200,10 +201,10 @@ public class ShowQuestionsActivity extends ListActivity {
         @Override
         protected QuizQuestion doInBackground(Void... unused) {
             try {
-                return ServerCommunication.INSTANCE.getRandomQuestion();
+                return Proxy.INSTANCE.getRandomQuestion();
             } catch (NotLoggedInException e) {
                 mException = e;
-            } catch (ServerCommunicationException e) {
+            } catch (CommunicationException e) {
                 mException = e;
             }
 
