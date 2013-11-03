@@ -1,10 +1,8 @@
-/**
- * 
- */
 package epfl.sweng.patterns;
 
 import epfl.sweng.exceptions.CommunicationException;
 import epfl.sweng.exceptions.NotLoggedInException;
+import epfl.sweng.offline.LocalCache;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.QuestionsCommunicator;
 import epfl.sweng.servercomm.ServerCommunication;
@@ -38,7 +36,7 @@ public enum Proxy implements QuestionsCommunicator {
         if (mCurrentState == ConnectionState.ONLINE) {
             return ServerCommunication.INSTANCE.getRandomQuestion();
         } else {
-            return null;
+            return LocalCache.INSTANCE.getRandomQuestion();
         }
     }
 
@@ -49,7 +47,7 @@ public enum Proxy implements QuestionsCommunicator {
         if (mCurrentState == ConnectionState.ONLINE) {
             ServerCommunication.INSTANCE.send(question);
         } else {
-            return;
+            LocalCache.INSTANCE.send(question);
         }
     }
 

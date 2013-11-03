@@ -28,6 +28,7 @@ import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.exceptions.InvalidCredentialsException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
+import epfl.sweng.offline.DatabaseHandler;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.utils.JSONUtilities;
 
@@ -48,6 +49,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
     private static final String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
 
     private int mResponseStatus;
+    private DatabaseHandler database;
 
     private ServerCommunication() {
         
@@ -63,6 +65,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
         
         SwengHttpClientFactory.getInstance().addResponseInterceptor(
                 responseInterceptor);
+        database = new DatabaseHandler();
     }
 
     /**
@@ -140,7 +143,10 @@ public enum ServerCommunication implements QuestionsCommunicator {
         }
         
         try {
-            return new QuizQuestion(httpResponse);
+            QuizQuestion question = new QuizQuestion(httpResponse);
+            database.storeQuestion(question);
+            return question;
+            
         } catch (JSONException e) {
             throw new ServerCommunicationException("JSON badly formatted.");
         }
