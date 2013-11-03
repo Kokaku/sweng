@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
 import epfl.sweng.utils.JSONUtilities;
 
 /**
@@ -21,7 +22,7 @@ public class QuizQuestion {
 	private List<String> mAnswers;
 	private int mSolutionIndex;
 	private Set<String> mTags;
-	private int mId;
+	private long mId;
 	private String mOwner;
 	
 	/**
@@ -52,14 +53,16 @@ public class QuizQuestion {
 	    JSONObject json = new JSONObject(jsonInput);
 	    
 	    initializeQuestion(json.getString("question"),
-             JSONUtilities.parseAnswers(json),
+             JSONUtilities.parseJSONArrayToList(json.getJSONArray("answers")),
              json.getInt("solutionIndex"),
-             JSONUtilities.parseTags(json), 0, null);
+             JSONUtilities.parseJSONArrayToSet(json.getJSONArray("tags")),
+             json.getLong("id"),
+             json.getString("owner"));
 	}
 	
 	private void initializeQuestion(final String question, final List<String> answers,
 	                                final int solutionIndex, final Set<String> tags,
-	                                final int id, final String owner) {
+	                                final long id, final String owner) {
 	    // For now owner is allowed to be null
         if (question == null || answers == null || tags == null) {
             throw new IllegalArgumentException("Question can't be instanciated"
@@ -107,7 +110,7 @@ public class QuizQuestion {
 	/**
      * @return the id of the question
      */
-    public int getId() {
+    public long getId() {
         return mId;
     }
     
