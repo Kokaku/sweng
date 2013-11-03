@@ -8,7 +8,6 @@ import java.util.TreeSet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
 import epfl.sweng.utils.JSONUtilities;
 
 /**
@@ -76,6 +75,8 @@ public class QuizQuestion {
         } else if (solutionIndex >= answers.size()) {
             throw new IllegalArgumentException("solutionIndex can't be greater than answers.length");
         }
+        
+        // TODO : id should be long but HW specification enforces int...
         
         mQuestion = question;
         mAnswers = new ArrayList<String>(answers);

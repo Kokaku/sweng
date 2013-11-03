@@ -28,7 +28,6 @@ import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.exceptions.InvalidCredentialsException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
-import epfl.sweng.offline.DatabaseHandler;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.utils.JSONUtilities;
 
@@ -49,7 +48,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
     private static final String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
 
     private int mResponseStatus;
-    private DatabaseHandler database;
 
     private ServerCommunication() {
         
@@ -65,7 +63,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
         
         SwengHttpClientFactory.getInstance().addResponseInterceptor(
                 responseInterceptor);
-        database = new DatabaseHandler();
     }
 
     /**
@@ -73,17 +70,14 @@ public enum ServerCommunication implements QuestionsCommunicator {
      * should be called by a class extending {@link AsyncTask}.
      * 
      * @param question the question to be sent
-     * @throws NotLoggedInException if the user is not logged in
      * @throws ServerCommunicationException if the network request is unsuccessful
      */
     @Override
     public void send(QuizQuestion question)
-        throws NotLoggedInException, ServerCommunicationException {
+        throws ServerCommunicationException {
         
         if (!isNetworkAvailable()) {
             throw new ServerCommunicationException("Not connected.");
-        } else if (!UserCredentials.INSTANCE.isAuthenticated()) {
-            throw new NotLoggedInException();
         }
 
         HttpPost request = new HttpPost(SERVER_URL);
@@ -114,7 +108,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
      * thus it should be called by a class extending {@link AsyncTask}.
      * 
      * @return a question fetched from the server
-     * @throws NotLoggedInException if the user is not logged in
      * @throws ServerCommunicationException if the network request is unsuccessful
      */
     @Override
@@ -123,10 +116,8 @@ public enum ServerCommunication implements QuestionsCommunicator {
         
         if (!isNetworkAvailable()) {
             throw new ServerCommunicationException("Not connected.");
-        } else if (!UserCredentials.INSTANCE.isAuthenticated()) {
-            throw new NotLoggedInException();
         }
-
+        
         HttpUriRequest request = new HttpGet(SERVER_URL + "/random");
         addAuthenticationHeader(request);
         
@@ -143,10 +134,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
         }
         
         try {
-            QuizQuestion question = new QuizQuestion(httpResponse);
-            database.storeQuestion(question);
-            return question;
-            
+            return new QuizQuestion(httpResponse);
         } catch (JSONException e) {
             throw new ServerCommunicationException("JSON badly formatted.");
         }

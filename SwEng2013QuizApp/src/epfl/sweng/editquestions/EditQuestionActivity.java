@@ -19,7 +19,6 @@ import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.CommunicationException;
 import epfl.sweng.exceptions.NotLoggedInException;
-import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.patterns.Proxy;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.testing.TestCoordinator;
@@ -243,7 +242,7 @@ public class EditQuestionActivity extends ListActivity {
             } else {
                 if (mException instanceof NotLoggedInException) {
                     SwEng2013QuizApp.displayToast(R.string.not_logged_in);
-                } else if (mException instanceof ServerCommunicationException) {
+                } else if (mException instanceof CommunicationException) {
                     SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
                     TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                 }
