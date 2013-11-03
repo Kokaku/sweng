@@ -1,6 +1,9 @@
 package epfl.sweng.entry;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import epfl.sweng.R;
+import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.AuthenticationActivity;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
@@ -66,9 +70,7 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.clear_cache:
-                // TODO : Add warning box
-                DatabaseHandler db = new DatabaseHandler();
-                db.clearCache();
+                clearCache();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -124,7 +126,31 @@ public class MainActivity extends Activity {
             Proxy.INSTANCE.setState(ConnectionState.ONLINE);
         }
     }
-
+    
+    /**
+     * Displays a confirmation dialog. Clear the cache is the user agrees.
+     */
+    private void clearCache() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        
+        builder.setMessage(R.string.dialog_clear_cache)
+               .setTitle(R.string.dialog_clear_cache_title);
+        
+        builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DatabaseHandler db = new DatabaseHandler();
+                db.clearCache();
+                SwEng2013QuizApp.displayToast(R.string.cache_cleared);
+            }
+        });
+        
+        builder.setNegativeButton(R.string.cancel, null);
+        
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    
     /**
      * Updates the buttons according to the current state of the application.
      */

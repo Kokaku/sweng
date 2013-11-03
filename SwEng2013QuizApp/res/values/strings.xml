@@ -11,6 +11,11 @@
     <string name ="tequila_logout">Log out</string>
     <string name="offline_mode">Offline mode</string>
     <string name="clear_cache">Clear the cache</string>
+    <string name="dialog_clear_cache">You\'ll lose all your cached questions, including those waiting for submission!</string>
+    <string name="dialog_clear_cache_title">Clear the cache?</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="cache_cleared">Cache cleared</string>
 
     <!-- EditQuestionActivity -->
     <string name="title_activity_edit_question">EditQuestionActivity</string>
