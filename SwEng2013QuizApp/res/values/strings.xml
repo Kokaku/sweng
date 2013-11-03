@@ -52,4 +52,8 @@
     <string name="login_empty_fields_error">Please enter your username and password</string>
     <string name="invalid_credentials">Impossible to log in. Please check your username and password!</string>
     
+    <!-- Offline mode -->
+    <string name="synchronization_success">You're now online. If you had offline questions, they have been successfully submitted.</string>
+    <string name="synchronization_failure">There was an error while submitting your offline questions!</string>
+    
 </resources>

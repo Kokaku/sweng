@@ -29,7 +29,8 @@ public interface QuestionsCommunicator {
      * @param question the question to be submitted
      * @throws NotLoggedInException if the user is not logged in
      * @throws CommunicationException if the request is unsuccessful
+     * @return the question sent
      */
-    void send(QuizQuestion question)
+    QuizQuestion send(QuizQuestion question)
         throws NotLoggedInException, CommunicationException;
 }

@@ -1,8 +1,13 @@
 package epfl.sweng.patterns;
 
+import android.os.AsyncTask;
+import epfl.sweng.R;
+import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.exceptions.CommunicationException;
+import epfl.sweng.exceptions.DBCommunicationException;
 import epfl.sweng.exceptions.NotLoggedInException;
+import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.offline.DatabaseHandler;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.QuestionsCommunicator;
@@ -45,6 +50,9 @@ public enum Proxy implements QuestionsCommunicator {
      */
     public void setState(ConnectionState state) {
         mCurrentState = state;
+        if (state == ConnectionState.ONLINE) {
+            new SynchronizationTask().execute();
+        }
     }
 
     /**
@@ -53,10 +61,8 @@ public enum Proxy implements QuestionsCommunicator {
      * {@link ConnectionState.OFFLINE} gets a question from the local cache.
      * 
      * @return a random question
-     * @throws NotLoggedInException
-     *             if the user is not logged in
-     * @throws CommunicationException
-     *             if the request is unsuccessful
+     * @throws NotLoggedInException if the user is not logged in
+     * @throws CommunicationException if the request is unsuccessful
      */
     @Override
     public QuizQuestion getRandomQuestion() throws CommunicationException,
@@ -81,15 +87,13 @@ public enum Proxy implements QuestionsCommunicator {
      * server. Otherwise, if in state {@link ConnectionState.OFFLINE} stores the
      * question in the cache so that it's submitted when back online.
      * 
-     * @param question
-     *            the question to be sent
-     * @throws NotLoggedInException
-     *             if the user is not logged in
-     * @throws CommunicationException
-     *             if the request is unsuccessful
+     * @param question the question to be sent
+     * @throws NotLoggedInException if the user is not logged in
+     * @throws CommunicationException if the request is unsuccessful
+     * @return the question sent
      */
     @Override
-    public void send(QuizQuestion question) throws CommunicationException,
+    public QuizQuestion send(QuizQuestion question) throws CommunicationException,
         NotLoggedInException {
 
         if (!UserCredentials.INSTANCE.isAuthenticated()) {
@@ -97,11 +101,48 @@ public enum Proxy implements QuestionsCommunicator {
         }
 
         if (mCurrentState == ConnectionState.ONLINE) {
-            ServerCommunication.INSTANCE.send(question);
-            database.storeQuestion(question, false);
+            QuizQuestion submittedQuestion = ServerCommunication.INSTANCE.send(question);
+            database.storeQuestion(submittedQuestion, false);
+            return submittedQuestion;
         } else {
             database.storeQuestion(question, true);
+            return question;
         }
     }
+    
+    /**
+     * During synchronization, submit the questions in a separate thread.
+     */
+    private class SynchronizationTask extends AsyncTask<Void, Void, Void> {
+        
+        private Exception mException = null;
+        
+        @Override
+        protected Void doInBackground(Void... unused) {
+            try {
+                database.synchronizeQuestions();
+            } catch (CommunicationException e) {
+                mException = e;
+            }
 
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            
+            if (mException == null) {
+                SwEng2013QuizApp.displayToast(R.string.synchronization_success);
+            } else {
+                if (mException instanceof ServerCommunicationException) {
+                    // TODO : handle exception
+                } else if (mException instanceof DBCommunicationException) {
+                    // TODO : handle exception
+                }
+                SwEng2013QuizApp.displayToast(R.string.synchronization_failure);
+            }
+        }
+
+    }
+    
 }

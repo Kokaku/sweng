@@ -11,7 +11,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
-import epfl.sweng.exceptions.CommunicationException;
 import epfl.sweng.exceptions.InvalidCredentialsException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.servercomm.ServerCommunication;

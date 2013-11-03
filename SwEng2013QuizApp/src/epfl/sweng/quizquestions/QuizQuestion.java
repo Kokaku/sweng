@@ -38,7 +38,7 @@ public class QuizQuestion {
 	 */
 	public QuizQuestion(final String question, final List<String> answers,
 	                    final int solutionIndex, final Set<String> tags,
-	                    final int id, final String owner) {
+	                    final long id, final String owner) {
 	    initializeQuestion(question, answers, solutionIndex, tags, id, owner);
 	}
 	

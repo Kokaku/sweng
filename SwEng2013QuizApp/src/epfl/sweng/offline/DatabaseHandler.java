@@ -1,9 +1,10 @@
 package epfl.sweng.offline;
 
 import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_ANSWERS;
-import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_QUESTION_ID;
+import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_ID;
 import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_OWNER;
 import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_QUESTION;
+import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_QUESTION_ID;
 import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_SOLUTION;
 import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_SUBMIT;
 import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_TAGS;
@@ -18,7 +19,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.DBCommunicationException;
+import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.quizquestions.QuizQuestion;
+import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.utils.JSONUtilities;
 
 /**
@@ -66,25 +69,30 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         
         ContentValues values = new ContentValues();
+        
+        // Check if there is no id for this question
         if (question.getId() == 0) {
             values.putNull(COLUMN_QUESTION_ID);
         } else {
             values.put(COLUMN_QUESTION_ID, question.getId());
         }
+        
         values.put(COLUMN_QUESTION, question.getQuestion());
         JSONArray answers = new JSONArray(question.getAnswers());
         values.put(COLUMN_ANSWERS, answers.toString());
         values.put(COLUMN_SOLUTION, question.getSolutionIndex());
         JSONArray tags = new JSONArray(question.getTags());
         values.put(COLUMN_TAGS, tags.toString());
+        values.put(COLUMN_SUBMIT, toBeSubmitted ? 1 : 0);
+        
+        // Check if there is no owner for this question
         if (question.getOwner() == null) {
             values.putNull(COLUMN_OWNER);
         } else {
             values.put(COLUMN_OWNER, question.getOwner());
         }
-        values.put(COLUMN_SUBMIT, toBeSubmitted ? 1 : 0);
-        
-        // TODO : throw an exception if an error occurs
+                
+        // TODO : throw an exception if an error occurs ?
         
         db.insertWithOnConflict(TABLE_NAME, null, values,
             SQLiteDatabase.CONFLICT_IGNORE);
@@ -112,22 +120,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         cursor.moveToFirst();
         
-        int idIndex = cursor.getColumnIndex(COLUMN_QUESTION_ID);
-        int questionIndex = cursor.getColumnIndex(COLUMN_QUESTION);
-        int answersIndex = cursor.getColumnIndex(COLUMN_ANSWERS);
-        int solutionIndex = cursor.getColumnIndex(COLUMN_SOLUTION);
-        int ownerIndex = cursor.getColumnIndex(COLUMN_OWNER);
-        int tagsIndex = cursor.getColumnIndex(COLUMN_TAGS);
-
         try {
-            JSONArray answers = new JSONArray(cursor.getString(answersIndex));
-            JSONArray tags = new JSONArray(cursor.getString(tagsIndex));
-            return new QuizQuestion(cursor.getString(questionIndex),
-                                    JSONUtilities.parseJSONArrayToList(answers),
-                                    cursor.getInt(solutionIndex),
-                                    JSONUtilities.parseJSONArrayToSet(tags),
-                                    cursor.getInt(idIndex),
-                                    cursor.getString(ownerIndex));
+            return getQuestionFromCursor(cursor);
         } catch (JSONException e) {
             throw new DBCommunicationException("JSON badly formatted.");
         } finally {
@@ -136,4 +130,67 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
     
+    public void synchronizeQuestions()
+        throws DBCommunicationException, ServerCommunicationException {
+        
+        SQLiteDatabase db = getWritableDatabase();
+        
+        Cursor cursor = db.query(TABLE_NAME, null, COLUMN_SUBMIT + "=1",
+            null, null, null, null);
+        
+        if (cursor == null) {
+            throw new DBCommunicationException("Error while looking for questions waiting for submission");
+        }
+        
+        try {
+            while (cursor.moveToNext()) {
+                QuizQuestion question = getQuestionFromCursor(cursor);
+                QuizQuestion updatedQuestion = ServerCommunication.INSTANCE.send(question);
+
+                /*
+                 * Update the question in cache : add the assigned id and owner
+                 * and remove the submission flag.
+                 */
+                long id = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID));
+                
+                ContentValues values = new ContentValues();
+                values.put(COLUMN_QUESTION_ID, updatedQuestion.getId());
+                values.put(COLUMN_OWNER, updatedQuestion.getOwner());
+                values.put(COLUMN_SUBMIT, 0);
+                db.update(TABLE_NAME, values , COLUMN_ID + "=?", new String[] {String.valueOf(id)});
+            }
+        } catch (JSONException e) {
+            throw new DBCommunicationException("JSON badly formatted.");
+        } finally {
+            cursor.close();
+            db.close();
+        }
+    }
+    
+    private QuizQuestion getQuestionFromCursor(Cursor cursor)
+        throws JSONException {
+        int idIndex = cursor.getColumnIndexOrThrow(COLUMN_QUESTION_ID);
+        int questionIndex = cursor.getColumnIndexOrThrow(COLUMN_QUESTION);
+        int answersIndex = cursor.getColumnIndexOrThrow(COLUMN_ANSWERS);
+        int solutionIndex = cursor.getColumnIndexOrThrow(COLUMN_SOLUTION);
+        int ownerIndex = cursor.getColumnIndexOrThrow(COLUMN_OWNER);
+        int tagsIndex = cursor.getColumnIndexOrThrow(COLUMN_TAGS);
+        
+        JSONArray answers = new JSONArray(cursor.getString(answersIndex));
+        JSONArray tags = new JSONArray(cursor.getString(tagsIndex));
+
+        
+        // Id is 0 if the question has no id.
+        // TODO : should probably be long instead of int
+        long id = cursor.isNull(idIndex) ? 0 : cursor.getLong(idIndex);
+        // Owner is null if the question has no owner.
+        String owner = cursor.isNull(ownerIndex) ? null : cursor.getString(ownerIndex);
+
+        return new QuizQuestion(cursor.getString(questionIndex),
+                                JSONUtilities.parseJSONArrayToList(answers),
+                                cursor.getInt(solutionIndex),
+                                JSONUtilities.parseJSONArrayToSet(tags),
+                                id,
+                                owner);
+    }
 }

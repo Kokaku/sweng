@@ -71,9 +71,10 @@ public enum ServerCommunication implements QuestionsCommunicator {
      * 
      * @param question the question to be sent
      * @throws ServerCommunicationException if the network request is unsuccessful
+     * @return the question updated with id and owner fields assigned by the server
      */
     @Override
-    public void send(QuizQuestion question)
+    public QuizQuestion send(QuizQuestion question)
         throws ServerCommunicationException {
         
         if (!isNetworkAvailable()) {
@@ -87,12 +88,15 @@ public enum ServerCommunication implements QuestionsCommunicator {
         
         ResponseHandler<String> handler = new BasicResponseHandler();
         String httpResponse = null;
+        QuizQuestion updatedQuestion = null;
+        
         try {
             request.setEntity(new StringEntity(JSONUtilities
                 .getJSONString(question)));
             
             httpResponse = SwengHttpClientFactory.getInstance().execute(
                     request, handler);
+            updatedQuestion = new QuizQuestion(httpResponse);
         } catch (IOException e) {
         } catch (JSONException e) {
             throw new ServerCommunicationException("JSON badly formatted. " + e.getMessage());
@@ -101,6 +105,8 @@ public enum ServerCommunication implements QuestionsCommunicator {
         if (httpResponse == null || mResponseStatus != HttpStatus.SC_CREATED) {
             throw new ServerCommunicationException("Unable to send the question to the server.");
         }
+        
+        return updatedQuestion;
     }
 
     /**
