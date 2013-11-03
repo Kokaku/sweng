@@ -25,6 +25,7 @@
     <string name="title_activity_show_questions">Let\'s take a quiz!</string>
     <string name="button_next">Next question</string>
     <string name="failed_to_get_question">There was an error retrieving the question</string>
+    <string name="failed_to_get_cached_question">There is no question in cache!</string>
     <string name="text_retry">Retry</string>
     <string name="text_abort">Abort</string>
     <string name="not_logged_in">Please log in !</string>

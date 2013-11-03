@@ -3,6 +3,7 @@ package epfl.sweng.entry;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -91,7 +92,14 @@ public class MainActivity extends Activity {
      * @param view the checkbox
      */
     public void offlineMode(View view) {
-        // TODO : I need some code !
+        // TODO : I need more code !
+        CheckBox checkbox = (CheckBox) view;
+        
+        if (checkbox.isChecked()) {
+            Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
+        } else {
+            Proxy.INSTANCE.setState(ConnectionState.ONLINE);
+        }
     }
 
     /**
