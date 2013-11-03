@@ -10,6 +10,7 @@
     <string name="submit_question">Submit a quiz question</string>
     <string name ="tequila_logout">Log out</string>
     <string name="offline_mode">Offline mode</string>
+    <string name="clear_cache">Clear the cache</string>
 
     <!-- EditQuestionActivity -->
     <string name="title_activity_edit_question">EditQuestionActivity</string>

@@ -3,7 +3,9 @@ package epfl.sweng.entry;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -12,6 +14,7 @@ import epfl.sweng.authentication.AuthenticationActivity;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.editquestions.EditQuestionActivity;
+import epfl.sweng.offline.DatabaseHandler;
 import epfl.sweng.patterns.Proxy;
 import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
@@ -52,6 +55,26 @@ public class MainActivity extends Activity {
         TestCoordinator.check(TTChecks.MAIN_ACTIVITY_SHOWN);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.clear_cache:
+                // TODO : Add warning box
+                DatabaseHandler db = new DatabaseHandler();
+                db.clearCache();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
     /**
      * Called when the first button is pressed, starts ShowQuestionsActivity.
      * 
