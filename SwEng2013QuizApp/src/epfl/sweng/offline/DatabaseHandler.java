@@ -1,5 +1,14 @@
 package epfl.sweng.offline;
 
+import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_ANSWERS;
+import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_QUESTION_ID;
+import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_OWNER;
+import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_QUESTION;
+import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_SOLUTION;
+import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_SUBMIT;
+import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_TAGS;
+import static epfl.sweng.offline.CachedQuestionsTable.TABLE_NAME;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -8,6 +17,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import epfl.sweng.SwEng2013QuizApp;
+import epfl.sweng.exceptions.DBCommunicationException;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.utils.JSONUtilities;
 
@@ -20,7 +30,7 @@ import epfl.sweng.utils.JSONUtilities;
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "quizquestions.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 4;
     
     public DatabaseHandler() {
         super(SwEng2013QuizApp.getAppContext(), DATABASE_NAME, null,
@@ -42,7 +52,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      */
     public void clearCache() {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM " + CachedQuestionsTable.TABLE_NAME);
+        db.execSQL("DELETE FROM " + TABLE_NAME);
         db.close();
     }
 
@@ -52,20 +62,31 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * 
      * @param question the question to be stored
      */
-    public void storeQuestion(QuizQuestion question) {
+    public void storeQuestion(QuizQuestion question, boolean toBeSubmitted) {
         SQLiteDatabase db = getWritableDatabase();
         
         ContentValues values = new ContentValues();
-        values.put(CachedQuestionsTable.COLUMN_ID, question.getId());
-        values.put(CachedQuestionsTable.COLUMN_QUESTION, question.getQuestion());
+        if (question.getId() == 0) {
+            values.putNull(COLUMN_QUESTION_ID);
+        } else {
+            values.put(COLUMN_QUESTION_ID, question.getId());
+        }
+        values.put(COLUMN_QUESTION, question.getQuestion());
         JSONArray answers = new JSONArray(question.getAnswers());
-        values.put(CachedQuestionsTable.COLUMN_ANSWERS, answers.toString());
-        values.put(CachedQuestionsTable.COLUMN_SOLUTION, question.getSolutionIndex());
+        values.put(COLUMN_ANSWERS, answers.toString());
+        values.put(COLUMN_SOLUTION, question.getSolutionIndex());
         JSONArray tags = new JSONArray(question.getTags());
-        values.put(CachedQuestionsTable.COLUMN_TAGS, tags.toString());
-        values.put(CachedQuestionsTable.COLUMN_OWNER, question.getOwner());
+        values.put(COLUMN_TAGS, tags.toString());
+        if (question.getOwner() == null) {
+            values.putNull(COLUMN_OWNER);
+        } else {
+            values.put(COLUMN_OWNER, question.getOwner());
+        }
+        values.put(COLUMN_SUBMIT, toBeSubmitted ? 1 : 0);
         
-        db.insertWithOnConflict(CachedQuestionsTable.TABLE_NAME, null, values,
+        // TODO : throw an exception if an error occurs
+        
+        db.insertWithOnConflict(TABLE_NAME, null, values,
             SQLiteDatabase.CONFLICT_IGNORE);
         db.close();
     }
@@ -74,24 +95,29 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * Gets a random question from the database.
      * 
      * @return a random question
+     * @throws DBCommunicationException if the request is unsuccessful
      */
-    public QuizQuestion getRandomQuestion() {
+    public QuizQuestion getRandomQuestion()
+        throws DBCommunicationException {
+        
         SQLiteDatabase db = getReadableDatabase();
         
         // Get a random question
         Cursor cursor = db.rawQuery("SELECT * FROM " +
-            CachedQuestionsTable.TABLE_NAME + " ORDER BY RANDOM() LIMIT 1;", null);
+            TABLE_NAME + " ORDER BY RANDOM() LIMIT 1;", null);
         
-        if (cursor != null) {
-            cursor.moveToFirst();
+        if (cursor == null || cursor.getCount() == 0) {
+            throw new DBCommunicationException("Cache is empty.");
         }
+
+        cursor.moveToFirst();
         
-        int idIndex = cursor.getColumnIndex(CachedQuestionsTable.COLUMN_ID);
-        int questionIndex = cursor.getColumnIndex(CachedQuestionsTable.COLUMN_QUESTION);
-        int answersIndex = cursor.getColumnIndex(CachedQuestionsTable.COLUMN_ANSWERS);
-        int solutionIndex = cursor.getColumnIndex(CachedQuestionsTable.COLUMN_SOLUTION);
-        int ownerIndex = cursor.getColumnIndex(CachedQuestionsTable.COLUMN_OWNER);
-        int tagsIndex = cursor.getColumnIndex(CachedQuestionsTable.COLUMN_TAGS);
+        int idIndex = cursor.getColumnIndex(COLUMN_QUESTION_ID);
+        int questionIndex = cursor.getColumnIndex(COLUMN_QUESTION);
+        int answersIndex = cursor.getColumnIndex(COLUMN_ANSWERS);
+        int solutionIndex = cursor.getColumnIndex(COLUMN_SOLUTION);
+        int ownerIndex = cursor.getColumnIndex(COLUMN_OWNER);
+        int tagsIndex = cursor.getColumnIndex(COLUMN_TAGS);
 
         try {
             JSONArray answers = new JSONArray(cursor.getString(answersIndex));
@@ -103,12 +129,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                                     cursor.getInt(idIndex),
                                     cursor.getString(ownerIndex));
         } catch (JSONException e) {
-            
+            throw new DBCommunicationException("JSON badly formatted.");
         } finally {
             cursor.close();
             db.close();
         }
-        return null;
     }
     
 }

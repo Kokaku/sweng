@@ -20,6 +20,7 @@ import android.widget.TextView;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.CommunicationException;
+import epfl.sweng.exceptions.DBCommunicationException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.patterns.Proxy;
@@ -224,8 +225,10 @@ public class ShowQuestionsActivity extends ListActivity {
                     SwEng2013QuizApp.displayToast(R.string.not_logged_in);
                 } else if (mException instanceof ServerCommunicationException) {
                     SwEng2013QuizApp.displayToast(R.string.failed_to_get_question);
-                    TestCoordinator.check(TTChecks.QUESTION_SHOWN);
+                } else if (mException instanceof DBCommunicationException) {
+                    SwEng2013QuizApp.displayToast(R.string.failed_to_get_cached_question);
                 }
+                TestCoordinator.check(TTChecks.QUESTION_SHOWN);
             }
         }
 

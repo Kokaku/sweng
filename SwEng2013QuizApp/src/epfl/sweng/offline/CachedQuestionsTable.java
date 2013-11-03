@@ -3,9 +3,6 @@
  */
 package epfl.sweng.offline;
 
-import java.util.List;
-import java.util.Set;
-
 import android.database.sqlite.SQLiteDatabase;
 
 /**
@@ -18,11 +15,14 @@ public class CachedQuestionsTable {
     
     public static final String TABLE_NAME = "cached_questions";
     public static final String COLUMN_ID = "_id";
+    public static final String COLUMN_QUESTION_ID = "question_id";
     public static final String COLUMN_QUESTION = "question";
     public static final String COLUMN_ANSWERS = "answers";
     public static final String COLUMN_SOLUTION = "solutionIndex";
     public static final String COLUMN_TAGS = "tags";
     public static final String COLUMN_OWNER = "owner";
+    // Boolean stored as an integer, if 1 the question should be submitted when back online
+    public static final String COLUMN_SUBMIT = "submit";
     
     private static final String DATABASE_CREATE = "CREATE TABLE " +
         TABLE_NAME + "(" + 
@@ -31,7 +31,9 @@ public class CachedQuestionsTable {
         COLUMN_ANSWERS + " TEXT NOT NULL, " +
         COLUMN_SOLUTION + " TEXT NOT NULL, " +
         COLUMN_TAGS + " TEXT NOT NULL, " + 
-        COLUMN_OWNER + " TEXT NOT NULL" +
+        COLUMN_OWNER + " TEXT, " +
+        COLUMN_QUESTION_ID + " INTEGER UNIQUE, " +
+        COLUMN_SUBMIT + " INTEGER NOT NULL" +
         ");";
         
     public static void onCreate(SQLiteDatabase db) {
