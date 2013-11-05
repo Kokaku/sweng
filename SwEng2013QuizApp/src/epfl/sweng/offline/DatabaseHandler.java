@@ -106,7 +106,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     /**
      * Gets a random question from the database.
      * 
-     * @return a random question
+     * @return a random question or null if there is no cached question
      * @throws DBCommunicationException if the request is unsuccessful
      */
     public QuizQuestion getRandomQuestion()
@@ -119,7 +119,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             TABLE_NAME + " ORDER BY RANDOM() LIMIT 1;", null);
         
         if (cursor == null || cursor.getCount() == 0) {
-            throw new DBCommunicationException("Cache is empty.");
+            return null;
         }
 
         cursor.moveToFirst();
@@ -138,7 +138,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * Sends the question waiting for submission to the server.
      * 
      * @return the number of questions submitted
-     * @throws DBCommunicationException if a DB request is unsucessful
+     * @throws DBCommunicationException if a DB request is unsuccessful
      * @throws ServerCommunicationException if a question can't be submitted
      */
     public int synchronizeQuestions()

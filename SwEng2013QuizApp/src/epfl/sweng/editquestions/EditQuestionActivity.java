@@ -22,6 +22,7 @@ import epfl.sweng.exceptions.DBCommunicationException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.patterns.Proxy;
+import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
@@ -220,12 +221,12 @@ public class EditQuestionActivity extends ListActivity {
     /**
      * Sends a new question in a separate thread.
      */    
-    private class SendQuestionTask extends AsyncTask<QuizQuestion, Void, Void> {
+    private class SendQuestionTask extends AsyncTask<QuizQuestion, Void, QuizQuestion> {
         
         private Exception mException = null;
                 
         @Override
-        protected Void doInBackground(QuizQuestion... questions) {
+        protected QuizQuestion doInBackground(QuizQuestion... questions) {
             try {
                 Proxy.INSTANCE.send(questions[0]);
             } catch (NotLoggedInException e) {
@@ -234,22 +235,30 @@ public class EditQuestionActivity extends ListActivity {
                 mException = e;
             }
 
-            return null;
+            return questions[0];
         }
 
         @Override
-        protected void onPostExecute(Void unused) {
+        protected void onPostExecute(QuizQuestion question) {
             if (mException == null) {
-                SwEng2013QuizApp.displayToast(R.string.question_sent);
+                if (Proxy.INSTANCE.isOnline()) {
+                    SwEng2013QuizApp.displayToast(R.string.question_sent);
+                } else {
+                    SwEng2013QuizApp.displayToast(R.string.question_cached);
+                }
             } else {
                 if (mException instanceof NotLoggedInException) {
                     SwEng2013QuizApp.displayToast(R.string.not_logged_in);
                 } else if (mException instanceof ServerCommunicationException) {
                     SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
-                    TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
+                    Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
+                    SwEng2013QuizApp.displayToast(R.string.now_offline);
+                    // Send it again to cache the question
+                    new SendQuestionTask().execute(question);
                 } else if (mException instanceof DBCommunicationException) {
                     SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
                 }
+                TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
             }
         }
 

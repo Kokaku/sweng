@@ -9,6 +9,7 @@ import epfl.sweng.exceptions.DBCommunicationException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.offline.DatabaseHandler;
+import epfl.sweng.offline.OnSyncListener;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.QuestionsCommunicator;
 import epfl.sweng.servercomm.ServerCommunication;
@@ -52,9 +53,20 @@ public enum Proxy implements QuestionsCommunicator {
      * @param state the new connection state
      */
     public void setState(ConnectionState state) {
+        setState(state, null);
+    }
+    
+    /**
+     * Change the connection state of the application. The activity implementing
+     * {@link OnSyncListener} will be signaled when synchronization is over.
+     * 
+     * @param state the new connection state
+     * @param listener the activity waiting for feedback
+     */
+    public void setState(ConnectionState state, OnSyncListener listener) {
         mCurrentState = state;
         if (isOnline()) {
-            new SynchronizationTask().execute();
+            new SynchronizationTask(listener).execute();
         }
     }
 
@@ -63,7 +75,7 @@ public enum Proxy implements QuestionsCommunicator {
      * server and stores in cache. Otherwise, if in state
      * {@link ConnectionState.OFFLINE} gets a question from the local cache.
      * 
-     * @return a random question
+     * @return a random question or null if there is no cached question
      * @throws NotLoggedInException if the user is not logged in
      * @throws ServerCommunicationException if the network request is unsuccessful
      * @throws DBCommunicationException if the question can't be cached or
@@ -120,6 +132,11 @@ public enum Proxy implements QuestionsCommunicator {
     private class SynchronizationTask extends AsyncTask<Void, Void, Integer> {
         
         private Exception mException = null;
+        private OnSyncListener mListeningActivity = null;
+        
+        public SynchronizationTask(OnSyncListener listener) {
+            mListeningActivity = listener;
+        }
         
         @Override
         protected Integer doInBackground(Void... unused) {
@@ -135,15 +152,23 @@ public enum Proxy implements QuestionsCommunicator {
         @Override
         protected void onPostExecute(Integer questionsSubmitted) {
             
-            if (mException == null && questionsSubmitted > 0) {
-                SwEng2013QuizApp.displayToast(R.string.synchronization_success);
+            if (mException == null) {
+                if (questionsSubmitted > 0) {
+                    SwEng2013QuizApp.displayToast(R.string.synchronization_success);
+                }
+                SwEng2013QuizApp.displayToast(R.string.now_online);
             } else {
                 if (mException instanceof ServerCommunicationException) {
-                    // TODO : handle exception
+                    SwEng2013QuizApp.displayToast(R.string.synchronization_failure);
                 } else if (mException instanceof DBCommunicationException) {
-                    // TODO : handle exception
+                    SwEng2013QuizApp.displayToast(R.string.broken_database);
                 }
-                SwEng2013QuizApp.displayToast(R.string.synchronization_failure);
+                setState(ConnectionState.OFFLINE);
+                SwEng2013QuizApp.displayToast(R.string.now_offline);
+            }
+            
+            if (mListeningActivity != null) {
+                mListeningActivity.onSyncCompleted();
             }
         }
 
