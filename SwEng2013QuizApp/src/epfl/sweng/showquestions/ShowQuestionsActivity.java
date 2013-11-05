@@ -226,7 +226,11 @@ public class ShowQuestionsActivity extends ListActivity {
                 } else if (mException instanceof ServerCommunicationException) {
                     SwEng2013QuizApp.displayToast(R.string.failed_to_get_question);
                 } else if (mException instanceof DBCommunicationException) {
-                    SwEng2013QuizApp.displayToast(R.string.failed_to_get_cached_question);
+                    if (Proxy.INSTANCE.isOnline()) {
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
+                    } else {
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_get_cached_question);
+                    }
                 }
                 TestCoordinator.check(TTChecks.QUESTION_SHOWN);
             }

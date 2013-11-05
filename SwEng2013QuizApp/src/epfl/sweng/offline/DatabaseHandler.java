@@ -65,7 +65,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * 
      * @param question the question to be stored
      */
-    public void storeQuestion(QuizQuestion question, boolean toBeSubmitted) {
+    public void storeQuestion(QuizQuestion question, boolean toBeSubmitted)
+        throws DBCommunicationException {
         SQLiteDatabase db = getWritableDatabase();
         
         ContentValues values = new ContentValues();
@@ -92,11 +93,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_OWNER, question.getOwner());
         }
                 
-        // TODO : throw an exception if an error occurs ?
+        boolean requestSuccessfull = (db.insertWithOnConflict(TABLE_NAME, null, values,
+            SQLiteDatabase.CONFLICT_IGNORE) != -1) ? true : false;
         
-        db.insertWithOnConflict(TABLE_NAME, null, values,
-            SQLiteDatabase.CONFLICT_IGNORE);
         db.close();
+        
+        if (!requestSuccessfull) {
+            throw new DBCommunicationException("Could not store the question.");
+        }
     }
     
     /**
@@ -130,9 +134,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
     
-    public void synchronizeQuestions()
+    /**
+     * Sends the question waiting for submission to the server.
+     * 
+     * @return the number of questions submitted
+     * @throws DBCommunicationException if a DB request is unsucessful
+     * @throws ServerCommunicationException if a question can't be submitted
+     */
+    public int synchronizeQuestions()
         throws DBCommunicationException, ServerCommunicationException {
         
+        int questionsSumbmitted = 0;
         SQLiteDatabase db = getWritableDatabase();
         
         Cursor cursor = db.query(TABLE_NAME, null, COLUMN_SUBMIT + "=1",
@@ -158,6 +170,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 values.put(COLUMN_OWNER, updatedQuestion.getOwner());
                 values.put(COLUMN_SUBMIT, 0);
                 db.update(TABLE_NAME, values , COLUMN_ID + "=?", new String[] {String.valueOf(id)});
+                ++questionsSumbmitted;
             }
         } catch (JSONException e) {
             throw new DBCommunicationException("JSON badly formatted.");
@@ -165,6 +178,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor.close();
             db.close();
         }
+        
+        return questionsSumbmitted;
     }
     
     private QuizQuestion getQuestionFromCursor(Cursor cursor)
@@ -181,7 +196,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         
         // Id is 0 if the question has no id.
-        // TODO : should probably be long instead of int
         long id = cursor.isNull(idIndex) ? 0 : cursor.getLong(idIndex);
         // Owner is null if the question has no owner.
         String owner = cursor.isNull(ownerIndex) ? null : cursor.getString(ownerIndex);

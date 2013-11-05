@@ -116,7 +116,6 @@ public class MainActivity extends Activity {
      * @param view the checkbox
      */
     public void offlineMode(View view) {
-        // TODO : I need more code !
         CheckBox checkbox = (CheckBox) view;
         
         if (checkbox.isChecked()) {
@@ -166,10 +165,10 @@ public class MainActivity extends Activity {
             mTequilaLogin.setText(R.string.tequila_login);
         }
         
-        if (Proxy.INSTANCE.getState() == ConnectionState.OFFLINE) {
-            mOfflineMode.setChecked(true);
-        } else {
+        if (Proxy.INSTANCE.isOnline()) {
             mOfflineMode.setChecked(false);
+        } else {
+            mOfflineMode.setChecked(true);
         }
     }
 

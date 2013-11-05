@@ -18,10 +18,13 @@ import epfl.sweng.servercomm.ServerCommunication;
  * or offline. If it's online, communicate with the server, otherwise access the
  * cached data.
  * 
+ * When the app goes back online, questions waiting for submission are submitted
+ * during synchronization.
+ * 
  * @author lseguy
  * 
  */
-// TODO : Change name? OfflineManager? ConnectionManager?
+// TODO : Change name ? ConnectionManager? OfflineManager?
 public enum Proxy implements QuestionsCommunicator {
     INSTANCE;
 
@@ -35,12 +38,12 @@ public enum Proxy implements QuestionsCommunicator {
     private Proxy() {
         database = new DatabaseHandler();
     }
-
+  
     /**
-     * @return the current {@link ConnectionState}
+     * @return true if the app is in {@code ConnectionState.ONLINE} state.
      */
-    public ConnectionState getState() {
-        return mCurrentState;
+    public boolean isOnline() {
+        return mCurrentState == ConnectionState.ONLINE;
     }
     
     /**
@@ -50,7 +53,7 @@ public enum Proxy implements QuestionsCommunicator {
      */
     public void setState(ConnectionState state) {
         mCurrentState = state;
-        if (state == ConnectionState.ONLINE) {
+        if (isOnline()) {
             new SynchronizationTask().execute();
         }
     }
@@ -62,7 +65,9 @@ public enum Proxy implements QuestionsCommunicator {
      * 
      * @return a random question
      * @throws NotLoggedInException if the user is not logged in
-     * @throws CommunicationException if the request is unsuccessful
+     * @throws ServerCommunicationException if the network request is unsuccessful
+     * @throws DBCommunicationException if the question can't be cached or
+     *      can't be fetched from the cache
      */
     @Override
     public QuizQuestion getRandomQuestion() throws CommunicationException,
@@ -72,9 +77,8 @@ public enum Proxy implements QuestionsCommunicator {
             throw new NotLoggedInException();
         }
 
-        if (mCurrentState == ConnectionState.ONLINE) {
-            QuizQuestion question = ServerCommunication.INSTANCE
-                .getRandomQuestion();
+        if (isOnline()) {
+            QuizQuestion question = ServerCommunication.INSTANCE.getRandomQuestion();
             database.storeQuestion(question, false);
             return question;
         } else {
@@ -100,7 +104,7 @@ public enum Proxy implements QuestionsCommunicator {
             throw new NotLoggedInException();
         }
 
-        if (mCurrentState == ConnectionState.ONLINE) {
+        if (isOnline()) {
             QuizQuestion submittedQuestion = ServerCommunication.INSTANCE.send(question);
             database.storeQuestion(submittedQuestion, false);
             return submittedQuestion;
@@ -113,25 +117,25 @@ public enum Proxy implements QuestionsCommunicator {
     /**
      * During synchronization, submit the questions in a separate thread.
      */
-    private class SynchronizationTask extends AsyncTask<Void, Void, Void> {
+    private class SynchronizationTask extends AsyncTask<Void, Void, Integer> {
         
         private Exception mException = null;
         
         @Override
-        protected Void doInBackground(Void... unused) {
+        protected Integer doInBackground(Void... unused) {
             try {
-                database.synchronizeQuestions();
+                return database.synchronizeQuestions();
             } catch (CommunicationException e) {
                 mException = e;
             }
 
-            return null;
+            return 0;
         }
 
         @Override
-        protected void onPostExecute(Void unused) {
+        protected void onPostExecute(Integer questionsSubmitted) {
             
-            if (mException == null) {
+            if (mException == null && questionsSubmitted > 0) {
                 SwEng2013QuizApp.displayToast(R.string.synchronization_success);
             } else {
                 if (mException instanceof ServerCommunicationException) {

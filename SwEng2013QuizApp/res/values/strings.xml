@@ -32,6 +32,7 @@
     <string name="button_next">Next question</string>
     <string name="failed_to_get_question">There was an error retrieving the question</string>
     <string name="failed_to_get_cached_question">There is no question in cache!</string>
+    <string name="failed_to_cache_question">An error occurred while caching the question!</string>
     <string name="text_retry">Retry</string>
     <string name="text_abort">Abort</string>
     <string name="not_logged_in">Please log in !</string>
@@ -53,7 +54,7 @@
     <string name="invalid_credentials">Impossible to log in. Please check your username and password!</string>
     
     <!-- Offline mode -->
-    <string name="synchronization_success">You\'re now online. If you had offline questions, they have been successfully submitted.</string>
+    <string name="synchronization_success">You\'re now online. Your questions have been successfully submitted.</string>
     <string name="synchronization_failure">There was an error while submitting your offline questions!</string>
     
 </resources>
