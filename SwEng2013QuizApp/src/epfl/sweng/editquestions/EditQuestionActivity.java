@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.CommunicationException;
@@ -38,8 +39,8 @@ public class EditQuestionActivity extends ListActivity {
 
     private EditText mQuestionEditText;
     private EditText mTagsEditText;
-    private AnswersListAdapter mAnswersAdapter;
     private Button mSubmitButton;
+    private AnswersListAdapter mAnswersAdapter;
 
     private List<String> mAnswersArrayList;
     private boolean mValidQuestion;
@@ -93,15 +94,15 @@ public class EditQuestionActivity extends ListActivity {
     public boolean onClickSubmit(View view) {
         mOnReset = true;
         String questionText = mQuestionEditText.getText().toString();
-               
+
         int correctAnswer = mAnswersAdapter.getCorrectAnswerPosition();
         Set<String> tagsSet = extractTags();
 
-        QuizQuestion question = new QuizQuestion(questionText, mAnswersArrayList,
-                correctAnswer, tagsSet);
-                
+        QuizQuestion question = new QuizQuestion(questionText,
+                mAnswersArrayList, correctAnswer, tagsSet);
+
         new SendQuestionTask().execute(question);
-   
+
         resetScreen();
         TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
         mOnReset = false;
@@ -195,8 +196,8 @@ public class EditQuestionActivity extends ListActivity {
         public void afterTextChanged(Editable newText) {
 
             if (!mOnReset) {
-                mValidTags = !newText.toString()
-                        .replaceAll("\\W+", "").equals("");
+                mValidTags = !newText.toString().replaceAll("\\W+", "")
+                        .equals("");
                 mAnswersAdapter.setQuestionBodyValidity(mValidTags
                         && mValidQuestion);
 
@@ -215,14 +216,14 @@ public class EditQuestionActivity extends ListActivity {
 
         }
     }
-    
+
     /**
      * Sends a new question in a separate thread.
-     */    
+     */
     private class SendQuestionTask extends AsyncTask<QuizQuestion, Void, Void> {
-        
+
         private Exception mException = null;
-                
+
         @Override
         protected Void doInBackground(QuizQuestion... questions) {
             try {
@@ -244,11 +245,67 @@ public class EditQuestionActivity extends ListActivity {
                 if (mException instanceof NotLoggedInException) {
                     SwEng2013QuizApp.displayToast(R.string.not_logged_in);
                 } else if (mException instanceof ServerCommunicationException) {
-                    SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
+                    SwEng2013QuizApp
+                            .displayToast(R.string.failed_to_send_question);
                     TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                 }
             }
         }
+    }
 
+    /**
+     * @return the number of errors in the activity
+     */
+    public int auditErrors() {
+        return auditEditTexts();
+    }
+
+    /**
+     * @return the number of errors in the EditText fields
+     */
+    private int auditEditTexts() {
+        return auditEditTextQuestion() + auditEditTextAnswers()
+                + auditEditTextTags();
+    }
+
+    /**
+     * @return 1 if there is an error regarding the question EditText
+     */
+    private int auditEditTextQuestion() {
+        return (mQuestionEditText == null
+                || !mQuestionEditText.getHint().equals(
+                        "Type in the question's text body") || mQuestionEditText
+                        .getVisibility() != 0) ? 1 : 0;
+    }
+
+    /**
+     * @return the number of errors in the answers listView
+     */
+    private int auditEditTextAnswers() {
+        ListView listView = getListView();
+        
+        if (listView == null) {
+            return 1;
+        } else {
+            int errors = 0;
+
+            for (int i = 0; i < listView.getCount(); ++i) {
+                EditText answerEditText = (EditText) listView.getChildAt(i)
+                        .findViewById(R.id.edit_answer);
+                errors += (!answerEditText.getHint().equals("Type in the answer") || answerEditText
+                        .getVisibility() != 0) ? 1 : 0;
+            }
+            return errors;
+        }
+    }
+
+    /**
+     * @return 1 if there is an error regarding the tags EditText
+     */
+    private int auditEditTextTags() {
+        return (mTagsEditText == null
+                || !mTagsEditText.getHint().equals(
+                        "Type in the question's tags") || mTagsEditText
+                        .getVisibility() != 0) ? 1 : 0;
     }
 }
