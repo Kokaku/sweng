@@ -8,14 +8,14 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="show_random_question">Show a random question</string>
     <string name="submit_question">Submit a quiz question</string>
-    <string name="tequila_logout">Log out</string>
+    <string name ="tequila_logout">Log out</string>
     <string name="offline_mode">Offline mode</string>
     <string name="clear_cache">Clear the cache</string>
     <string name="dialog_clear_cache">You\'ll lose all your cached questions, including those waiting for submission!</string>
     <string name="dialog_clear_cache_title">Clear the cache?</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
-    <string name="cache_cleared">Cache cleared.</string>
+    <string name="cache_cleared">Cache cleared</string>
 
     <!-- EditQuestionActivity -->
     <string name="title_activity_edit_question">EditQuestionActivity</string>
@@ -24,15 +24,14 @@
     <string name="type_in_answer">Type in the answer</string>
     <string name="button_submit">Submit</string>
     <string name="button_clear_answer">Clear</string>
-    <string name="failed_to_send_question">Could not upload the question to the server.</string>
+    <string name="failed_to_send_question">Could not upload the question to the server</string>
     <string name="question_sent">Question sent successfully !</string>
-    <string name="question_cached">Question cached.</string>
 
     <!-- ShowQuestionsActivity -->
     <string name="title_activity_show_questions">Let\'s take a quiz!</string>
     <string name="button_next">Next question</string>
-    <string name="failed_to_get_question">There was an error retrieving the question.</string>
-    <string name="no_cached_question">There is no question in cache!</string>
+    <string name="failed_to_get_question">There was an error retrieving the question</string>
+    <string name="failed_to_get_cached_question">There is no question in cache!</string>
     <string name="failed_to_cache_question">An error occurred while caching the question!</string>
     <string name="text_retry">Retry</string>
     <string name="text_abort">Abort</string>
@@ -43,21 +42,19 @@
     <string name="correct_answer">\u2714</string>
     <string name="button_add_answer">\u002B</string>
     <string name="remove_answer">\u002D</string>
-    <string name="title_activity_authentication">Authentication</string>
+    <string name="title_activity_authentication">AuthenticationActivity</string>
+    <string name="hello_world">Hello world!</string>
     
     <!-- AuthenticationActivity -->
     <string name="GASPAR_username">GASPAR Username</string>
     <string name="GASPAR_password">GASPAR Password</string>
     <string name="tequila_login">Log in using Tequila</string>
     <string name="failed_to_log_in">Network error. Impossible to log in.</string>
-    <string name="login_empty_fields_error">Please enter your username and password.</string>
+    <string name="login_empty_fields_error">Please enter your username and password</string>
     <string name="invalid_credentials">Impossible to log in. Please check your username and password!</string>
     
     <!-- Offline mode -->
-    <string name="synchronization_success">Your questions have been successfully submitted.</string>
-    <string name="synchronization_failure">Impossible to submit your offline questions!</string>
-    <string name="broken_database">Your cache is corrupted. Please clear it !</string>
-    <string name="now_offline">You\'re now offline.</string>
-    <string name="now_online">You\'re now online.</string>
+    <string name="synchronization_success">You\'re now online. Your questions have been successfully submitted.</string>
+    <string name="synchronization_failure">There was an error while submitting your offline questions!</string>
     
 </resources>

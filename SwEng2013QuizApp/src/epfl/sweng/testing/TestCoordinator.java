@@ -61,8 +61,7 @@ public final class TestCoordinator {
         NEW_QUESTION_SUBMITTED,
         AUTHENTICATION_ACTIVITY_SHOWN,
         LOGGED_OUT,
-        OFFLINE_CHECKBOX_ENABLED,
-        OFFLINE_CHECKBOX_DISABLED
+        DIALOG_SHOWN
     };
 
     private TTChecks currentCheck = TTChecks.NONE;
