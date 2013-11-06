@@ -1,0 +1,6 @@
+1. 1 <= len(question.question) <= 500 && !containsOnlyWhiteSpace(question.question)
+2. for each answer in question.answers: 1 <= len(answer) <= 500 && !containsOnlyWhiteSpace(answer)
+3. 2 <= len(question.answers) <= 10
+4. there exists i such that isMarkedCorrect(question.answers[i])
+5. 1 <= len(question.tags) <= 20
+6. for each tag in question.tags: 1 <= len(tag) <= 20 && !containsOnlyWhiteSpace(tag)
