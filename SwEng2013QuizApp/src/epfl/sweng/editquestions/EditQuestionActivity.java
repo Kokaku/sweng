@@ -40,6 +40,7 @@ public class EditQuestionActivity extends ListActivity {
     private EditText mQuestionEditText;
     private EditText mTagsEditText;
     private Button mSubmitButton;
+    private Button mAddButton;
     private AnswersListAdapter mAnswersAdapter;
 
     private List<String> mAnswersArrayList;
@@ -62,6 +63,7 @@ public class EditQuestionActivity extends ListActivity {
         mQuestionEditText = (EditText) findViewById(R.id.new_text_question);
         mTagsEditText = (EditText) findViewById(R.id.new_tags);
         mSubmitButton = (Button) findViewById(R.id.button_submit);
+        mAddButton = (Button) findViewById(R.id.button_add);
         mAnswersAdapter = new AnswersListAdapter(this, mAnswersArrayList,
                 mSubmitButton);
 
@@ -257,7 +259,7 @@ public class EditQuestionActivity extends ListActivity {
      * @return the number of errors in the activity
      */
     public int auditErrors() {
-        return auditEditTexts();
+        return auditEditTexts() + auditButtons() + auditAnswers();
     }
 
     /**
@@ -266,6 +268,13 @@ public class EditQuestionActivity extends ListActivity {
     private int auditEditTexts() {
         return auditEditTextQuestion() + auditEditTextAnswers()
                 + auditEditTextTags();
+    }
+
+    /**
+     * @return the number of errors in the buttons
+     */
+    private int auditButtons() {
+        return auditPlusButton() + auditSubmitButton() + auditAnswersButtons();
     }
 
     /**
@@ -283,7 +292,7 @@ public class EditQuestionActivity extends ListActivity {
      */
     private int auditEditTextAnswers() {
         ListView listView = getListView();
-        
+
         if (listView == null) {
             return 1;
         } else {
@@ -292,8 +301,9 @@ public class EditQuestionActivity extends ListActivity {
             for (int i = 0; i < listView.getCount(); ++i) {
                 EditText answerEditText = (EditText) listView.getChildAt(i)
                         .findViewById(R.id.edit_answer);
-                errors += (!answerEditText.getHint().equals("Type in the answer") || answerEditText
-                        .getVisibility() != 0) ? 1 : 0;
+                errors += (!answerEditText.getHint().equals(
+                        "Type in the answer") || answerEditText.getVisibility() != 0) ? 1
+                        : 0;
             }
             return errors;
         }
@@ -307,5 +317,64 @@ public class EditQuestionActivity extends ListActivity {
                 || !mTagsEditText.getHint().equals(
                         "Type in the question's tags") || mTagsEditText
                         .getVisibility() != 0) ? 1 : 0;
+    }
+
+    /**
+     * @return 1 if there is an error regarding the addAnswer Button
+     */
+    private int auditPlusButton() {
+        return (mAddButton == null || !mAddButton.getText().equals("\u002B") || mAddButton
+                .getVisibility() != 0) ? 1 : 0;
+    }
+
+    /**
+     * @return 1 if there is an error regarding the submit Button
+     */
+    private int auditSubmitButton() {
+        return (mSubmitButton == null
+                || !mSubmitButton.getText().equals("Submit") || mSubmitButton
+                    .getVisibility() != 0) ? 1 : 0;
+    }
+
+    /**
+     * @return the number of errors regarding the buttons in the answer ListView
+     */
+    private int auditAnswersButtons() {
+        int errors = 0;
+        ListView listView = getListView();
+
+        for (int i = 0; i < listView.getCount(); ++i) {
+            View listElement = listView.getChildAt(i);
+            Button checkAnswerButton = (Button) listElement
+                    .findViewById(R.id.button_check_answer);
+            Button removeButton = (Button) listElement
+                    .findViewById(R.id.button_remove_answer);
+
+            errors += (checkAnswerButton == null
+                    || (!checkAnswerButton.getText().equals("\u2718") && !checkAnswerButton
+                            .getText().equals("\u2714")) || checkAnswerButton
+                            .getVisibility() != 0) ? 1 : 0;
+
+            errors += (removeButton == null
+                    || !removeButton.getText().equals("\u002D") || removeButton
+                    .getVisibility() != 0) ? 1 : 0;
+        }
+
+        return errors;
+    }
+    
+    /**
+     * @return 1 if the number of correct answer is different than 1
+     */
+    private int auditAnswers() {
+        int correctAnswersCount = 0;
+        ListView listView = getListView();
+        
+        for (int i = 0; i < listView.getCount(); ++i) {
+            Button checkAnswerButton = (Button) listView.getChildAt(i).findViewById(R.id.button_check_answer);
+            correctAnswersCount += (checkAnswerButton.getText().equals("\u2714"))? 1 : 0;
+        }
+        
+        return (correctAnswersCount != 1)? 1: 0;
     }
 }
