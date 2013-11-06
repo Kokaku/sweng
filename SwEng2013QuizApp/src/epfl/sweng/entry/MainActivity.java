@@ -18,6 +18,7 @@ import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.offline.DatabaseHandler;
+import epfl.sweng.offline.OnSyncListener;
 import epfl.sweng.patterns.Proxy;
 import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
@@ -33,7 +34,7 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
  * 
  */
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnSyncListener {
     
     private Button mShowQuestions;
     private Button mEditQuestion;
@@ -119,10 +120,22 @@ public class MainActivity extends Activity {
         CheckBox checkbox = (CheckBox) view;
         
         if (checkbox.isChecked()) {
-            Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
+            Proxy.INSTANCE.setState(ConnectionState.OFFLINE, this);
+            TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
+            SwEng2013QuizApp.displayToast(R.string.now_offline);
         } else {
-            Proxy.INSTANCE.setState(ConnectionState.ONLINE);
+            Proxy.INSTANCE.setState(ConnectionState.ONLINE, this);
         }
+    }
+    
+    @Override
+    public void onSyncCompleted() {
+        if (Proxy.INSTANCE.isOnline()) {
+            TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_DISABLED);
+        } else {
+            TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
+        }
+        updateButtons();
     }
     
     /**
