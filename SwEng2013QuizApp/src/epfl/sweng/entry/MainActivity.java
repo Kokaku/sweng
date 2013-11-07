@@ -1,16 +1,24 @@
 package epfl.sweng.entry;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import epfl.sweng.R;
+import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.AuthenticationActivity;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.editquestions.EditQuestionActivity;
+import epfl.sweng.offline.DatabaseHandler;
+import epfl.sweng.offline.OnSyncListener;
 import epfl.sweng.patterns.Proxy;
 import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
@@ -26,7 +34,7 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
  * 
  */
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnSyncListener {
     
     private Button mShowQuestions;
     private Button mEditQuestion;
@@ -51,6 +59,24 @@ public class MainActivity extends Activity {
         TestCoordinator.check(TTChecks.MAIN_ACTIVITY_SHOWN);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.clear_cache:
+                clearCache();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
     /**
      * Called when the first button is pressed, starts ShowQuestionsActivity.
      * 
@@ -91,9 +117,51 @@ public class MainActivity extends Activity {
      * @param view the checkbox
      */
     public void offlineMode(View view) {
-        // TODO : I need some code !
+        CheckBox checkbox = (CheckBox) view;
+        
+        if (checkbox.isChecked()) {
+            Proxy.INSTANCE.setState(ConnectionState.OFFLINE, this);
+            TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
+            SwEng2013QuizApp.displayToast(R.string.now_offline);
+        } else {
+            Proxy.INSTANCE.setState(ConnectionState.ONLINE, this);
+        }
     }
-
+    
+    @Override
+    public void onSyncCompleted() {
+        if (Proxy.INSTANCE.isOnline()) {
+            TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_DISABLED);
+        } else {
+            TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
+        }
+        updateButtons();
+    }
+    
+    /**
+     * Displays a confirmation dialog. Clear the cache is the user agrees.
+     */
+    private void clearCache() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        
+        builder.setMessage(R.string.dialog_clear_cache)
+               .setTitle(R.string.dialog_clear_cache_title);
+        
+        builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DatabaseHandler db = new DatabaseHandler();
+                db.clearCache();
+                SwEng2013QuizApp.displayToast(R.string.cache_cleared);
+            }
+        });
+        
+        builder.setNegativeButton(R.string.cancel, null);
+        
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    
     /**
      * Updates the buttons according to the current state of the application.
      */
@@ -110,10 +178,10 @@ public class MainActivity extends Activity {
             mTequilaLogin.setText(R.string.tequila_login);
         }
         
-        if (Proxy.INSTANCE.getState() == ConnectionState.OFFLINE) {
-            mOfflineMode.setChecked(true);
-        } else {
+        if (Proxy.INSTANCE.isOnline()) {
             mOfflineMode.setChecked(false);
+        } else {
+            mOfflineMode.setChecked(true);
         }
     }
 

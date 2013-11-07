@@ -46,40 +46,40 @@ public class JSONUtilities {
         jsonObject.put("answers", new JSONArray(question.getAnswers()));
         jsonObject.put("solutionIndex", question.getSolutionIndex());
         jsonObject.put("tags", new JSONArray(question.getTags()));
+        jsonObject.put("owner", question.getOwner());
+        jsonObject.put("id", question.getId());
         
         return jsonObject.toString();
     }
     
     /**
-     * Parse answers from {@link JSONObject} into a {@link String} array
+     * Parse strings from a {@link JSONArray} into an {@link ArrayList}
      * 
-     * @param json the object from which we parse the answers
-     * @return String[] of the answers
-     * @throws JSONException if there is a problem getting the {@link JSONArray}
+     * @param json the JSONArray from which we parse the strings
+     * @return an ArrayList containing the strings
+     * @throws JSONException if there is a problem during parsing
      */
-    public static List<String> parseAnswers(JSONObject json) throws JSONException {
-        JSONArray jsonAnswers = json.getJSONArray("answers");
-        List<String> answers = new ArrayList<String>();
-        for (int i = 0; i < jsonAnswers.length(); i++) {
-            answers.add(jsonAnswers.getString(i));
+    public static List<String> parseJSONArrayToList(JSONArray jsonArray) throws JSONException {
+        List<String> list = new ArrayList<String>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            list.add(jsonArray.getString(i));
         }
-        return answers;
+        return list;
     }
 
     /**
-     * Parse tags from {@link JSONObject} into a {@link Set}
+     * Parse strings from a {@link JSONArray} into a {@link Set}
      * 
-     * @param json the object from which we parse the tags
-     * @return a {@link Set} of the tags
-     * @throws JSONException if there is a problem getting the {@link JSONArray}
+     * @param json the JSONArray from which we parse the strings
+     * @return a Set containing the strings
+     * @throws JSONException if there is a problem during parsing
      */
-    public static Set<String> parseTags(JSONObject json) throws JSONException {
-        JSONArray jsonTags = json.getJSONArray("tags");
-        Set<String> tags = new HashSet<String>();
-        for (int i = 0; i < jsonTags.length(); i++) {
-            tags.add(jsonTags.getString(i));
+    public static Set<String> parseJSONArrayToSet(JSONArray jsonArray) throws JSONException {
+        Set<String> set = new HashSet<String>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            set.add(jsonArray.getString(i));
         }
-        return tags;
+        return set;
     }
 
 }

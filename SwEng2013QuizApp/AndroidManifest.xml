@@ -30,15 +30,18 @@
         <activity
             android:name="epfl.sweng.editquestions.EditQuestionActivity"
             android:label="@string/title_activity_edit_question"
+            android:parentActivityName="epfl.sweng.entry.MainActivity"
             android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
             android:name="epfl.sweng.showquestions.ShowQuestionsActivity"
-            android:label="@string/title_activity_show_questions" >
+            android:label="@string/title_activity_show_questions"
+            android:parentActivityName="epfl.sweng.entry.MainActivity" >
         </activity>
         <activity
             android:name="epfl.sweng.authentication.AuthenticationActivity"
-            android:label="@string/title_activity_authentication" >
+            android:label="@string/title_activity_authentication"
+            android:parentActivityName="epfl.sweng.entry.MainActivity" >
         </activity>
     </application>
 

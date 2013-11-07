@@ -20,9 +20,11 @@ import android.widget.TextView;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.CommunicationException;
+import epfl.sweng.exceptions.DBCommunicationException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.patterns.Proxy;
+import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
@@ -216,16 +218,29 @@ public class ShowQuestionsActivity extends ListActivity {
             mProgressBar.setVisibility(View.GONE);
             
             if (mException == null) {
-                showViews();
-                mCurrentQuestion = question;
-                updateViews();
+                if (question != null) {
+                    showViews();
+                    mCurrentQuestion = question;
+                    updateViews();
+                } else {
+                    SwEng2013QuizApp.displayToast(R.string.no_cached_question);
+                }
             } else {
                 if (mException instanceof NotLoggedInException) {
                     SwEng2013QuizApp.displayToast(R.string.not_logged_in);
                 } else if (mException instanceof ServerCommunicationException) {
                     SwEng2013QuizApp.displayToast(R.string.failed_to_get_question);
-                    TestCoordinator.check(TTChecks.QUESTION_SHOWN);
+                    Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
+                    SwEng2013QuizApp.displayToast(R.string.now_offline);
+                    showNewQuestion();
+                } else if (mException instanceof DBCommunicationException) {
+                    if (Proxy.INSTANCE.isOnline()) {
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
+                    } else {
+                        SwEng2013QuizApp.displayToast(R.string.broken_database);
+                    }
                 }
+                TestCoordinator.check(TTChecks.QUESTION_SHOWN);
             }
         }
 

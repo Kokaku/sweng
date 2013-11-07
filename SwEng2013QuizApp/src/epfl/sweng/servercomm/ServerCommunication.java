@@ -70,17 +70,15 @@ public enum ServerCommunication implements QuestionsCommunicator {
      * should be called by a class extending {@link AsyncTask}.
      * 
      * @param question the question to be sent
-     * @throws NotLoggedInException if the user is not logged in
      * @throws ServerCommunicationException if the network request is unsuccessful
+     * @return the question updated with id and owner fields assigned by the server
      */
     @Override
-    public void send(QuizQuestion question)
-        throws NotLoggedInException, ServerCommunicationException {
+    public QuizQuestion send(QuizQuestion question)
+        throws ServerCommunicationException {
         
         if (!isNetworkAvailable()) {
             throw new ServerCommunicationException("Not connected.");
-        } else if (!UserCredentials.INSTANCE.isAuthenticated()) {
-            throw new NotLoggedInException();
         }
 
         HttpPost request = new HttpPost(SERVER_URL);
@@ -90,12 +88,15 @@ public enum ServerCommunication implements QuestionsCommunicator {
         
         ResponseHandler<String> handler = new BasicResponseHandler();
         String httpResponse = null;
+        QuizQuestion updatedQuestion = null;
+        
         try {
             request.setEntity(new StringEntity(JSONUtilities
                 .getJSONString(question)));
             
             httpResponse = SwengHttpClientFactory.getInstance().execute(
                     request, handler);
+            updatedQuestion = new QuizQuestion(httpResponse);
         } catch (IOException e) {
         } catch (JSONException e) {
             throw new ServerCommunicationException("JSON badly formatted. " + e.getMessage());
@@ -104,6 +105,8 @@ public enum ServerCommunication implements QuestionsCommunicator {
         if (httpResponse == null || mResponseStatus != HttpStatus.SC_CREATED) {
             throw new ServerCommunicationException("Unable to send the question to the server.");
         }
+        
+        return updatedQuestion;
     }
 
     /**
@@ -111,7 +114,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
      * thus it should be called by a class extending {@link AsyncTask}.
      * 
      * @return a question fetched from the server
-     * @throws NotLoggedInException if the user is not logged in
      * @throws ServerCommunicationException if the network request is unsuccessful
      */
     @Override
@@ -120,10 +122,8 @@ public enum ServerCommunication implements QuestionsCommunicator {
         
         if (!isNetworkAvailable()) {
             throw new ServerCommunicationException("Not connected.");
-        } else if (!UserCredentials.INSTANCE.isAuthenticated()) {
-            throw new NotLoggedInException();
         }
-
+        
         HttpUriRequest request = new HttpGet(SERVER_URL + "/random");
         addAuthenticationHeader(request);
         
