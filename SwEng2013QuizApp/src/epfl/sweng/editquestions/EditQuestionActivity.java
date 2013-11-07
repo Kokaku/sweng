@@ -147,7 +147,7 @@ public class EditQuestionActivity extends ListActivity {
 
     /**
      * Reset all the components of the UI as they were when the application was
-     * lunch.
+     * lunched.
      */
     private void resetScreen() {
         mAnswersAdapter.clearAnswers();
