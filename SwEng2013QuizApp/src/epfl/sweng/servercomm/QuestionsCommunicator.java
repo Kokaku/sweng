@@ -13,6 +13,9 @@ import epfl.sweng.quizquestions.QuizQuestion;
  */
 public interface QuestionsCommunicator {
     
+    // For your f*cking sanity check
+    ServerCommunication instance = ServerCommunication.INSTANCE;
+    
     /**
      * Get a question
      * 
