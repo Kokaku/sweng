@@ -92,7 +92,7 @@ public enum Proxy implements QuestionsCommunicator {
         }
 
         if (isOnline()) {
-            QuizQuestion question = ServerCommunication.INSTANCE.getRandomQuestion();
+            QuizQuestion question = instance.getRandomQuestion();
             mDatabase.storeQuestion(question, false);
             return question;
         } else {
@@ -119,7 +119,7 @@ public enum Proxy implements QuestionsCommunicator {
         }
 
         if (isOnline()) {
-            QuizQuestion submittedQuestion = ServerCommunication.INSTANCE.send(question);
+            QuizQuestion submittedQuestion = instance.send(question);
             mDatabase.storeQuestion(submittedQuestion, false);
             return submittedQuestion;
         } else {
