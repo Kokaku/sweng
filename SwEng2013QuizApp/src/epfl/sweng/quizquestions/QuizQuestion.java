@@ -230,7 +230,7 @@ public class QuizQuestion {
 		int errors = 0;
 		for (int i = 0; i < answers.size(); ++i) {
 			errors += (answers.get(i) == null
-					|| answers.get(i).replaceAll("\\+s", "").equals("") || mAnswers
+					|| answers.get(i).replaceAll("\\+s", "").equals("") || answers
 					.get(i).length() > MAX_ANSWER_CARACTERS) ? 1 : 0;
 		}
 		return errors;
