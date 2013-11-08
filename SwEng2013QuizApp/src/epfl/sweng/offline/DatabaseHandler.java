@@ -93,8 +93,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_OWNER, question.getOwner());
         }
                 
-        boolean requestSuccessfull = (db.insertWithOnConflict(TABLE_NAME, null, values,
-            SQLiteDatabase.CONFLICT_IGNORE) != -1) ? true : false;
+        boolean requestSuccessfull = db.insertWithOnConflict(TABLE_NAME, null, values,
+            SQLiteDatabase.CONFLICT_IGNORE) != -1;
         
         db.close();
         
