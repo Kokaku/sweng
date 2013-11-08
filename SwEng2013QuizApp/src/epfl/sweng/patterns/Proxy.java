@@ -30,14 +30,15 @@ public enum Proxy implements QuestionsCommunicator {
     INSTANCE;
 
     private ConnectionState mCurrentState = ConnectionState.ONLINE;
-    private DatabaseHandler database;
+    private DatabaseHandler mDatabase;
+    private ServerCommunication mServer = ServerCommunication.INSTANCE;
 
     public enum ConnectionState {
         ONLINE, OFFLINE;
     }
 
     private Proxy() {
-        database = new DatabaseHandler();
+        mDatabase = new DatabaseHandler();
     }
   
     /**
@@ -90,11 +91,11 @@ public enum Proxy implements QuestionsCommunicator {
         }
 
         if (isOnline()) {
-            QuizQuestion question = ServerCommunication.INSTANCE.getRandomQuestion();
-            database.storeQuestion(question, false);
+            QuizQuestion question = mServer.getRandomQuestion();
+            mDatabase.storeQuestion(question, false);
             return question;
         } else {
-            return database.getRandomQuestion();
+            return mDatabase.getRandomQuestion();
         }
     }
 
@@ -117,11 +118,11 @@ public enum Proxy implements QuestionsCommunicator {
         }
 
         if (isOnline()) {
-            QuizQuestion submittedQuestion = ServerCommunication.INSTANCE.send(question);
-            database.storeQuestion(submittedQuestion, false);
+            QuizQuestion submittedQuestion = mServer.send(question);
+            mDatabase.storeQuestion(submittedQuestion, false);
             return submittedQuestion;
         } else {
-            database.storeQuestion(question, true);
+            mDatabase.storeQuestion(question, true);
             return question;
         }
     }
@@ -141,7 +142,7 @@ public enum Proxy implements QuestionsCommunicator {
         @Override
         protected Integer doInBackground(Void... unused) {
             try {
-                return database.synchronizeQuestions();
+                return mDatabase.synchronizeQuestions();
             } catch (CommunicationException e) {
                 mException = e;
             }
