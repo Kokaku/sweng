@@ -31,7 +31,6 @@ public enum Proxy implements QuestionsCommunicator {
 
     private ConnectionState mCurrentState = ConnectionState.ONLINE;
     private DatabaseHandler mDatabase;
-    private ServerCommunication mServer = ServerCommunication.INSTANCE;
 
     public enum ConnectionState {
         ONLINE, OFFLINE;
@@ -91,7 +90,7 @@ public enum Proxy implements QuestionsCommunicator {
         }
 
         if (isOnline()) {
-            QuizQuestion question = mServer.getRandomQuestion();
+            QuizQuestion question = ServerCommunication.INSTANCE.getRandomQuestion();
             mDatabase.storeQuestion(question, false);
             return question;
         } else {
@@ -118,7 +117,7 @@ public enum Proxy implements QuestionsCommunicator {
         }
 
         if (isOnline()) {
-            QuizQuestion submittedQuestion = mServer.send(question);
+            QuizQuestion submittedQuestion = ServerCommunication.INSTANCE.send(question);
             mDatabase.storeQuestion(submittedQuestion, false);
             return submittedQuestion;
         } else {
