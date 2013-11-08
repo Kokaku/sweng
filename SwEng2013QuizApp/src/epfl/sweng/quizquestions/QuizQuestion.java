@@ -228,9 +228,9 @@ public class QuizQuestion {
 
 	private int checkAnswers(List<String> answers) {
 		int errors = 0;
-		for (int i = 0; i < mAnswers.size(); ++i) {
-			errors += (mAnswers.get(i) == null
-					|| mAnswers.get(i).replaceAll("\\+s", "").equals("") || mAnswers
+		for (int i = 0; i < answers.size(); ++i) {
+			errors += (answers.get(i) == null
+					|| answers.get(i).replaceAll("\\+s", "").equals("") || mAnswers
 					.get(i).length() > MAX_ANSWER_CARACTERS) ? 1 : 0;
 		}
 		return errors;
@@ -239,7 +239,7 @@ public class QuizQuestion {
 
 	private int checkTags(Set<String> tags) {
 		int errors = 0;
-		Iterator<String> tagsIter = mTags.iterator();
+		Iterator<String> tagsIter = tags.iterator();
 		while (tagsIter.hasNext()) {
 			String currentTag = tagsIter.next();
 			errors += (currentTag == null
