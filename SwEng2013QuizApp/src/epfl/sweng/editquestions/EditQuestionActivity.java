@@ -108,7 +108,6 @@ public class EditQuestionActivity extends ListActivity {
         new SendQuestionTask().execute(question);
 
         resetScreen();
-        TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
         mOnReset = false;
 
         return true;
@@ -249,9 +248,11 @@ public class EditQuestionActivity extends ListActivity {
                 } else {
                     SwEng2013QuizApp.displayToast(R.string.question_cached);
                 }
+                TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
             } else {
                 if (mException instanceof NotLoggedInException) {
                     SwEng2013QuizApp.displayToast(R.string.not_logged_in);
+                    TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                 } else if (mException instanceof ServerCommunicationException) {
                     SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
                     Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
@@ -260,8 +261,8 @@ public class EditQuestionActivity extends ListActivity {
                     new SendQuestionTask().execute(question);
                 } else if (mException instanceof DBCommunicationException) {
                     SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
+                    TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                 }
-                TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
             }
         }
     }
