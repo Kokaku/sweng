@@ -104,8 +104,7 @@ public class AuthenticationActivity extends Activity {
                 mProgressBar.setVisibility(View.GONE);
                 if (mException instanceof InvalidCredentialsException) {
                     SwEng2013QuizApp.displayToast(R.string.invalid_credentials);
-                }
-                if (mException instanceof ServerCommunicationException) {
+                } else if (mException instanceof ServerCommunicationException) {
                     SwEng2013QuizApp.displayToast(R.string.failed_to_log_in);
                 }
                 mUsername.setText("");
