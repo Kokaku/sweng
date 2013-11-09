@@ -6,7 +6,7 @@ package epfl.sweng.exceptions;
  * @author lseguy
  *
  */
-public class ServerCommunicationException extends CommunicationException {
+public class ServerCommunicationException extends Exception {
  
     private static final long serialVersionUID = 1171644294660709870L;
 

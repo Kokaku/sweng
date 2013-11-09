@@ -4,13 +4,12 @@ import android.os.AsyncTask;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
-import epfl.sweng.exceptions.CommunicationException;
-import epfl.sweng.exceptions.DBCommunicationException;
+import epfl.sweng.exceptions.AsyncTaskExceptions;
+import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.offline.DatabaseHandler;
 import epfl.sweng.offline.OnSyncListener;
-import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.QuestionsCommunicator;
 import epfl.sweng.servercomm.ServerCommunication;
@@ -80,12 +79,12 @@ public enum Proxy implements QuestionsCommunicator {
      * @return a random question or null if there is no cached question
      * @throws NotLoggedInException if the user is not logged in
      * @throws ServerCommunicationException if the network request is unsuccessful
-     * @throws DBCommunicationException if the question can't be cached or
+     * @throws DBException if the question can't be cached or
      *      can't be fetched from the cache
      */
     @Override
-    public QuizQuestion getRandomQuestion() throws CommunicationException,
-        NotLoggedInException {
+    public QuizQuestion getRandomQuestion() throws ServerCommunicationException,
+        DBException, NotLoggedInException {
 
         if (!UserCredentials.INSTANCE.isAuthenticated()) {
             throw new NotLoggedInException();
@@ -107,12 +106,13 @@ public enum Proxy implements QuestionsCommunicator {
      * 
      * @param question the question to be sent
      * @throws NotLoggedInException if the user is not logged in
-     * @throws CommunicationException if the request is unsuccessful
+     * @throws DBException if the database request is unsuccessful
+     * @throws ServerCommunicationException if the network request is unsuccessful
      * @return the question sent
      */
     @Override
-    public QuizQuestion send(QuizQuestion question) throws CommunicationException,
-        NotLoggedInException {
+    public QuizQuestion send(QuizQuestion question) throws DBException,
+        NotLoggedInException, ServerCommunicationException {
 
         if (!UserCredentials.INSTANCE.isAuthenticated()) {
             throw new NotLoggedInException();
@@ -133,7 +133,7 @@ public enum Proxy implements QuestionsCommunicator {
      */
     private class SynchronizationTask extends AsyncTask<Void, Void, Integer> {
         
-        private Exception mException = null;
+        private AsyncTaskExceptions mException = null;
         private OnSyncListener mListeningActivity = null;
         
         public SynchronizationTask(OnSyncListener listener) {
@@ -144,8 +144,10 @@ public enum Proxy implements QuestionsCommunicator {
         protected Integer doInBackground(Void... unused) {
             try {
                 return mDatabase.synchronizeQuestions();
-            } catch (CommunicationException e) {
-                mException = e;
+            } catch (ServerCommunicationException e) {
+                mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
+            } catch (DBException e) {
+                mException = AsyncTaskExceptions.DB_EXCEPTION;
             }
 
             return 0;
@@ -160,11 +162,17 @@ public enum Proxy implements QuestionsCommunicator {
                 }
                 SwEng2013QuizApp.displayToast(R.string.now_online);
             } else {
-                if (mException instanceof ServerCommunicationException) {
-                    SwEng2013QuizApp.displayToast(R.string.synchronization_failure);
-                } else if (mException instanceof DBCommunicationException) {
-                    SwEng2013QuizApp.displayToast(R.string.broken_database);
+                switch (mException) {
+                    case SERVER_COMMUNICATION_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.synchronization_failure);
+                        break;
+                    case DB_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.broken_database);
+                        break;
+                    default:
+                        assert false;
                 }
+                
                 setState(ConnectionState.OFFLINE);
                 SwEng2013QuizApp.displayToast(R.string.now_offline);
             }

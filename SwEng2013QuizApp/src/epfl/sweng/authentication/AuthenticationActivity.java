@@ -3,7 +3,6 @@ package epfl.sweng.authentication;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -11,6 +10,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
+import epfl.sweng.exceptions.AsyncTaskExceptions;
 import epfl.sweng.exceptions.InvalidCredentialsException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.servercomm.ServerCommunication;
@@ -74,7 +74,7 @@ public class AuthenticationActivity extends Activity {
      */
     private class AuthenticationTask extends AsyncTask<Void, Void, Void> {
         
-        private Exception mException = null;
+        private AsyncTaskExceptions mException = null;
 
         @Override
         protected void onPreExecute() {
@@ -88,8 +88,10 @@ public class AuthenticationActivity extends Activity {
                 String username = mUsername.getText().toString();
                 String password = mPassword.getText().toString();
                 ServerCommunication.INSTANCE.login(username, password);
+            } catch (InvalidCredentialsException e) {
+                mException = AsyncTaskExceptions.INVALID_CREDENTIALS;
             } catch (ServerCommunicationException e) {
-                mException = e;
+                mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
             }
 
             return null;
@@ -102,14 +104,20 @@ public class AuthenticationActivity extends Activity {
             } else {
                 mButton.setEnabled(true);
                 mProgressBar.setVisibility(View.GONE);
-                if (mException instanceof InvalidCredentialsException) {
-                    SwEng2013QuizApp.displayToast(R.string.invalid_credentials);
-                } else if (mException instanceof ServerCommunicationException) {
-                    SwEng2013QuizApp.displayToast(R.string.failed_to_log_in);
+                
+                switch (mException) {
+                    case INVALID_CREDENTIALS:
+                        SwEng2013QuizApp.displayToast(R.string.invalid_credentials);
+                        break;
+                    case SERVER_COMMUNICATION_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_log_in);
+                        break;
+                    default:
+                        assert false;
                 }
+                
                 mUsername.setText("");
                 mPassword.setText("");
-                Log.e("Authentication", mException.getMessage());
                 TestCoordinator.check(TTChecks.AUTHENTICATION_ACTIVITY_SHOWN);
             }
         }

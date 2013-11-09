@@ -154,10 +154,11 @@ public enum ServerCommunication implements QuestionsCommunicator {
      * 
      * @param username a String representing the user's name
      * @param password a String representing the user's password
+     * @throws InvalidCredentialsException if the username or password is incorrect
      * @throws ServerCommunicationException if unable to log in
      */
     public void login(String username, String password)
-        throws ServerCommunicationException {
+        throws ServerCommunicationException, InvalidCredentialsException {
         
         if (!isNetworkAvailable()) {
             throw new ServerCommunicationException("Not connected");
@@ -227,7 +228,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
     }
 
     private void authTequila(String token, String username, String password)
-        throws ServerCommunicationException {
+        throws ServerCommunicationException, InvalidCredentialsException {
 
         ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("requestkey", token));

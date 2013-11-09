@@ -6,15 +6,15 @@ package epfl.sweng.exceptions;
  * @author lseguy
  *
  */
-public class DBCommunicationException extends CommunicationException {
+public class DBException extends Exception {
  
     private static final long serialVersionUID = 4908683393920404260L;
 
-    public DBCommunicationException() {
+    public DBException() {
         super();
     }
     
-    public DBCommunicationException(String message) {
+    public DBException(String message) {
         super(message);
     }
     

@@ -7,7 +7,7 @@ package epfl.sweng.exceptions;
  * @author lseguy
  *
  */
-public class InvalidCredentialsException extends ServerCommunicationException {
+public class InvalidCredentialsException extends Exception {
 
     private static final long serialVersionUID = 3636732404000852900L;
 

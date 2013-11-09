@@ -18,8 +18,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
-import epfl.sweng.exceptions.CommunicationException;
-import epfl.sweng.exceptions.DBCommunicationException;
+import epfl.sweng.exceptions.AsyncTaskExceptions;
+import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.patterns.Proxy;
@@ -225,16 +225,18 @@ public class EditQuestionActivity extends ListActivity {
      */    
     private class SendQuestionTask extends AsyncTask<QuizQuestion, Void, QuizQuestion> {
         
-        private Exception mException = null;
+        private AsyncTaskExceptions mException = null;
 
         @Override
         protected QuizQuestion doInBackground(QuizQuestion... questions) {
             try {
                 Proxy.INSTANCE.send(questions[0]);
             } catch (NotLoggedInException e) {
-                mException = e;
-            } catch (CommunicationException e) {
-                mException = e;
+                mException = AsyncTaskExceptions.NOT_LOGGED_IN_EXCEPTION;
+            } catch (DBException e) {
+                mException = AsyncTaskExceptions.DB_EXCEPTION;
+            } catch (ServerCommunicationException e) {
+                mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
             }
 
             return questions[0];
@@ -248,23 +250,28 @@ public class EditQuestionActivity extends ListActivity {
                 } else {
                     SwEng2013QuizApp.displayToast(R.string.question_cached);
                 }
-                TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
             } else {
-                if (mException instanceof NotLoggedInException) {
-                    SwEng2013QuizApp.displayToast(R.string.not_logged_in);
-                    TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
-                } else if (mException instanceof ServerCommunicationException) {
-                    SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
-                    Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
-                    SwEng2013QuizApp.displayToast(R.string.now_offline);
-                    // Send it again to cache the question
-                    new SendQuestionTask().execute(question);
-                } else if (mException instanceof DBCommunicationException) {
-                    SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
-                    TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
+                switch (mException) {
+                    case NOT_LOGGED_IN_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.not_logged_in);
+                        break;
+                    case SERVER_COMMUNICATION_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
+                        Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
+                        SwEng2013QuizApp.displayToast(R.string.now_offline);
+                        // Send it again to cache the question
+                        new SendQuestionTask().execute(question);
+                        break;
+                    case DB_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
+                        break;
+                    default:
+                        assert false;
                 }
             }
+            TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
         }
+        
     }
 
     /**

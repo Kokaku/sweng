@@ -1,7 +1,8 @@
 package epfl.sweng.servercomm;
 
-import epfl.sweng.exceptions.CommunicationException;
+import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.NotLoggedInException;
+import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.quizquestions.QuizQuestion;
 
 /**
@@ -18,19 +19,21 @@ public interface QuestionsCommunicator {
      * 
      * @return a random quiz question
      * @throws NotLoggedInException if the user is not logged in
-     * @throws CommunicationException if the request is unsuccessful
+     * @throws DBException if the database request is unsuccessful
+     * @throws ServerCommunicationException if the network request is unsuccessful
      */
     QuizQuestion getRandomQuestion()
-        throws NotLoggedInException, CommunicationException;
+        throws NotLoggedInException, DBException, ServerCommunicationException;
     
     /**
      * Submit a new question
      * 
      * @param question the question to be submitted
      * @throws NotLoggedInException if the user is not logged in
-     * @throws CommunicationException if the request is unsuccessful
+     * @throws DBException if the database request is unsuccessful
+     * @throws ServerCommunicationException if the network request is unsuccessful
      * @return the question sent
      */
     QuizQuestion send(QuizQuestion question)
-        throws NotLoggedInException, CommunicationException;
+        throws NotLoggedInException, DBException, ServerCommunicationException;
 }

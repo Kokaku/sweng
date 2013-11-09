@@ -18,7 +18,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import epfl.sweng.SwEng2013QuizApp;
-import epfl.sweng.exceptions.DBCommunicationException;
+import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
@@ -66,7 +66,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * @param question the question to be stored
      */
     public void storeQuestion(QuizQuestion question, boolean toBeSubmitted)
-        throws DBCommunicationException {
+        throws DBException {
         SQLiteDatabase db = getWritableDatabase();
         
         ContentValues values = new ContentValues();
@@ -99,7 +99,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         
         if (!requestSuccessfull) {
-            throw new DBCommunicationException("Could not store the question.");
+            throw new DBException("Could not store the question.");
         }
     }
     
@@ -107,10 +107,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * Gets a random question from the database.
      * 
      * @return a random question or null if there is no cached question
-     * @throws DBCommunicationException if the request is unsuccessful
+     * @throws DBException if the request is unsuccessful
      */
     public QuizQuestion getRandomQuestion()
-        throws DBCommunicationException {
+        throws DBException {
         
         SQLiteDatabase db = getReadableDatabase();
         
@@ -127,7 +127,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         try {
             return getQuestionFromCursor(cursor);
         } catch (JSONException e) {
-            throw new DBCommunicationException("JSON badly formatted.");
+            throw new DBException("JSON badly formatted.");
         } finally {
             cursor.close();
             db.close();
@@ -138,11 +138,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * Sends the question waiting for submission to the server.
      * 
      * @return the number of questions submitted
-     * @throws DBCommunicationException if a DB request is unsuccessful
+     * @throws DBException if a DB request is unsuccessful
      * @throws ServerCommunicationException if a question can't be submitted
      */
     public int synchronizeQuestions()
-        throws DBCommunicationException, ServerCommunicationException {
+        throws DBException, ServerCommunicationException {
         
         int questionsSumbmitted = 0;
         SQLiteDatabase db = getWritableDatabase();
@@ -151,7 +151,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             null, null, null, null);
         
         if (cursor == null) {
-            throw new DBCommunicationException("Error while looking for questions waiting for submission");
+            throw new DBException("Error while looking for questions waiting for submission");
         }
         
         try {
@@ -173,7 +173,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 ++questionsSumbmitted;
             }
         } catch (JSONException e) {
-            throw new DBCommunicationException("JSON badly formatted.");
+            throw new DBException("JSON badly formatted.");
         } finally {
             cursor.close();
             db.close();

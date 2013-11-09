@@ -36,7 +36,6 @@
     <string name="failed_to_cache_question">An error occurred while caching the question!</string>
     <string name="text_retry">Retry</string>
     <string name="text_abort">Abort</string>
-    <string name="not_logged_in">Please log in !</string>
 
     <!-- Unicode characters -->
     <string name="wrong_answer">\u2718</string>
@@ -52,6 +51,7 @@
     <string name="failed_to_log_in">Network error. Impossible to log in.</string>
     <string name="login_empty_fields_error">Please enter your username and password.</string>
     <string name="invalid_credentials">Impossible to log in. Please check your username and password!</string>
+    <string name="not_logged_in">Please log in !</string>
     
     <!-- Offline mode -->
     <string name="synchronization_success">Your questions have been successfully submitted.</string>
