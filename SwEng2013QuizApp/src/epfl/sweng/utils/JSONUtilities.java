@@ -49,7 +49,10 @@ public class JSONUtilities {
         jsonObject.put("owner", question.getOwner());
         jsonObject.put("id", question.getId());
         
-        return jsonObject.toString();
+        String test = jsonObject.toString();
+        System.out.println(test);
+        
+        return test;
     }
     
     /**

@@ -4,6 +4,7 @@
 package epfl.sweng.test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
@@ -15,13 +16,14 @@ import org.json.JSONObject;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.entry.MainActivity;
+import epfl.sweng.exceptions.NotLoggedInException;
+import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.test.framework.QuizActivityTestCase;
 import epfl.sweng.test.minimalmock.MockHttpClient;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
-import epfl.sweng.utils.JSONUtilities;
 
 /**
  * @author Zhivka Gucevska
@@ -46,6 +48,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
         getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
         UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
         UserCredentials.INSTANCE.saveUserCredentials("test");
+
         SwengHttpClientFactory.setInstance(mockHttpClient);
         mockHttpClient.pushCannedResponse(
                 "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
@@ -109,8 +112,14 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
     private void pushCannedAnswerForOKPostRequest() {
         mockHttpClient.clearCannedResponses();
-        mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_CREATED,
-                "correctly sent", null);
+        mockHttpClient
+                .pushCannedResponse(
+                        "POST [^/]+",
+                        HttpStatus.SC_CREATED,
+                        "{\"question\": \"How many rings the Olympic flag Five has?\","
+                                + " \"answers\": [\"One\", \"Six\", \"Five\"], \"owner\": \"sweng\","
+                                + " \"solutionIndex\": 2, \"tags\": [\"Tag1\", \"Tag2\"],  \"id\": \"1\" }",
+                        null);
 
     }
 
@@ -121,13 +130,16 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
 
     }
 
-    public void testGetRandomQuestion() {
+    public void testGetRandomQuestion() throws ServerCommunicationException,
+            NotLoggedInException {
         pushCannedAnswerForCorrectQuestion();
         mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
         assertTrue("Question is fetched", mQuestion != null);
     }
 
-    public void testQuestionTextCorrectlyFetched() {
+    public void testQuestionTextCorrectlyFetched()
+        throws ServerCommunicationException, NotLoggedInException {
+
         pushCannedAnswerForCorrectQuestion();
         mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
@@ -135,7 +147,9 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
                 mQuestionText.equals(mQuestion.getQuestion()));
     }
 
-    public void testQuestionTagsCorrectlyFetched() {
+    public void testQuestionTagsCorrectlyFetched()
+        throws ServerCommunicationException, NotLoggedInException {
+
         pushCannedAnswerForCorrectQuestion();
         mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
@@ -146,15 +160,19 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
                 mTags.equals(mQuestion.getTags()));
     }
 
-    public void testQuestionAnswersCorrectlyFetched() {
+    public void testQuestionAnswersCorrectlyFetched()
+        throws ServerCommunicationException, NotLoggedInException {
+
         pushCannedAnswerForCorrectQuestion();
         mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
         assertTrue("Question answers are correctly fetched",
-                Arrays.equals(mAnswers, mQuestion.getAnswers()));
+                Arrays.equals(mAnswers, mQuestion.getAnswers().toArray()));
     }
 
-    public void testSolutionIndexCorrectlyFetched() {
+    public void testSolutionIndexCorrectlyFetched()
+        throws ServerCommunicationException, NotLoggedInException {
+
         pushCannedAnswerForCorrectQuestion();
         mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
 
@@ -162,72 +180,78 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
                 mSolutionIndex == mQuestion.getSolutionIndex());
     }
 
-    public void testGetRandomIncorrectQuestion() {
+    public void testGetRandomIncorrectQuestion()
+        throws ServerCommunicationException, NotLoggedInException {
+
         pushCannedAnswerForIncorrectQuestion();
-        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-
-        assertTrue("Incorrect question is not fetched", null == mQuestion);
+        try {
+            mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+            fail("Incorrect question is not fetched");
+        } catch (IllegalArgumentException e) {
+        }
 
     }
 
-    public void testGetRandomQuestionWithBadJSONObject() {
+    public void testGetRandomQuestionWithBadJSONObject()
+        throws ServerCommunicationException, NotLoggedInException {
+
         pushCannedAnswerWithInvalidJSONObject();
-        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-
-        assertTrue("Question should not be created when invalid JSONObject "
-                + "returned by server", null == mQuestion);
+        try {
+            mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+            fail("Question should not be created when invalid JSONObject "
+                    + "returned by server");
+        } catch (ServerCommunicationException e) {
+        }
     }
 
-    public void testGetRandomQuestionWithMissingJSONFielAnswers() {
+    public void testGetRandomQuestionWithMissingJSONFielAnswers()
+        throws ServerCommunicationException, NotLoggedInException {
         pushCannedAnswerWithMissingJSONFieldAnswers();
-        mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
-
-        assertTrue("Question should not be parsed when missing fields in"
-                + "the JSONObject retrurned by server", null == mQuestion);
+        try {
+            mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
+            fail("Question should not be parsed when missing fields in"
+                    + "the JSONObject retrurned by server");
+        } catch (ServerCommunicationException e) {
+        }
     }
 
-    public void testSendQuestion() {
+    public void testSendQuestion() throws ServerCommunicationException {
         mTags.add("tag1");
-        System.out.println("APPLE1 "
-                + mockHttpClient.getResponseInterceptorCount());
         pushCannedAnswerForOKPostRequest();
-        mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
-                mTags);
-        boolean questionSent = ServerCommunication.INSTANCE
-                .send(mQuestion);
-        System.out.println("APPLE2 "
-                + mockHttpClient.getResponseInterceptorCount());
-        assertTrue("Valid question is sent", questionSent);
+        mQuestion = new QuizQuestion(mQuestionText, new ArrayList<String>(
+                Arrays.asList(mAnswers)), mSolutionIndex, mTags);
+        try {
+            ServerCommunication.INSTANCE.send(mQuestion);
+        } catch (ServerCommunicationException e) {
+            fail("Valid question is sent");
+        }
         mockHttpClient.clearCannedResponses();
     }
 
-    public void testQuestionWellRecieved() {
+    public void testQuestionWellRecieved() throws ServerCommunicationException {
         mTags.add("tag1");
-        mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
-                mTags);
+        mQuestion = new QuizQuestion(mQuestionText, new ArrayList<String>(
+                Arrays.asList(mAnswers)), mSolutionIndex, mTags);
 
         pushCannedAnswerForOKPostRequest();
         ServerCommunication.INSTANCE.send(mQuestion);
         QuizQuestion questionOnServer = null;
         try {
-            JSONObject json = new JSONObject(
-                    mockHttpClient.getLastPostRequestContent());
-
-            questionOnServer = new QuizQuestion(json.getString("question"),
-                    JSONUtilities.parseAnswers(json),
-                    json.getInt("solutionIndex"), JSONUtilities.parseTags(json));
+            questionOnServer = new QuizQuestion(new JSONObject(
+                    mockHttpClient.getLastPostRequestContent()).toString());
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
+            System.out.println("prout1");
+            e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            System.out.println("prout2");
+            e.printStackTrace();
         }
 
         assertTrue("Question text is well recieved", mQuestion.getQuestion()
                 .equals(questionOnServer.getQuestion()));
-        assertTrue(
-                "Question answers are well recieved",
-                Arrays.equals(mQuestion.getAnswers(),
-                        questionOnServer.getAnswers()));
+        assertTrue("Question answers are well recieved", Arrays.equals(
+                mQuestion.getAnswers().toArray(), questionOnServer.getAnswers()
+                        .toArray()));
         assertTrue("Question tags are well recieved", mQuestion.getTags()
                 .equals(questionOnServer.getTags()));
         assertTrue("Question solution index is well recieved",
@@ -237,13 +261,16 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
         mockHttpClient.clearCannedResponses();
     }
 
-    public void testQuestionNotRecieved() {
+    public void testQuestionNotRecieved() throws ServerCommunicationException {
         pushCannedAnswerForBADPostRequest();
         mTags.add("tag1");
-        mQuestion = new QuizQuestion(mQuestionText, mAnswers, mSolutionIndex,
-                mTags);
-        boolean questionSent = ServerCommunication.INSTANCE
-                .send(mQuestion);
-        assertFalse("The server did not accept the request", questionSent);
+        mQuestion = new QuizQuestion(mQuestionText, new ArrayList<String>(
+                Arrays.asList(mAnswers)), mSolutionIndex, mTags);
+        try {
+            ServerCommunication.INSTANCE.send(mQuestion);
+            fail("The server did not accept the request");
+        } catch (ServerCommunicationException e) {
+
+        }
     }
 }
