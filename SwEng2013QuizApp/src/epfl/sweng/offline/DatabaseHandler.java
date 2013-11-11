@@ -98,9 +98,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         
         db.close();
         
-        if (!requestSuccessfull) {
-            throw new DBException("Could not store the question.");
-        }
+//        if (!requestSuccessfull) {
+//            throw new DBException("Could not store the question.");
+//        }
     }
     
     /**
