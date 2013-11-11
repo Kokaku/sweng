@@ -78,7 +78,7 @@ public class QuizQuestionTest extends AndroidTestCase {
 	public void testCreateQuestionWithNoTags() {
 		try {
 			@SuppressWarnings("unused")
-			QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT, 
+			QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
 					Arrays.asList(LIST_OF_ANSWERS), 1, new TreeSet<String>());
 			fail("Set of tags can't be empty");
 		} catch (IllegalArgumentException e) {
@@ -99,7 +99,8 @@ public class QuizQuestionTest extends AndroidTestCase {
 		try {
 			@SuppressWarnings("unused")
 			QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-					Arrays.asList(LIST_OF_ANSWERS), LIST_OF_ANSWERS.length + 1, mTags);
+					Arrays.asList(LIST_OF_ANSWERS), LIST_OF_ANSWERS.length + 1,
+					mTags);
 			fail("solutionIndex must be between 0 and answers.length-1");
 		} catch (IllegalArgumentException e) {
 		}
@@ -148,7 +149,8 @@ public class QuizQuestionTest extends AndroidTestCase {
 	}
 
 	public void testGetAnswers() {
-		assertTrue(Arrays.asList(LIST_OF_ANSWERS).equals(mQuestion.getAnswers()));
+		assertTrue(Arrays.asList(LIST_OF_ANSWERS)
+				.equals(mQuestion.getAnswers()));
 	}
 
 	public void testGetTagsCopy() {
