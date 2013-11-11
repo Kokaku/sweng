@@ -182,6 +182,7 @@ public class ShowQuestionsActivity extends ListActivity {
             android.R.layout.simple_list_item_1, mCurrentQuestion.getAnswers());
         
         setListAdapter(adapterAnswers);
+        TestCoordinator.check(TTChecks.QUESTION_SHOWN);
     }
     
     /**
@@ -227,27 +228,27 @@ public class ShowQuestionsActivity extends ListActivity {
                 }
             } else {
                 switch (mException) {
-                    case NOT_LOGGED_IN_EXCEPTION:
-                        SwEng2013QuizApp.displayToast(R.string.not_logged_in);
-                        break;
-                    case SERVER_COMMUNICATION_EXCEPTION:
-                        SwEng2013QuizApp.displayToast(R.string.failed_to_get_question);
-                        Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
-                        SwEng2013QuizApp.displayToast(R.string.now_offline);
-                        showNewQuestion();
-                        break;
-                    case DB_EXCEPTION:
-                        if (Proxy.INSTANCE.isOnline()) {
-                            SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
-                        } else {
-                            SwEng2013QuizApp.displayToast(R.string.broken_database);
-                        }
-                        break;
-                    default:
-                        assert false;
-                }
-                TestCoordinator.check(TTChecks.QUESTION_SHOWN);
+                case NOT_LOGGED_IN_EXCEPTION:
+                    SwEng2013QuizApp.displayToast(R.string.not_logged_in);
+                    break;
+                case SERVER_COMMUNICATION_EXCEPTION:
+                    SwEng2013QuizApp.displayToast(R.string.failed_to_get_question);
+                    Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
+                    SwEng2013QuizApp.displayToast(R.string.now_offline);
+                    showNewQuestion();
+                    break;
+                case DB_EXCEPTION:
+                    if (Proxy.INSTANCE.isOnline()) {
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
+                    } else {
+                        SwEng2013QuizApp.displayToast(R.string.broken_database);
+                    }
+                    break;
+                default:
+                    assert false;
             }
+            TestCoordinator.check(TTChecks.QUESTION_SHOWN);
+        }
         }
 
     }

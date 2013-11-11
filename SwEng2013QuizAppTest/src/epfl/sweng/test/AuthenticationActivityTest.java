@@ -5,7 +5,6 @@ package epfl.sweng.test;
 
 import epfl.sweng.authentication.AuthenticationActivity;
 import epfl.sweng.test.framework.QuizActivityTestCase;
-import epfl.sweng.test.minimalmock.MockHttpClient;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 /**
@@ -13,7 +12,6 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
  * 
  */
 public class AuthenticationActivityTest extends QuizActivityTestCase<AuthenticationActivity> {
-	private MockHttpClient mockHttpClient;
 
 	public AuthenticationActivityTest() {
 		super(AuthenticationActivity.class);

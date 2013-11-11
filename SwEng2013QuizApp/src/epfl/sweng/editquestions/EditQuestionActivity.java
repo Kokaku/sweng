@@ -160,120 +160,7 @@ public class EditQuestionActivity extends ListActivity {
         mAnswersAdapter.notifyDataSetChanged();
     }
 
-    /**
-     * Listener for mQuestionEditText. Checks if the mQuestionEditText field has
-     * at least one none space character.
-     */
-    private class QuestionEditTextListener implements TextWatcher {
-
-        @Override
-        public void afterTextChanged(Editable newText) {
-            if (!mOnReset) {
-                mValidQuestion = !newText.toString().replaceAll("\\s+", "")
-                        .equals("");
-                mAnswersAdapter.setQuestionBodyValidity(mValidTags
-                        && mValidQuestion);
-
-                TestCoordinator.check(TTChecks.QUESTION_EDITED);
-            }
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-                int arg3) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence arg0, int arg1, int arg2,
-                int arg3) {
-        }
-    }
-
-    /**
-     * Listener for mTagsEditText. Checks if the mTagsEditText field has at
-     * least one alphanumeric character.
-     */
-    private class TagsEditTextListener implements TextWatcher {
-
-        @Override
-        public void afterTextChanged(Editable newText) {
-
-            if (!mOnReset) {
-                mValidTags = !newText.toString().replaceAll("\\W+", "")
-                        .equals("");
-                mAnswersAdapter.setQuestionBodyValidity(mValidTags
-                        && mValidQuestion);
-
-                TestCoordinator.check(TTChecks.QUESTION_EDITED);
-            }
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-                int arg3) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence arg0, int arg1, int arg2,
-                int arg3) {
-
-        }
-    }
-
-    /**
-     * Sends a new question in a separate thread.
-     */    
-    private class SendQuestionTask extends AsyncTask<QuizQuestion, Void, QuizQuestion> {
-        
-        private AsyncTaskExceptions mException = null;
-
-        @Override
-        protected QuizQuestion doInBackground(QuizQuestion... questions) {
-            try {
-                Proxy.INSTANCE.send(questions[0]);
-            } catch (NotLoggedInException e) {
-                mException = AsyncTaskExceptions.NOT_LOGGED_IN_EXCEPTION;
-            } catch (DBException e) {
-                mException = AsyncTaskExceptions.DB_EXCEPTION;
-            } catch (ServerCommunicationException e) {
-                mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
-            }
-
-            return questions[0];
-        }
-
-        @Override
-        protected void onPostExecute(QuizQuestion question) {
-            if (mException == null) {
-                if (Proxy.INSTANCE.isOnline()) {
-                    SwEng2013QuizApp.displayToast(R.string.question_sent);
-                } else {
-                    SwEng2013QuizApp.displayToast(R.string.question_cached);
-                }
-            } else {
-                switch (mException) {
-                    case NOT_LOGGED_IN_EXCEPTION:
-                        SwEng2013QuizApp.displayToast(R.string.not_logged_in);
-                        break;
-                    case SERVER_COMMUNICATION_EXCEPTION:
-                        SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
-                        Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
-                        SwEng2013QuizApp.displayToast(R.string.now_offline);
-                        // Send it again to cache the question
-                        new SendQuestionTask().execute(question);
-                        break;
-                    case DB_EXCEPTION:
-                        SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
-                        break;
-                    default:
-                        assert false;
-                }
-            }
-            TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
-        }
-        
-    }
-
+    
     /**
      * @return the number of errors in the activity
      */
@@ -396,4 +283,119 @@ public class EditQuestionActivity extends ListActivity {
         
         return (correctAnswersCount != 1)? 1: 0;
     }
+    
+    /**
+     * Listener for mQuestionEditText. Checks if the mQuestionEditText field has
+     * at least one none space character.
+     */
+    private class QuestionEditTextListener implements TextWatcher {
+
+        @Override
+        public void afterTextChanged(Editable newText) {
+            if (!mOnReset) {
+                mValidQuestion = !newText.toString().replaceAll("\\s+", "")
+                        .equals("");
+                mAnswersAdapter.setQuestionBodyValidity(mValidTags
+                        && mValidQuestion);
+
+                TestCoordinator.check(TTChecks.QUESTION_EDITED);
+            }
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                int arg3) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+                int arg3) {
+        }
+    }
+
+    /**
+     * Listener for mTagsEditText. Checks if the mTagsEditText field has at
+     * least one alphanumeric character.
+     */
+    private class TagsEditTextListener implements TextWatcher {
+
+        @Override
+        public void afterTextChanged(Editable newText) {
+
+            if (!mOnReset) {
+                mValidTags = !newText.toString().replaceAll("\\W+", "")
+                        .equals("");
+                mAnswersAdapter.setQuestionBodyValidity(mValidTags
+                        && mValidQuestion);
+
+                TestCoordinator.check(TTChecks.QUESTION_EDITED);
+            }
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                int arg3) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+                int arg3) {
+
+        }
+    }
+
+    /**
+     * Sends a new question in a separate thread.
+     */    
+    private class SendQuestionTask extends AsyncTask<QuizQuestion, Void, QuizQuestion> {
+        
+        private AsyncTaskExceptions mException = null;
+
+        @Override
+        protected QuizQuestion doInBackground(QuizQuestion... questions) {
+            try {
+                Proxy.INSTANCE.send(questions[0]);
+            } catch (NotLoggedInException e) {
+                mException = AsyncTaskExceptions.NOT_LOGGED_IN_EXCEPTION;
+            } catch (DBException e) {
+                mException = AsyncTaskExceptions.DB_EXCEPTION;
+            } catch (ServerCommunicationException e) {
+                mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
+            }
+
+            return questions[0];
+        }
+
+        @Override
+        protected void onPostExecute(QuizQuestion question) {
+            if (mException == null) {
+                if (Proxy.INSTANCE.isOnline()) {
+                    SwEng2013QuizApp.displayToast(R.string.question_sent);
+                } else {
+                    SwEng2013QuizApp.displayToast(R.string.question_cached);
+                }
+            } else {
+                switch (mException) {
+                    case NOT_LOGGED_IN_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.not_logged_in);
+                        break;
+                    case SERVER_COMMUNICATION_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
+                        Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
+                        SwEng2013QuizApp.displayToast(R.string.now_offline);
+                        // Send it again to cache the question
+                        new SendQuestionTask().execute(question);
+                        break;
+                    case DB_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
+                        break;
+                    default:
+                        assert false;
+                }
+            }
+            TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
+        }
+        
+    }
+
 }

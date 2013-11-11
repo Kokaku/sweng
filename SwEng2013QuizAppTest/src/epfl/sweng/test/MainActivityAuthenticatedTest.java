@@ -1,5 +1,6 @@
 package epfl.sweng.test;
 
+
 import android.widget.Button;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
@@ -20,6 +21,7 @@ public class MainActivityAuthenticatedTest extends
     public static final String TEQUILA_LOGOUT = "Log out";
     public static final String TEQUILA_LOGIN = "Log in using Tequila";
 
+    
     public MainActivityAuthenticatedTest() {
         super(MainActivity.class);
     }

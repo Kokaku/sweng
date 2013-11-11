@@ -56,10 +56,9 @@ public class MockHttpClient extends DefaultHttpClient {
         }
     }
 
-    private final List<CannedResponse> responses = new ArrayList<CannedResponse>();
     private HttpRequest lastRequest;
     private List<HttpResponseInterceptor> httpResponseInterceptors = new ArrayList<HttpResponseInterceptor>();
-    
+    private final List<CannedResponse> responses = new ArrayList<CannedResponse>();
 
     public void pushCannedResponse(String requestRegex, int status, String responseBody, String contentType) {
         responses.add(0, new CannedResponse(Pattern.compile(requestRegex), status, responseBody, contentType));
@@ -101,13 +100,11 @@ public class MockHttpClient extends DefaultHttpClient {
     
     public HttpResponse processRequest(HttpRequest request) {
         lastRequest = request;
-        
         for (CannedResponse cr : responses) {
             if (cr.pattern.matcher(request.getRequestLine().toString()).find()) {
                 Log.v("HTTP", "Mocking request since it matches pattern " + cr.pattern);
                 Log.v("HTTP", "Response body: " + cr.responseBody);
                 MockHttpResponse httpResponse = new MockHttpResponse(cr.statusCode, cr.responseBody, cr.contentType);
-
                 for(HttpResponseInterceptor itcp : httpResponseInterceptors) {
                     try {
                         itcp.process(httpResponse, null);
@@ -115,6 +112,7 @@ public class MockHttpClient extends DefaultHttpClient {
                     } catch (IOException e) {
                     }
                 }
+
                 return httpResponse;
             }
         }
@@ -124,6 +122,7 @@ public class MockHttpClient extends DefaultHttpClient {
     
     public String getLastPostRequestContent()
             throws IOException {
+    	
         if (lastRequest.getRequestLine().getMethod() == "POST") {
             StringBuilder sb = new StringBuilder();
             HttpEntity entity = ((HttpPost) lastRequest).getEntity();
