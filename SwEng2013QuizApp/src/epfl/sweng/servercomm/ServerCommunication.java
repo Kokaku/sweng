@@ -187,6 +187,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
             UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
             UserCredentials.INSTANCE.saveUserCredentials(session);
         } catch (JSONException e) {
+            UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
             throw new ServerCommunicationException("JSON badly formatted.");
         } catch (ServerCommunicationException e) {
             UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
