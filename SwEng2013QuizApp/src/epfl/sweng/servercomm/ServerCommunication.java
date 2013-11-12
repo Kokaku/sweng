@@ -50,10 +50,14 @@ public enum ServerCommunication implements QuestionsCommunicator {
     private int mResponseStatus;
 
     private ServerCommunication() {
-        
-        /**
-         * Used to check if a request has been successful or not.
-         */
+        addStatusInterceptor();
+    }
+
+    /**
+     * Add a request interceptor which is used to check if a request has been
+     * successful or not.
+     */
+    public void addStatusInterceptor() {
         final HttpResponseInterceptor responseInterceptor = new HttpResponseInterceptor() {
             @Override
             public void process(HttpResponse response, HttpContext context) {
@@ -64,7 +68,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
         SwengHttpClientFactory.getInstance().addResponseInterceptor(
                 responseInterceptor);
     }
-
+    
     /**
      * Sends a question to the server. This is a blocking method and thus it
      * should be called by a class extending {@link AsyncTask}.

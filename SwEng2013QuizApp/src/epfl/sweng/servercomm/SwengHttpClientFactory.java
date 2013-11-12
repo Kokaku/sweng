@@ -45,6 +45,7 @@ public class SwengHttpClientFactory {
 
     public static synchronized void setInstance(AbstractHttpClient instance) {
         httpClient = instance;
+        ServerCommunication.INSTANCE.addStatusInterceptor();
     }
 
     final private static RedirectHandler REDIRECT_NO_FOLLOW = new RedirectHandler() {
