@@ -204,8 +204,12 @@ public class QuizQuestion {
 	private int checkAnswers() {
 		int errors = (mAnswers == null || mAnswers.size() < 2 || mAnswers
 				.size() > MAX_ANSWERS) ? 1 : 0;
+		
+		if (mAnswers != null) {
+		    errors += checkAnswers(mAnswers);
+		}
 
-		return errors + checkAnswers(mAnswers);
+		return errors;
 	}
 
 	/**
@@ -223,7 +227,11 @@ public class QuizQuestion {
 		int errors = (mTags == null || mTags.size() < 1 || mTags.size() > MAX_TAGS) ? 1
 				: 0;
 
-		return errors + checkTags(mTags);
+        if (mTags != null) {
+            errors += checkTags(mTags);
+        }
+        
+		return errors;
 	}
 
 	private int checkAnswers(List<String> answers) {
