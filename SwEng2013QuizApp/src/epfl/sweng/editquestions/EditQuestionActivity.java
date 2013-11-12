@@ -281,7 +281,7 @@ public class EditQuestionActivity extends ListActivity {
             correctAnswersCount += (checkAnswerButton.getText().equals("\u2714"))? 1 : 0;
         }
         
-        return (correctAnswersCount != 1)? 1: 0;
+        return (correctAnswersCount > 1)? 1: 0;
     }
     
     /**

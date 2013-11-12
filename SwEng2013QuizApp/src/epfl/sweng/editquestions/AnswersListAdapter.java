@@ -43,7 +43,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
                 answersArg);
         this.mContext = contextArg;
         this.mAnswersArrayList = answersArg;
-        this.mCorrectAnswerPosition = 0;
+        this.mCorrectAnswerPosition = -1;
         this.mQuestionBodyValidity = false;
         this.mSubmitButton = submit;
     }
