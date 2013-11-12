@@ -25,7 +25,6 @@
     <string name="button_submit">Submit</string>
     <string name="button_clear_answer">Clear</string>
     <string name="failed_to_send_question">Could not upload the question to the server.</string>
-    <string name="question_sent">Question sent successfully !</string>
     <string name="question_cached">Question cached.</string>
 
     <!-- ShowQuestionsActivity -->

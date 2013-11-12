@@ -369,9 +369,7 @@ public class EditQuestionActivity extends ListActivity {
         @Override
         protected void onPostExecute(QuizQuestion question) {
             if (mException == null) {
-                if (Proxy.INSTANCE.isOnline()) {
-                    SwEng2013QuizApp.displayToast(R.string.question_sent);
-                } else {
+                if (!Proxy.INSTANCE.isOnline()) {
                     SwEng2013QuizApp.displayToast(R.string.question_cached);
                 }
             } else {
