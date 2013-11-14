@@ -52,6 +52,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	private int mResponseStatus;
 
 	private ServerCommunication() {
+	    Log.d("POTATO SeverCom", "Constructor called");
 		addStatusInterceptor();
 	}
 
@@ -60,6 +61,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	 * successful or not.
 	 */
 	public void addStatusInterceptor() {
+	    Log.d("POTATO SeverCom", "Adding an interceptor to " + SwengHttpClientFactory.getInstance());
 		final HttpResponseInterceptor responseInterceptor = new HttpResponseInterceptor() {
 			@Override
 			public void process(HttpResponse response, HttpContext context) {

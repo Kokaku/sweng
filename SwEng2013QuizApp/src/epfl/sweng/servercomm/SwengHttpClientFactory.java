@@ -45,6 +45,7 @@ public class SwengHttpClientFactory {
 
     public static synchronized void setInstance(AbstractHttpClient instance) {
         httpClient = instance;
+        Log.d("POTATO HttpFactory", "injecting in setInstance the client " + instance);
         ServerCommunication.INSTANCE.addStatusInterceptor();
     }
 
