@@ -3,6 +3,7 @@ package epfl.sweng.authentication;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -51,11 +52,14 @@ public class AuthenticationActivity extends Activity {
      * @param view the button being clicked
      */
     public void onClickLogin(View view) {
+        Log.d("POTATO Authentication", "Clicked on login button");
         hideKeyboard();
         
         if (isEmpty(mUsername) || isEmpty(mPassword)) {
+            Log.d("POTATO Authentication", "Empty username and password");
             SwEng2013QuizApp.displayToast(R.string.login_empty_fields_error);
         } else {
+            Log.d("POTATO Authentication", "Starting AuthenticationTask");
             new AuthenticationTask().execute();
         }
     }
@@ -85,6 +89,7 @@ public class AuthenticationActivity extends Activity {
         
         @Override
         protected Void doInBackground(Void... unused) {
+            Log.d("POTATO Authentication", "AsyncTask is authenticating");
             try {
                 String username = mUsername.getText().toString();
                 String password = mPassword.getText().toString();
@@ -101,6 +106,7 @@ public class AuthenticationActivity extends Activity {
         @Override
         protected void onPostExecute(Void unused) {
             if (mException == null) {
+                Log.d("POTATO Authentication", "Yeepee, login successful");
                 finish();
             } else {
                 mButton.setEnabled(true);
@@ -108,15 +114,18 @@ public class AuthenticationActivity extends Activity {
                 
                 switch (mException) {
                     case INVALID_CREDENTIALS:
+                        Log.d("POTATO Authentication", "Invalid credentials :(");
                         SwEng2013QuizApp.displayToast(R.string.invalid_credentials);
                         break;
                     case SERVER_COMMUNICATION_EXCEPTION:
+                        Log.d("POTATO Authentication", "ServerCom exception :(");
                         SwEng2013QuizApp.displayToast(R.string.failed_to_log_in);
                         break;
                     default:
                         assert false;
                 }
                 
+                Log.d("POTATO Authentication", "Oh no! Login failed");
                 mUsername.setText("");
                 mPassword.setText("");
                 UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
