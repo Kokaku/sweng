@@ -182,6 +182,8 @@ public class ShowQuestionsActivity extends ListActivity {
             android.R.layout.simple_list_item_1, mCurrentQuestion.getAnswers());
         
         setListAdapter(adapterAnswers);
+
+        TestCoordinator.check(TTChecks.QUESTION_SHOWN);
     }
     
     /**
@@ -224,11 +226,15 @@ public class ShowQuestionsActivity extends ListActivity {
                     updateViews();
                 } else {
                     SwEng2013QuizApp.displayToast(R.string.no_cached_question);
+
+                    TestCoordinator.check(TTChecks.QUESTION_SHOWN);
                 }
             } else {
                 switch (mException) {
                     case NOT_LOGGED_IN_EXCEPTION:
                         SwEng2013QuizApp.displayToast(R.string.not_logged_in);
+
+                        TestCoordinator.check(TTChecks.QUESTION_SHOWN);
                         break;
                     case SERVER_COMMUNICATION_EXCEPTION:
                         SwEng2013QuizApp.displayToast(R.string.failed_to_get_question);
@@ -242,12 +248,15 @@ public class ShowQuestionsActivity extends ListActivity {
 	                    } else {
 	                        SwEng2013QuizApp.displayToast(R.string.broken_database);
 	                    }
+
+	                    TestCoordinator.check(TTChecks.QUESTION_SHOWN);
 	                    break;
 	                default:
+
+	                    TestCoordinator.check(TTChecks.QUESTION_SHOWN);
 	                    assert false;
                 }
             }
-            TestCoordinator.check(TTChecks.QUESTION_SHOWN);
 
         }
 
