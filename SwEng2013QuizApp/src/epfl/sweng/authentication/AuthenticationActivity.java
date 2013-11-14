@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
+import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.exceptions.AsyncTaskExceptions;
 import epfl.sweng.exceptions.InvalidCredentialsException;
 import epfl.sweng.exceptions.ServerCommunicationException;
@@ -118,6 +119,7 @@ public class AuthenticationActivity extends Activity {
                 
                 mUsername.setText("");
                 mPassword.setText("");
+                UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
                 TestCoordinator.check(TTChecks.AUTHENTICATION_ACTIVITY_SHOWN);
             }
         }
