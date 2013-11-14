@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
@@ -190,6 +191,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
             UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
             throw new ServerCommunicationException("JSON badly formatted.");
         } catch (ServerCommunicationException e) {
+            UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
+            throw e;
+        } catch (InvalidCredentialsException e) {
             UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
             throw e;
         }
