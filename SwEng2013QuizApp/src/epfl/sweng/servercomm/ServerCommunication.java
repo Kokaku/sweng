@@ -166,9 +166,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
         
         if (!isNetworkAvailable()) {
             throw new ServerCommunicationException("Not connected");
-        } else if (UserCredentials.INSTANCE.getState() == AuthenticationState.AUTHENTICATED) {
+        }/* else if (UserCredentials.INSTANCE.getState() == AuthenticationState.AUTHENTICATED) {
             return; // already logged in or login in
-        }
+        }*/
         
         try {
             UserCredentials.INSTANCE.setState(AuthenticationState.TOKEN);

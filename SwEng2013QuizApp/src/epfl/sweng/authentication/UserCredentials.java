@@ -84,7 +84,7 @@ public enum UserCredentials {
      */
     private void initializeSharedPreferences(Context context) {
         mUserSession = context.getSharedPreferences("user_session", 
-                Context.MODE_WORLD_READABLE);
+                Context.MODE_PRIVATE);
         
         if (!getSessionID().equals("")) {
             mCurrentState = AuthenticationState.AUTHENTICATED;
