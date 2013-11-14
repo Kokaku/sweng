@@ -93,9 +93,14 @@ public class ShowQuestionsActivity extends ListActivity {
             mSymbol.setText(R.string.correct_answer);
             mSymbol.setTextColor(getResources().getColor(R.color.right_answer));
             view.setBackgroundColor(getResources().getColor(R.color.right_answer_list_item));
+            mQuestionText.setText(getResources().getString(R.string.correct_answer) 
+            		+ "  " + mCurrentQuestion.getQuestion());
         } else {
             mSymbol.setText(R.string.wrong_answer);
             mSymbol.setTextColor(getResources().getColor(R.color.wrong_answer));
+            mQuestionText.setText(getResources().getString(R.string.wrong_answer) 
+            		+ "  " + mCurrentQuestion.getQuestion());
+
             
             mVibrator.vibrate(VIBRATOR_DURATION);
         }
@@ -257,7 +262,6 @@ public class ShowQuestionsActivity extends ListActivity {
 	                    assert false;
                 }
             }
-
         }
 
     }
