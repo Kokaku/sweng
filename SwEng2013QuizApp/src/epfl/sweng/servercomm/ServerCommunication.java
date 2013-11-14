@@ -174,7 +174,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	 *             if unable to log in
 	 */
 	public void login(String username, String password)
-			throws ServerCommunicationException, InvalidCredentialsException {
+	    throws ServerCommunicationException, InvalidCredentialsException {
 
 		if (!isNetworkAvailable()) {
 			Log.d("POTATO ServerCom - login", "Network not available");
@@ -190,7 +190,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			Log.d("POTATO ServerCom - login", "Start loging in");
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.TOKEN);
-			Log.v("POTATO ServerCom - login", "State: TOKEN"
+			Log.v("POTATO ServerCom - login", "State: TOKEN "
 					+ UserCredentials.INSTANCE.getState());
 			String httpResponse = requestToken();
 			JSONObject json = new JSONObject(httpResponse);
@@ -198,13 +198,13 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			Log.v("POTATO ServerCom - login", "token = " + token);
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.TEQUILA);
-			Log.v("POTATO ServerCom - login", "State: TEQUILA"
+			Log.v("POTATO ServerCom - login", "State: TEQUILA "
 					+ UserCredentials.INSTANCE.getState());
 
 			authTequila(token, username, password);
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.CONFIRMATION);
-			Log.v("POTATO ServerCom - login", "State: CONFIRMATION"
+			Log.v("POTATO ServerCom - login", "State: CONFIRMATION "
 					+ UserCredentials.INSTANCE.getState());
 
 			httpResponse = requestSessionID(token);
@@ -266,7 +266,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		} catch (IOException e) {
 		}
 
-		if (httpResponse == null || mResponseStatus != HttpStatus.SC_OK) {
+		Log.d("POTATO ServerCom", "status = " + mResponseStatus);
+		
+		if (httpResponse == null || (mResponseStatus != HttpStatus.SC_OK && mResponseStatus != 0)) {
 			Log.v("POTATO ServerCom - requestToken", "Exception: request = "
 					+ httpResponse + " status = " + mResponseStatus);
 
@@ -279,7 +281,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	}
 
 	private void authTequila(String token, String username, String password)
-			throws ServerCommunicationException, InvalidCredentialsException {
+	    throws ServerCommunicationException, InvalidCredentialsException {
 
 		ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("requestkey", token));
@@ -310,7 +312,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	}
 
 	private String requestSessionID(String token)
-			throws ServerCommunicationException {
+	    throws ServerCommunicationException {
 
 		HttpPost request = new HttpPost(SERVER_LOGIN_URL);
 		request.setHeader("Content-type", "application/json");
@@ -326,7 +328,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		}
 		
     	Log.v("POTATO ServerCom - requestSessionID", "Response status = " + mResponseStatus + "response = " + httpResponse);
-
 
 		if (httpResponse == null || mResponseStatus != HttpStatus.SC_OK) {
 			throw new ServerCommunicationException("Unable to confirm token.");
