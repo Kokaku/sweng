@@ -112,7 +112,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 					+ e.getMessage());
 		}
 
-		if (httpResponse == null || mResponseStatus != HttpStatus.SC_CREATED) {
+		if (httpResponse == null || (mResponseStatus != HttpStatus.SC_CREATED && mResponseStatus != 0)) {
 			throw new ServerCommunicationException(
 					"Unable to send the question to the server.");
 		}
@@ -146,8 +146,10 @@ public enum ServerCommunication implements QuestionsCommunicator {
 					request, handler);
 		} catch (IOException e) {
 		}
+		
+		Log.d("POTATO", "status = " + mResponseStatus);
 
-		if (httpResponse == null || mResponseStatus != HttpStatus.SC_OK) {
+		if (httpResponse == null || (mResponseStatus != HttpStatus.SC_OK && mResponseStatus != 0)) {
 			throw new ServerCommunicationException(
 					"Unable to get a question from the server.");
 		}
@@ -303,7 +305,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 
     	Log.v("POTATO ServerCom - authTequila", "Response status = " + mResponseStatus);
 
-		if (mResponseStatus != HttpStatus.SC_MOVED_TEMPORARILY) {
+		if (mResponseStatus != HttpStatus.SC_MOVED_TEMPORARILY && mResponseStatus != 0) {
 			throw new InvalidCredentialsException(
 					"Unable to authenticate with Tequila.");
 			
@@ -329,7 +331,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		
     	Log.v("POTATO ServerCom - requestSessionID", "Response status = " + mResponseStatus + "response = " + httpResponse);
 
-		if (httpResponse == null || mResponseStatus != HttpStatus.SC_OK) {
+		if (httpResponse == null || (mResponseStatus != HttpStatus.SC_OK && mResponseStatus != 0)) {
 			throw new ServerCommunicationException("Unable to confirm token.");
 		}
 
