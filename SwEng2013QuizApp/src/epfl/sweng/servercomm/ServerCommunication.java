@@ -64,6 +64,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			@Override
 			public void process(HttpResponse response, HttpContext context) {
 				mResponseStatus = response.getStatusLine().getStatusCode();
+				Log.d("Potato Interceptor", "Status code is : " + response.getStatusLine().getStatusCode());
 			}
 		};
 
