@@ -7,6 +7,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -49,29 +50,30 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	private static final String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
 
 	private int mResponseStatus;
+	private String mHttpBody;
 
 	private ServerCommunication() {
 	    Log.d("POTATO SeverCom", "Constructor called");
-		addStatusInterceptor();
+//		addStatusInterceptor();
 	}
 
 	/**
 	 * Add a request interceptor which is used to check if a request has been
 	 * successful or not.
 	 */
-	public void addStatusInterceptor() {
-	    Log.d("POTATO SeverCom", "Adding an interceptor to " + SwengHttpClientFactory.getInstance());
-		final HttpResponseInterceptor responseInterceptor = new HttpResponseInterceptor() {
-			@Override
-			public void process(HttpResponse response, HttpContext context) {
-				mResponseStatus = response.getStatusLine().getStatusCode();
-				Log.d("Potato Interceptor", "Status code is : " + response.getStatusLine().getStatusCode());
-			}
-		};
-
-		SwengHttpClientFactory.getInstance().addResponseInterceptor(
-				responseInterceptor);
-	}
+//	public void addStatusInterceptor() {
+//	    Log.d("POTATO SeverCom", "Adding an interceptor to " + SwengHttpClientFactory.getInstance());
+//		final HttpResponseInterceptor responseInterceptor = new HttpResponseInterceptor() {
+//			@Override
+//			public void process(HttpResponse response, HttpContext context) {
+//				mResponseStatus = response.getStatusLine().getStatusCode();
+//				Log.d("Potato Interceptor", "Status code is : " + response.getStatusLine().getStatusCode());
+//			}
+//		};
+//
+//		SwengHttpClientFactory.getInstance().addResponseInterceptor(
+//				responseInterceptor);
+//	}
 
 	/**
 	 * Sends a question to the server. This is a blocking method and thus it
@@ -98,23 +100,24 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		addAuthenticationHeader(request);
 
 		ResponseHandler<String> handler = new BasicResponseHandler();
-		String httpResponse = null;
+		HttpResponse httpResponse = null;
 		QuizQuestion updatedQuestion = null;
 
 		try {
 			request.setEntity(new StringEntity(JSONUtilities
 					.getJSONString(question)));
 
-			httpResponse = SwengHttpClientFactory.getInstance().execute(
-					request, handler);
-			updatedQuestion = new QuizQuestion(httpResponse);
+			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
+			mHttpBody = handler.handleResponse(httpResponse);
+			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
+			updatedQuestion = new QuizQuestion(mHttpBody);
 		} catch (IOException e) {
 		} catch (JSONException e) {
 			throw new ServerCommunicationException("JSON badly formatted. "
 					+ e.getMessage());
 		}
 
-		if (httpResponse == null || (mResponseStatus != HttpStatus.SC_CREATED && mResponseStatus != 0)) {
+		if (mHttpBody == null || mResponseStatus != HttpStatus.SC_CREATED) {
 			throw new ServerCommunicationException(
 					"Unable to send the question to the server.");
 		}
@@ -142,22 +145,23 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		addAuthenticationHeader(request);
 
 		ResponseHandler<String> handler = new BasicResponseHandler();
-		String httpResponse = null;
+		HttpResponse httpResponse = null;
 		try {
-			httpResponse = SwengHttpClientFactory.getInstance().execute(
-					request, handler);
+			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
+			mHttpBody = handler.handleResponse(httpResponse);
+			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
 		} catch (IOException e) {
 		}
 		
 		Log.d("POTATO", "status = " + mResponseStatus);
 
-		if (httpResponse == null || (mResponseStatus != HttpStatus.SC_OK && mResponseStatus != 0)) {
+		if (mHttpBody == null || mResponseStatus != HttpStatus.SC_OK) {
 			throw new ServerCommunicationException(
 					"Unable to get a question from the server.");
 		}
 
 		try {
-			return new QuizQuestion(httpResponse);
+			return new QuizQuestion(mHttpBody);
 		} catch (JSONException e) {
 			throw new ServerCommunicationException("JSON badly formatted.");
 		}
@@ -189,7 +193,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		 * AuthenticationState.AUTHENTICATED) { return; // already logged in or
 		 * login in }
 		 */
-		addStatusInterceptor();
+//		addStatusInterceptor();
 		try {
 			Log.d("POTATO ServerCom - login", "Start loging in");
 
@@ -263,10 +267,11 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		HttpUriRequest request = new HttpGet(SERVER_LOGIN_URL);
 
 		ResponseHandler<String> handler = new BasicResponseHandler();
-		String httpResponse = null;
+		HttpResponse httpResponse = null;
 		try {
-			httpResponse = SwengHttpClientFactory.getInstance().execute(
-					request, handler);
+			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
+			mHttpBody = handler.handleResponse(httpResponse);
+			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
 		} catch (IOException e) {
 		}
 
@@ -297,17 +302,19 @@ public enum ServerCommunication implements QuestionsCommunicator {
 
 		HttpPost request = new HttpPost(TEQUILA_URL);
 
-		ResponseHandler<String> handler = new BasicResponseHandler();
+        HttpResponse httpResponse = null;
+        
 		try {
 			request.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-			SwengHttpClientFactory.getInstance().execute(request, handler);
+			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
+			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
 		} catch (IOException e) {
         	Log.v("POTATO ServerCom - authTequila", "Exception: IO");
 		}
 
     	Log.v("POTATO ServerCom - authTequila", "Response status = " + mResponseStatus);
 
-		if (mResponseStatus != HttpStatus.SC_MOVED_TEMPORARILY && mResponseStatus != 0) {
+		if (mResponseStatus != HttpStatus.SC_MOVED_TEMPORARILY) {
 			throw new InvalidCredentialsException(
 					"Unable to authenticate with Tequila.");
 			
@@ -322,22 +329,24 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		request.setHeader("Content-type", "application/json");
 
 		ResponseHandler<String> handler = new BasicResponseHandler();
-		String httpResponse = null;
+		HttpResponse httpResponse = null;
 
 		try {
 			request.setEntity(new StringEntity("{\"token\": \"" + token + "\"}"));
 			httpResponse = SwengHttpClientFactory.getInstance().execute(
-					request, handler);
+					request);
+			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
+			mHttpBody = handler.handleResponse(httpResponse);
 		} catch (IOException e) {
 		}
 		
     	Log.v("POTATO ServerCom - requestSessionID", "Response status = " 
     			+ mResponseStatus + "response = " + httpResponse);
 
-		if (httpResponse == null || (mResponseStatus != HttpStatus.SC_OK && mResponseStatus != 0)) {
+		if (mHttpBody == null || mResponseStatus != HttpStatus.SC_OK) {
 			throw new ServerCommunicationException("Unable to confirm token.");
 		}
 
-		return httpResponse;
+		return mHttpBody;
 	}
 }
