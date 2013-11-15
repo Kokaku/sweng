@@ -159,6 +159,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 QuizQuestion question = getQuestionFromCursor(cursor);
                 QuizQuestion updatedQuestion = ServerCommunication.INSTANCE.send(question);
 
+                if (updatedQuestion == null) {
+                    // TODO
+                }
+                
                 /*
                  * Update the question in cache : add the assigned id and owner
                  * and remove the submission flag.

@@ -242,6 +242,7 @@ public class ShowQuestionsActivity extends ListActivity {
                         SwEng2013QuizApp.displayToast(R.string.failed_to_get_question);
                         Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
 	                    SwEng2013QuizApp.displayToast(R.string.now_offline);
+	                    //TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
 	                    break;
 	                case DB_EXCEPTION:
 	                    if (Proxy.INSTANCE.isOnline()) {

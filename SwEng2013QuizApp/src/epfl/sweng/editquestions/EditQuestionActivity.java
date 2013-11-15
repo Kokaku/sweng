@@ -397,10 +397,12 @@ public class EditQuestionActivity extends ListActivity {
                 if (!Proxy.INSTANCE.isOnline()) {
                     SwEng2013QuizApp.displayToast(R.string.question_cached);
                 }
+                TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
             } else {
                 switch (mException) {
                     case NOT_LOGGED_IN_EXCEPTION:
                         SwEng2013QuizApp.displayToast(R.string.not_logged_in);
+                        TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                         break;
                     case SERVER_COMMUNICATION_EXCEPTION:
                         SwEng2013QuizApp
@@ -411,14 +413,13 @@ public class EditQuestionActivity extends ListActivity {
                         new SendQuestionTask().execute(question);
                         break;
                     case DB_EXCEPTION:
-                        SwEng2013QuizApp
-                                .displayToast(R.string.failed_to_cache_question);
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
+                        TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                         break;
                     default:
                         assert false;
                 }
             }
-            TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
         }
 
     }

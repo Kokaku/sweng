@@ -155,7 +155,6 @@ public enum Proxy implements QuestionsCommunicator {
 
         @Override
         protected void onPostExecute(Integer questionsSubmitted) {
-            
             if (mException == null) {
                 if (questionsSubmitted > 0) {
                     SwEng2013QuizApp.displayToast(R.string.synchronization_success);

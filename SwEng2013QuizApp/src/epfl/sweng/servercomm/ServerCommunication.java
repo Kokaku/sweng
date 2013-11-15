@@ -62,7 +62,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	 * @throws ServerCommunicationException
 	 *             if the network request is unsuccessful
 	 * @return the question updated with id and owner fields assigned by the
-	 *         server
+	 *         server or null if the error code is 3xx or 4xx
 	 */
 	@Override
 	public QuizQuestion send(QuizQuestion question)
@@ -96,8 +96,12 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		}
 
 		if (mHttpBody == null || mResponseStatus != HttpStatus.SC_CREATED) {
-			throw new ServerCommunicationException(
-					"Unable to send the question to the server.");
+		    if (mResponseStatus >= 300 && mResponseStatus < 500) {
+		        return null;
+		    } else {
+    			throw new ServerCommunicationException(
+    					"Unable to send the question to the server.");
+		    }
 		}
 
 		return updatedQuestion;
