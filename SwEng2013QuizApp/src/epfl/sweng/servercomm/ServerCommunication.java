@@ -22,7 +22,6 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.util.Log;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
@@ -87,7 +86,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	 */
 	@Override
 	public QuizQuestion send(QuizQuestion question)
-			throws ServerCommunicationException {
+		throws ServerCommunicationException {
 
 		if (!isNetworkAvailable()) {
 			throw new ServerCommunicationException("Not connected.");
@@ -133,7 +132,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	 */
 	@Override
 	public QuizQuestion getRandomQuestion()
-			throws ServerCommunicationException, NotLoggedInException {
+		throws ServerCommunicationException, NotLoggedInException {
 
 		if (!isNetworkAvailable()) {
 			throw new ServerCommunicationException("Not connected.");
@@ -190,7 +189,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		 * AuthenticationState.AUTHENTICATED) { return; // already logged in or
 		 * login in }
 		 */
-
+		addStatusInterceptor();
 		try {
 			Log.d("POTATO ServerCom - login", "Start loging in");
 
@@ -332,7 +331,8 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		} catch (IOException e) {
 		}
 		
-    	Log.v("POTATO ServerCom - requestSessionID", "Response status = " + mResponseStatus + "response = " + httpResponse);
+    	Log.v("POTATO ServerCom - requestSessionID", "Response status = " 
+    			+ mResponseStatus + "response = " + httpResponse);
 
 		if (httpResponse == null || (mResponseStatus != HttpStatus.SC_OK && mResponseStatus != 0)) {
 			throw new ServerCommunicationException("Unable to confirm token.");
