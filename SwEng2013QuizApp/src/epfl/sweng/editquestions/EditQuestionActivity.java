@@ -369,9 +369,9 @@ public class EditQuestionActivity extends ListActivity {
         @Override
         protected void onPostExecute(QuizQuestion question) {
             if (mException == null) {
-//                if (!Proxy.INSTANCE.isOnline()) {
-//                    SwEng2013QuizApp.displayToast(R.string.question_cached);
-//                }
+                if (!Proxy.INSTANCE.isOnline()) {
+                    SwEng2013QuizApp.displayToast(R.string.question_cached);
+                }
             } else {
                 switch (mException) {
                     case NOT_LOGGED_IN_EXCEPTION:
