@@ -1,7 +1,6 @@
 package epfl.sweng.patterns;
 
 import android.os.AsyncTask;
-import android.util.Log;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
@@ -40,16 +39,13 @@ public enum Proxy implements QuestionsCommunicator {
 
     private Proxy() {
         mDatabase = new DatabaseHandler();
-        Log.d("POTATO Proxy", "Constructor has been called, DatabaseHandler created");
     }
   
     /**
      * @return true if the app is in {@code ConnectionState.ONLINE} state.
      */
     public boolean isOnline() {
-    	Log.d("POTATO Proxy", "isOnline = " + mCurrentState);
         return mCurrentState == ConnectionState.ONLINE;
-        
     }
     
     /**
@@ -58,7 +54,6 @@ public enum Proxy implements QuestionsCommunicator {
      * @param state the new connection state
      */
     public void setState(ConnectionState state) {
-    	Log.d("POTATO Proxy", "Set state to " + state);
         setState(state, null);
     }
     
@@ -71,9 +66,7 @@ public enum Proxy implements QuestionsCommunicator {
      */
     public void setState(ConnectionState state, OnSyncListener listener) {
         mCurrentState = state;
-        Log.d("POTATO Proxy", "Set state to " + state);
         if (isOnline()) {
-        	Log.d("POTATO Proxy", "App is online, execute SyncTask");
             new SynchronizationTask(listener).execute();
         }
     }
@@ -94,17 +87,14 @@ public enum Proxy implements QuestionsCommunicator {
         DBException, NotLoggedInException {
 
         if (!UserCredentials.INSTANCE.isAuthenticated()) {
-        	Log.d("POTATO Proxy", "get: User is not authenticated");
             throw new NotLoggedInException();
         }
 
         if (isOnline()) {
-        	Log.d("POTATO Proxy", "get: App is online, get question from server");
             QuizQuestion question = instance.getRandomQuestion();
             mDatabase.storeQuestion(question, false);
             return question;
         } else {
-        	Log.d("POTATO Proxy", "get: App is offline, get question from DB");
             return mDatabase.getRandomQuestion();
         }
     }
@@ -125,17 +115,14 @@ public enum Proxy implements QuestionsCommunicator {
         NotLoggedInException, ServerCommunicationException {
 
         if (!UserCredentials.INSTANCE.isAuthenticated()) {
-        	Log.d("POTATO Proxy", "send: User is not authenticated");
             throw new NotLoggedInException();
         }
 
         if (isOnline()) {
-        	Log.d("POTATO Proxy", "send: App is online, question sent to server");
             QuizQuestion submittedQuestion = instance.send(question);
             mDatabase.storeQuestion(submittedQuestion, false);
             return submittedQuestion;
         } else {
-        	Log.d("POTATO Proxy", "send: App is offline, question stored in DB cash");
             mDatabase.storeQuestion(question, true);
             return question;
         }
@@ -150,20 +137,16 @@ public enum Proxy implements QuestionsCommunicator {
         private OnSyncListener mListeningActivity = null;
         
         public SynchronizationTask(OnSyncListener listener) {
-        	Log.d("POTATO Proxy", "SyncTask: created");
             mListeningActivity = listener;
         }
         
         @Override
         protected Integer doInBackground(Void... unused) {
             try {
-            	Log.d("POTATO Proxy", "SyncTask: doInBackground");
                 return mDatabase.synchronizeQuestions();
             } catch (ServerCommunicationException e) {
-            	Log.d("POTATO Proxy", "SyncTask: doInBackground exception 1");
                 mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
             } catch (DBException e) {
-            	Log.d("POTATO Proxy", "SyncTask: doInBackground exception 2");
                 mException = AsyncTaskExceptions.DB_EXCEPTION;
             }
 
@@ -172,24 +155,18 @@ public enum Proxy implements QuestionsCommunicator {
 
         @Override
         protected void onPostExecute(Integer questionsSubmitted) {
-        	Log.d("POTATO Proxy", "SyncTask: onPostExecute");
-
-        	if (mException == null) {
+            
+            if (mException == null) {
                 if (questionsSubmitted > 0) {
                     SwEng2013QuizApp.displayToast(R.string.synchronization_success);
-                	Log.d("POTATO Proxy", "SyncTask: onPostExecute questions submitted" + questionsSubmitted);
-
                 }
-            	Log.d("POTATO Proxy", "SyncTask: onPostExecute App is now online");
                 SwEng2013QuizApp.displayToast(R.string.now_online);
             } else {
                 switch (mException) {
                     case SERVER_COMMUNICATION_EXCEPTION:
-                    	Log.d("POTATO Proxy", "SyncTask: onPostExecute: sync failure");
                         SwEng2013QuizApp.displayToast(R.string.synchronization_failure);
                         break;
                     case DB_EXCEPTION:
-                    	Log.d("POTATO Proxy", "SyncTask: onPostExecute: broken DB");
                         SwEng2013QuizApp.displayToast(R.string.broken_database);
                         break;
                     default:
