@@ -160,7 +160,6 @@ public class EditQuestionActivity extends ListActivity {
         mAnswersAdapter.notifyDataSetChanged();
     }
 
-    
     /**
      * @return the number of errors in the activity
      */
@@ -237,9 +236,32 @@ public class EditQuestionActivity extends ListActivity {
      * @return 1 if there is an error regarding the submit Button
      */
     private int auditSubmitButton() {
-        return (mSubmitButton == null
-                || !mSubmitButton.getText().equals("Submit") || mSubmitButton
-                    .getVisibility() != 0) ? 1 : 0;
+        return (mSubmitButton == null || !mSubmitButton.getText().equals("Submit")
+                || mSubmitButton.getVisibility() != 0 || isSubmitButtonEnabled()) ? 1 : 0;
+    }
+    
+    /**
+     * @return true if the submit Button is enabled when it shouldn't, and vice versa
+     */
+    private boolean isSubmitButtonEnabled() {
+        try {
+            String questionText = mQuestionEditText.getText().toString();
+            int correctAnswer = mAnswersAdapter.getCorrectAnswerPosition();
+            Set<String> tagsSet = extractTags();
+
+            new QuizQuestion(questionText, mAnswersArrayList, correctAnswer,
+                    tagsSet);
+
+            if (!mSubmitButton.isEnabled()) {
+                return true;
+            }
+        } catch (IllegalArgumentException e) {
+            if (mSubmitButton.isEnabled()) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /**
@@ -268,22 +290,24 @@ public class EditQuestionActivity extends ListActivity {
 
         return errors;
     }
-    
+
     /**
      * @return 1 if the number of correct answer is different than 1
      */
     private int auditAnswers() {
         int correctAnswersCount = 0;
         ListView listView = getListView();
-        
+
         for (int i = 0; i < listView.getCount(); ++i) {
-            Button checkAnswerButton = (Button) listView.getChildAt(i).findViewById(R.id.button_check_answer);
-            correctAnswersCount += (checkAnswerButton.getText().equals("\u2714"))? 1 : 0;
+            Button checkAnswerButton = (Button) listView.getChildAt(i)
+                    .findViewById(R.id.button_check_answer);
+            correctAnswersCount += (checkAnswerButton.getText()
+                    .equals("\u2714")) ? 1 : 0;
         }
-        
-        return (correctAnswersCount > 1)? 1: 0;
+
+        return (correctAnswersCount > 1) ? 1 : 0;
     }
-    
+
     /**
      * Listener for mQuestionEditText. Checks if the mQuestionEditText field has
      * at least one none space character.
@@ -346,9 +370,10 @@ public class EditQuestionActivity extends ListActivity {
 
     /**
      * Sends a new question in a separate thread.
-     */    
-    private class SendQuestionTask extends AsyncTask<QuizQuestion, Void, QuizQuestion> {
-        
+     */
+    private class SendQuestionTask extends
+            AsyncTask<QuizQuestion, Void, QuizQuestion> {
+
         private AsyncTaskExceptions mException = null;
 
         @Override
@@ -378,14 +403,16 @@ public class EditQuestionActivity extends ListActivity {
                         SwEng2013QuizApp.displayToast(R.string.not_logged_in);
                         break;
                     case SERVER_COMMUNICATION_EXCEPTION:
-                        SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
+                        SwEng2013QuizApp
+                                .displayToast(R.string.failed_to_send_question);
                         Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
                         SwEng2013QuizApp.displayToast(R.string.now_offline);
                         // Send it again to cache the question
                         new SendQuestionTask().execute(question);
                         break;
                     case DB_EXCEPTION:
-                        SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
+                        SwEng2013QuizApp
+                                .displayToast(R.string.failed_to_cache_question);
                         break;
                     default:
                         assert false;
@@ -393,7 +420,7 @@ public class EditQuestionActivity extends ListActivity {
             }
             TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
         }
-        
+
     }
 
 }
