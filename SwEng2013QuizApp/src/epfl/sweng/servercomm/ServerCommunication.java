@@ -51,26 +51,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 
 	private ServerCommunication() {
 	    Log.d("POTATO SeverCom", "Constructor called");
-//		addStatusInterceptor();
 	}
-
-	/**
-	 * Add a request interceptor which is used to check if a request has been
-	 * successful or not.
-	 */
-//	public void addStatusInterceptor() {
-//	    Log.d("POTATO SeverCom", "Adding an interceptor to " + SwengHttpClientFactory.getInstance());
-//		final HttpResponseInterceptor responseInterceptor = new HttpResponseInterceptor() {
-//			@Override
-//			public void process(HttpResponse response, HttpContext context) {
-//				mResponseStatus = response.getStatusLine().getStatusCode();
-//				Log.d("Potato Interceptor", "Status code is : " + response.getStatusLine().getStatusCode());
-//			}
-//		};
-//
-//		SwengHttpClientFactory.getInstance().addResponseInterceptor(
-//				responseInterceptor);
-//	}
 
 	/**
 	 * Sends a question to the server. This is a blocking method and thus it
