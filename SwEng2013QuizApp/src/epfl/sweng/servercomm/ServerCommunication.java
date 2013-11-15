@@ -194,12 +194,14 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		 * login in }
 		 */
 //		addStatusInterceptor();
+
 		try {
 			Log.d("POTATO ServerCom - login", "Start loging in");
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.TOKEN);
 			Log.v("POTATO ServerCom - login", "State: TOKEN "
 					+ UserCredentials.INSTANCE.getState());
+			
 			String httpResponse = requestToken();
 			JSONObject json = new JSONObject(httpResponse);
 			String token = json.getString("token");
@@ -355,4 +357,5 @@ public enum ServerCommunication implements QuestionsCommunicator {
 
 		return mHttpBody;
 	}
+	
 }
