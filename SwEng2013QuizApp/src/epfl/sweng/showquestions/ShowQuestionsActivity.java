@@ -237,14 +237,11 @@ public class ShowQuestionsActivity extends ListActivity {
                 switch (mException) {
                     case NOT_LOGGED_IN_EXCEPTION:
                         SwEng2013QuizApp.displayToast(R.string.not_logged_in);
-                        TestCoordinator.check(TTChecks.QUESTION_SHOWN);
                         break;
                     case SERVER_COMMUNICATION_EXCEPTION:
                         SwEng2013QuizApp.displayToast(R.string.failed_to_get_question);
                         Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
 	                    SwEng2013QuizApp.displayToast(R.string.now_offline);
-	                    TestCoordinator.check(TTChecks.QUESTION_SHOWN);
-	                    showNewQuestion();
 	                    break;
 	                case DB_EXCEPTION:
 	                    if (Proxy.INSTANCE.isOnline()) {
@@ -252,11 +249,11 @@ public class ShowQuestionsActivity extends ListActivity {
 	                    } else {
 	                        SwEng2013QuizApp.displayToast(R.string.broken_database);
 	                    }
-	                    TestCoordinator.check(TTChecks.QUESTION_SHOWN);
 	                    break;
 	                default:
 	                    assert false;
                 }
+                TestCoordinator.check(TTChecks.QUESTION_SHOWN);
             }
         }
 
