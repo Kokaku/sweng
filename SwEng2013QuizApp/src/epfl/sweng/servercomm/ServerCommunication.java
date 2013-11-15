@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -16,7 +14,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -148,6 +145,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		HttpResponse httpResponse = null;
 		try {
 			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
+			if (httpResponse == null) {
+			    throw new ServerCommunicationException("Unable to contact server");
+			}
 			mHttpBody = handler.handleResponse(httpResponse);
 			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
 		} catch (IOException e) {
@@ -270,6 +270,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		HttpResponse httpResponse = null;
 		try {
 			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
+            if (httpResponse == null) {
+                throw new ServerCommunicationException("Unable to contact server");
+            }
 			mHttpBody = handler.handleResponse(httpResponse);
 			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
 		} catch (IOException e) {
@@ -277,7 +280,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 
 		Log.d("POTATO ServerCom", "status = " + mResponseStatus);
 		
-		if (httpResponse == null || (mResponseStatus != HttpStatus.SC_OK && mResponseStatus != 0)) {
+		if (mHttpBody == null || mResponseStatus != HttpStatus.SC_OK) {
 			Log.v("POTATO ServerCom - requestToken", "Exception: request = "
 					+ httpResponse + " status = " + mResponseStatus);
 
@@ -304,6 +307,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		try {
 			request.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
+			if (httpResponse == null) {
+                throw new ServerCommunicationException("Unable to contact server");
+            }
 			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
 		} catch (IOException e) {
         	Log.v("POTATO ServerCom - authTequila", "Exception: IO");
@@ -332,6 +338,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			request.setEntity(new StringEntity("{\"token\": \"" + token + "\"}"));
 			httpResponse = SwengHttpClientFactory.getInstance().execute(
 					request);
+            if (httpResponse == null) {
+                throw new ServerCommunicationException("Unable to contact server");
+            }
 			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
 			mHttpBody = handler.handleResponse(httpResponse);
 		} catch (IOException e) {
