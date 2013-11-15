@@ -146,6 +146,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
             UserCredentials.INSTANCE.setState(AuthenticationState.TEQUILA);
             authTequila(token, username, password);
 
+            Log.d("DEBUG", "Gonna confirm");
             UserCredentials.INSTANCE.setState(AuthenticationState.CONFIRMATION);
             httpResponse = requestSessionID(token);
 
@@ -155,6 +156,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
             UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
             UserCredentials.INSTANCE.saveUserCredentials(session);
         } catch (JSONException e) {
+            Log.d("DEBUG", "json exception");
             throw new ServerCommunicationException("JSON badly formatted.");
         }
     }
@@ -183,7 +185,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
             }
         } catch (IOException e) {
         }
-        
+     
         throw new ServerCommunicationException(errorMessage);
     }
 
@@ -202,9 +204,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
     private void addAuthenticationHeader(HttpUriRequest request) {
         request.setHeader("Authorization", "Tequila "
                 + UserCredentials.INSTANCE.getSessionID());
-        Log.v("POTATO ServerCom - addAuthenticationHeader",
-                "Adding athentication header");
-
     }
 
     private String requestToken()
@@ -231,8 +230,13 @@ public enum ServerCommunication implements QuestionsCommunicator {
             throw new ServerCommunicationException("Encoding exception.");
         }
         
-        sendHttpRequest(request, HttpStatus.SC_MOVED_TEMPORARILY,
-            "Unable to confirm token with Tequila.");
+        try {
+            sendHttpRequest(request, HttpStatus.SC_MOVED_TEMPORARILY,
+                "Unable to confirm token with Tequila.");
+        } catch (ServerCommunicationException e) {
+            // Ignoring exception because Tequila is not very polite :(
+        }
+            
     }
 
     private String requestSessionID(String token)
@@ -241,16 +245,13 @@ public enum ServerCommunication implements QuestionsCommunicator {
         HttpPost request = new HttpPost(SERVER_LOGIN_URL);
         request.setHeader("Content-type", "application/json");
 
-        String sessionId = null;
-
         try {
             request.setEntity(new StringEntity("{\"token\": \"" + token + "\"}"));
-            sessionId = sendHttpRequest(request, HttpStatus.SC_OK,
+            return sendHttpRequest(request, HttpStatus.SC_OK,
                 "Unable to get a valid session ID.");
         } catch (UnsupportedEncodingException e) {
             throw new ServerCommunicationException("Encoding exception.");
         }
-
-        return sessionId;
     }
+    
 }

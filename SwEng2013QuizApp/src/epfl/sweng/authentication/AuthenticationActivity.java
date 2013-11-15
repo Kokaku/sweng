@@ -97,6 +97,7 @@ public class AuthenticationActivity extends Activity {
             } catch (InvalidCredentialsException e) {
                 mException = AsyncTaskExceptions.INVALID_CREDENTIALS;
             } catch (ServerCommunicationException e) {
+                Log.d("debug", e.getMessage());
                 mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
             }
 
