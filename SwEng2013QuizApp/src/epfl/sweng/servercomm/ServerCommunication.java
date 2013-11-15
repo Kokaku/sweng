@@ -286,7 +286,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		Log.v("POTATO ServerCom - requestToken", "httpResponse = "
 				+ httpResponse);
 
-		return httpResponse;
+		return mHttpBody;
 	}
 
 	private void authTequila(String token, String username, String password)
@@ -296,9 +296,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		params.add(new BasicNameValuePair("requestkey", token));
 		params.add(new BasicNameValuePair("username", username));
 		params.add(new BasicNameValuePair("password", password));
-
-		Log.v("POTATO ServerCom - authTequil", "requestkey = " + token
-				+ " username = " + username + " password = " + password);
 
 		HttpPost request = new HttpPost(TEQUILA_URL);
 
