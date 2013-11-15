@@ -83,7 +83,7 @@ public class QuizQuestion {
 		if (question == null || answers == null || tags == null) {
 			throw new IllegalArgumentException("Question can't be instanciated"
 					+ "with null parameters");
-		} else if (question.replaceAll("\\+s", "").length() < 1
+		} else if (question.replaceAll("\\s+", "").length() < 1
 				|| question.length() > MAX_QUESTION_CARACTERS) {
 			throw new IllegalArgumentException(
 					"The question must not be empty or have more than"
@@ -194,7 +194,7 @@ public class QuizQuestion {
 	 */
 	private int checkQuestion() {
 		return (mQuestion == null
-				|| mQuestion.replaceAll("\\+s", "").equals("") || mQuestion
+				|| mQuestion.replaceAll("\\s+", "").equals("") || mQuestion
 				.length() > MAX_QUESTION_CARACTERS) ? 1 : 0;
 	}
 
@@ -238,7 +238,7 @@ public class QuizQuestion {
 		int errors = 0;
 		for (int i = 0; i < answers.size(); ++i) {
 			errors += (answers.get(i) == null
-					|| answers.get(i).replaceAll("\\+s", "").equals("") || answers
+					|| answers.get(i).replaceAll("\\s+", "").equals("") || answers
 					.get(i).length() > MAX_ANSWER_CARACTERS) ? 1 : 0;
 		}
 		return errors;
@@ -251,7 +251,7 @@ public class QuizQuestion {
 		while (tagsIter.hasNext()) {
 			String currentTag = tagsIter.next();
 			errors += (currentTag == null
-					|| currentTag.replaceAll("\\+s", "").equals("") || currentTag
+					|| currentTag.replaceAll("\\s+", "").equals("") || currentTag
 					.length() > MAX_TAG_CARACTERS) ? 1 : 0;
 		}
 
