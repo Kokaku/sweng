@@ -11,7 +11,6 @@ import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.offline.DatabaseHandler;
 import epfl.sweng.offline.OnSyncListener;
-import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.QuestionsCommunicator;
 import epfl.sweng.servercomm.ServerCommunication;

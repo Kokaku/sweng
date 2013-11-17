@@ -20,6 +20,7 @@ import android.widget.ListView;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.AsyncTaskExceptions;
+import epfl.sweng.exceptions.BadRequestException;
 import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
@@ -382,13 +383,16 @@ public class EditQuestionActivity extends ListActivity {
             try {
                 Proxy.INSTANCE.send(questions[0]);
             } catch (NotLoggedInException e) {
-            	Log.d("POTATO EditQuestionActivity", "Not logged in");
+            	Log.d("POTATO EditQuestionActivity", "Not logged in " + e.getMessage());
                 mException = AsyncTaskExceptions.NOT_LOGGED_IN_EXCEPTION;
             } catch (DBException e) {
-            	Log.d("POTATO EditQuestionActivity", "DB exception");
+            	Log.d("POTATO EditQuestionActivity", "DB exception " + e.getMessage());
                 mException = AsyncTaskExceptions.DB_EXCEPTION;
+            } catch (BadRequestException e) {
+                Log.d("POTATO EditQuestionActivity", "BadRequest exception " + e.getMessage());
+                mException = AsyncTaskExceptions.BAD_REQUEST_EXCEPTION;
             } catch (ServerCommunicationException e) {
-            	Log.d("POTATO EditQuestionActivity", "ServerCom excpt");
+            	Log.d("POTATO EditQuestionActivity", "ServerCom excpt " + e.getMessage());
                 mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
             }
             
@@ -411,9 +415,11 @@ public class EditQuestionActivity extends ListActivity {
                         SwEng2013QuizApp.displayToast(R.string.not_logged_in);
                         TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                         break;
+                    case BAD_REQUEST_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
+                        break;
                     case SERVER_COMMUNICATION_EXCEPTION:
-                        SwEng2013QuizApp
-                                .displayToast(R.string.failed_to_send_question);
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
                         Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
                         SwEng2013QuizApp.displayToast(R.string.now_offline);
                         // Send it again to cache the question

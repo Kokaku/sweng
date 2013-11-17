@@ -2,8 +2,6 @@ package epfl.sweng.showquestions;
 
 import java.util.Set;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.ListActivity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -21,6 +19,7 @@ import android.widget.TextView;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.AsyncTaskExceptions;
+import epfl.sweng.exceptions.BadRequestException;
 import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
@@ -41,7 +40,7 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
 public class ShowQuestionsActivity extends ListActivity {
     
     //  How long the "correct" or "incorrect" symbol will be displayed (in milliseconds)
-    private static final int SYMBOL_DISPLAY_TIME = 1000;
+    //private static final int SYMBOL_DISPLAY_TIME = 1000;
     
     // How long should the device vibrate (in milliseconds)
     private static final int VIBRATOR_DURATION = 250;
@@ -50,10 +49,10 @@ public class ShowQuestionsActivity extends ListActivity {
     private TextView mQuestionText;
     private LinearLayout mTagsList;
     private Button mNextButton;
-    private TextView mSymbol;
+    //private TextView mSymbol;
     private ProgressBar mProgressBar;
     private Vibrator mVibrator;
-    private int mAnimationDuration;
+    //private int mAnimationDuration;
     
     /**
      * Initialization of the activity.
@@ -69,8 +68,8 @@ public class ShowQuestionsActivity extends ListActivity {
         mTagsList = (LinearLayout) findViewById(R.id.list_tags);
         mProgressBar = (ProgressBar) findViewById(R.id.progressbar_questions);
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        mAnimationDuration = getResources().getInteger(
-            android.R.integer.config_shortAnimTime);
+        //mAnimationDuration = getResources().getInteger(
+        //    android.R.integer.config_shortAnimTime);
         
         // Enable scrolling for the question
         mQuestionText.setMovementMethod(new ScrollingMovementMethod());
@@ -221,6 +220,9 @@ public class ShowQuestionsActivity extends ListActivity {
             } catch (NotLoggedInException e) {
                 Log.d("POTATO SHOWQUESTIONS", "NotLoggedInException : " + e.getMessage());
                 mException = AsyncTaskExceptions.NOT_LOGGED_IN_EXCEPTION;
+            } catch (BadRequestException e) {
+                Log.d("POTATO SHOWQUESTIONS", "BadRequestException : " + e.getMessage());
+                mException = AsyncTaskExceptions.BAD_REQUEST_EXCEPTION;
             } catch (ServerCommunicationException e) {
                 Log.d("POTATO SHOWQUESTIONS", "ServerComException : " + e.getMessage());
                 mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
@@ -258,6 +260,9 @@ public class ShowQuestionsActivity extends ListActivity {
 	                    SwEng2013QuizApp.displayToast(R.string.now_offline);
 	                    //TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
 	                    break;
+                    case BAD_REQUEST_EXCEPTION:
+                        SwEng2013QuizApp.displayToast(R.string.failed_to_get_question);
+                        break;
 	                case DB_EXCEPTION:
 	                    if (Proxy.INSTANCE.isOnline()) {
 	                        SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
