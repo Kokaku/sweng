@@ -1,8 +1,11 @@
 package epfl.sweng.test;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONException;
 
 import android.view.View;
 import android.widget.Button;
@@ -11,10 +14,14 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import epfl.sweng.editquestions.EditQuestionActivity;
+import epfl.sweng.patterns.Proxy;
+import epfl.sweng.patterns.Proxy.ConnectionState;
+import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.test.framework.QuizActivityTestCase;
 import epfl.sweng.test.minimalmock.MockHttpClient;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
+import epfl.sweng.utils.JSONUtilities;
 
 /**
  * @author MathieuMonney
@@ -373,4 +380,34 @@ public class EditQuestionActivityTest extends
         assertTrue("EditQuestionActivity should show a Toast if bad request"
                 , solo.searchText("Could not upload the question to the server"));
     }
+    
+    public void test00SendQuestionTwiceOffline() throws JSONException {
+//    	Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
+    	QuizQuestion question = new QuizQuestion("What?", Arrays.asList("one", "two"), 0, new TreeSet<String>(Arrays.asList("tag")), 1, "Lou");
+    	enterQuestion(question);
+    	mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_INTERNAL_SERVER_ERROR, "", "");
+    	submitQuestion();
+    	enterQuestion(question);
+    	submitQuestion();
+    	mockHttpClient.clearCannedResponses();
+    	mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_CREATED, JSONUtilities.getJSONString(question),  "application/json");
+    	Proxy.INSTANCE.setState(ConnectionState.ONLINE);
+
+    
+    }
+    
+    private void enterQuestion(QuizQuestion question)
+    {
+    	solo.enterText(solo.getEditText("Type in the question's text body"), question.getQuestion());
+    	solo.enterText(solo.getEditText("Type in the answer"),
+                question.getAnswers().get(0));
+        addAnswer();
+    	solo.enterText(solo.getEditText("Type in the answer"),
+                question.getAnswers().get(1));
+        solo.enterText(solo.getEditText("Type in the question's tags"),
+                question.getTags().toString());
+        clickOnViewInListView(0, question.getAnswers().get(0));
+
+    }
+
 }

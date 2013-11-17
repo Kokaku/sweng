@@ -188,7 +188,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 values.put(COLUMN_QUESTION_ID, updatedQuestion.getId());
                 values.put(COLUMN_OWNER, updatedQuestion.getOwner());
                 values.put(COLUMN_SUBMIT, 0);
-                db.update(TABLE_NAME, values , COLUMN_ID + "=?", new String[] {String.valueOf(id)});
+                db.updateWithOnConflict(TABLE_NAME, values , COLUMN_ID + "=?",
+                		new String[] {String.valueOf(id)}, SQLiteDatabase.CONFLICT_IGNORE);
                 ++questionsSumbmitted;
             }
         } catch (JSONException e) {
