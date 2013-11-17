@@ -67,8 +67,10 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	@Override
 	public QuizQuestion send(QuizQuestion question)
 		throws ServerCommunicationException {
-
+		
+		Log.d("POTATO ServerCom", "Starting to send question = " + question);
 		if (!isNetworkAvailable()) {
+			Log.d("POTATO ServerCom", "Network is not available to send question");
 			throw new ServerCommunicationException("Not connected.");
 		}
 
@@ -88,22 +90,30 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
 			mHttpBody = handler.handleResponse(httpResponse);
 			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
+			Log.d("POTATO ServerCom", "httpBody = " + mHttpBody + " status = " + mResponseStatus);
 			updatedQuestion = new QuizQuestion(mHttpBody);
+			Log.d("POTATO ServerCom", "updated question = " + updatedQuestion);
 		} catch (IOException e) {
+			Log.d("POTATO ServerCom", "IO Exception");
+			throw new ServerCommunicationException(
+					"Unable to send the question to the server.");
 		} catch (JSONException e) {
+			Log.d("POTATO ServerCom", "JSON exception");
 			throw new ServerCommunicationException("JSON badly formatted. "
 					+ e.getMessage());
 		}
-
+		
 		if (mHttpBody == null || mResponseStatus != HttpStatus.SC_CREATED) {
 		    if (mResponseStatus >= 300 && mResponseStatus < 500) {
+		    	Log.d("POTATO ServerCom", "3xx or 4xx status, (status = " + mResponseStatus + ")");
 		        return null;
 		    } else {
+		    	Log.d("POTATO ServerCom", "<300 or 5xx status (status = " + mResponseStatus + ") or mHttpBody null (httpBody = " + mHttpBody + ")");
     			throw new ServerCommunicationException(
     					"Unable to send the question to the server.");
 		    }
 		}
-
+		Log.d("POTATO ServerCom", "question sent, updated question = " + updatedQuestion);
 		return updatedQuestion;
 	}
 
@@ -118,8 +128,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	@Override
 	public QuizQuestion getRandomQuestion()
 		throws ServerCommunicationException, NotLoggedInException {
-
+		Log.d("POTATO ServerCom", "Starting to fetch a question");
 		if (!isNetworkAvailable()) {
+			Log.d("POTATO ServerCom", "Network not available in getRQuestion");
 			throw new ServerCommunicationException("Not connected.");
 		}
 
@@ -131,23 +142,29 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		try {
 			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
 			if (httpResponse == null) {
+				Log.d("POTATO ServerCom", "Response null, ServerComException thrown");
 			    throw new ServerCommunicationException("Unable to contact server");
 			}
 			mHttpBody = handler.handleResponse(httpResponse);
 			mResponseStatus = httpResponse.getStatusLine().getStatusCode();
+			Log.d("POTATO ServerCom", "Response: body = " +mHttpBody + " status = " + mResponseStatus);
 		} catch (IOException e) {
+			Log.d("POTATO ServerCom", "IO exception, nothing is done :)");
 		}
 		
-		Log.d("POTATO", "status = " + mResponseStatus);
 
 		if (mHttpBody == null || mResponseStatus != HttpStatus.SC_OK) {
+			Log.d("POTATO ServerCom", "httpBody is null, or status not correct" );
 			throw new ServerCommunicationException(
 					"Unable to get a question from the server.");
 		}
 
 		try {
-			return new QuizQuestion(mHttpBody);
+			QuizQuestion question = new QuizQuestion(mHttpBody);
+			Log.d("POTATO ServerCom", "Question fetched: " + question);
+			return question;
 		} catch (JSONException e) {
+			Log.d("POTATO ServerCom", "JSON badly formatted." );
 			throw new ServerCommunicationException("JSON badly formatted.");
 		}
 	}
@@ -170,7 +187,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	    throws ServerCommunicationException, InvalidCredentialsException {
 
 		if (!isNetworkAvailable()) {
-			Log.d("POTATO ServerCom - login", "Network not available");
+			Log.d("POTATO ServerCom - login", "Network not available in login");
 
 			throw new ServerCommunicationException("Not connected");
 		}/*
