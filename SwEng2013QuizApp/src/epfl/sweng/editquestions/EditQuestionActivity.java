@@ -417,6 +417,7 @@ public class EditQuestionActivity extends ListActivity {
                         break;
                     case BAD_REQUEST_EXCEPTION:
                         SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
+                        TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                         break;
                     case SERVER_COMMUNICATION_EXCEPTION:
                         SwEng2013QuizApp.displayToast(R.string.failed_to_send_question);
