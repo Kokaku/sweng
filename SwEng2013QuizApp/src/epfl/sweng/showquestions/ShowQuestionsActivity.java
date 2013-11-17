@@ -65,7 +65,7 @@ public class ShowQuestionsActivity extends ListActivity {
         
         mQuestionText = (TextView) findViewById(R.id.text_question);
         mNextButton = (Button) findViewById(R.id.button_next);
-        mSymbol = (TextView) findViewById(R.id.text_check_answer);
+        //mSymbol = (TextView) findViewById(R.id.text_check_answer);
         mTagsList = (LinearLayout) findViewById(R.id.list_tags);
         mProgressBar = (ProgressBar) findViewById(R.id.progressbar_questions);
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -91,14 +91,14 @@ public class ShowQuestionsActivity extends ListActivity {
         final boolean correctAnswer = mCurrentQuestion.isSolutionCorrect(position);
         
         if (correctAnswer) {
-            mSymbol.setText(R.string.correct_answer);
-            mSymbol.setTextColor(getResources().getColor(R.color.right_answer));
+            //mSymbol.setText(R.string.correct_answer);
+            //mSymbol.setTextColor(getResources().getColor(R.color.right_answer));
             view.setBackgroundColor(getResources().getColor(R.color.right_answer_list_item));
             mQuestionText.setText(getResources().getString(R.string.correct_answer) 
             		+ "  " + mCurrentQuestion.getQuestion());
         } else {
-            mSymbol.setText(R.string.wrong_answer);
-            mSymbol.setTextColor(getResources().getColor(R.color.wrong_answer));
+            //mSymbol.setText(R.string.wrong_answer);
+            //mSymbol.setTextColor(getResources().getColor(R.color.wrong_answer));
             mQuestionText.setText(getResources().getString(R.string.wrong_answer) 
             		+ "  " + mCurrentQuestion.getQuestion());
 
@@ -108,31 +108,38 @@ public class ShowQuestionsActivity extends ListActivity {
         
         getListView().setEnabled(false);
         
-        mSymbol.setAlpha(0f);
-        mSymbol.setVisibility(View.VISIBLE);
-        mSymbol.animate().alpha(1f)
-                         .setDuration(mAnimationDuration)   
-                         .setListener(null);
+        if (correctAnswer) {
+            mNextButton.setEnabled(true);
+        } else {
+            getListView().setEnabled(true);
+        }
+        TestCoordinator.check(TTChecks.ANSWER_SELECTED);
         
-        mSymbol.postDelayed(new Runnable() {
-            public void run() {
-                mSymbol.animate().alpha(0f)
-                                 .setDuration(mAnimationDuration)
-                                 .setListener(new AnimatorListenerAdapter() {
-                                     @Override
-                                     public void onAnimationEnd(Animator animation) {
-                                         mSymbol.setVisibility(View.GONE);
-                                         
-                                         if (correctAnswer) {
-                                             mNextButton.setEnabled(true);
-                                         } else {
-                                             getListView().setEnabled(true);
-                                         }
-                                         TestCoordinator.check(TTChecks.ANSWER_SELECTED);
-                                     }
-                                 });
-            }
-        }, SYMBOL_DISPLAY_TIME);
+//        mSymbol.setAlpha(0f);
+//        mSymbol.setVisibility(View.VISIBLE);
+//        mSymbol.animate().alpha(1f)
+//                         .setDuration(mAnimationDuration)   
+//                         .setListener(null);
+//        
+//        mSymbol.postDelayed(new Runnable() {
+//            public void run() {
+//                mSymbol.animate().alpha(0f)
+//                                 .setDuration(mAnimationDuration)
+//                                 .setListener(new AnimatorListenerAdapter() {
+//                                     @Override
+//                                     public void onAnimationEnd(Animator animation) {
+//                                         mSymbol.setVisibility(View.GONE);
+//                                         
+//                                         if (correctAnswer) {
+//                                             mNextButton.setEnabled(true);
+//                                         } else {
+//                                             getListView().setEnabled(true);
+//                                         }
+//                                         TestCoordinator.check(TTChecks.ANSWER_SELECTED);
+//                                     }
+//                                 });
+//            }
+//        }, SYMBOL_DISPLAY_TIME);
         
     }
     
