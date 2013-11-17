@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -207,13 +208,17 @@ public class ShowQuestionsActivity extends ListActivity {
         
         @Override
         protected QuizQuestion doInBackground(Void... unused) {
+            Log.d("POTATO SHOWQUESTIONS", "Getting a question");
             try {
                 return Proxy.INSTANCE.getRandomQuestion();
             } catch (NotLoggedInException e) {
+                Log.d("POTATO SHOWQUESTIONS", "NotLoggedInException : " + e.getMessage());
                 mException = AsyncTaskExceptions.NOT_LOGGED_IN_EXCEPTION;
             } catch (ServerCommunicationException e) {
+                Log.d("POTATO SHOWQUESTIONS", "ServerComException : " + e.getMessage());
                 mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
             } catch (DBException e) {
+                Log.d("POTATO SHOWQUESTIONS", "DBException : " + e.getMessage());
                 mException = AsyncTaskExceptions.DB_EXCEPTION;
             }
 
@@ -228,8 +233,10 @@ public class ShowQuestionsActivity extends ListActivity {
                 if (question != null) {
                     showViews();
                     mCurrentQuestion = question;
+                    Log.d("POTATO SHOWQUESTIONS", "Question fetched successfully : " + mCurrentQuestion);
                     updateViews();
                 } else {
+                    Log.d("POTATO SHOWQUESTIONS", "No cached question. Displaying toast.");
                     SwEng2013QuizApp.displayToast(R.string.no_cached_question);
                     TestCoordinator.check(TTChecks.QUESTION_SHOWN);
                 }
@@ -247,8 +254,10 @@ public class ShowQuestionsActivity extends ListActivity {
 	                case DB_EXCEPTION:
 	                    if (Proxy.INSTANCE.isOnline()) {
 	                        SwEng2013QuizApp.displayToast(R.string.failed_to_cache_question);
+	                        Log.d("POTATO SHOWQUESTIONS", "Toast failed to cache question displayed");
 	                    } else {
 	                        SwEng2013QuizApp.displayToast(R.string.broken_database);
+	                        Log.d("POTATO SHOWQUESTIONS", "Broken DB toast displayed");
 	                    }
 	                    break;
 	                default:

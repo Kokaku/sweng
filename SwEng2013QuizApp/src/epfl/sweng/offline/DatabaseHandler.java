@@ -17,6 +17,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.ServerCommunicationException;
@@ -67,6 +68,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      */
     public void storeQuestion(QuizQuestion question, boolean toBeSubmitted)
         throws DBException {
+        
+        Log.d("POTATO DB", "Caching the question " + question);
+        
         SQLiteDatabase db = getWritableDatabase();
         
         ContentValues values = new ContentValues();
@@ -96,6 +100,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         boolean requestSuccessfull = db.insertWithOnConflict(TABLE_NAME, null, values,
             SQLiteDatabase.CONFLICT_IGNORE) != -1;
         
+        Log.d("POTATO DB", "Request successful : " + requestSuccessfull);
+        
         db.close();
         
 //        if (!requestSuccessfull) {
@@ -112,6 +118,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public QuizQuestion getRandomQuestion()
         throws DBException {
         
+        Log.d("POTATO DB", "Getting a question from cache.");
+        
         SQLiteDatabase db = getReadableDatabase();
         
         // Get a random question
@@ -125,7 +133,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.moveToFirst();
         
         try {
-            return getQuestionFromCursor(cursor);
+            QuizQuestion question = getQuestionFromCursor(cursor);
+            Log.d("POTATO DB", "This question has been fetched from cache : " + question);
+            return question;
         } catch (JSONException e) {
             throw new DBException("JSON badly formatted.");
         } finally {
@@ -144,6 +154,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public int synchronizeQuestions()
         throws DBException, ServerCommunicationException {
         
+        Log.d("POTATO DB", "Synchronizing questions");
+        
         int questionsSumbmitted = 0;
         SQLiteDatabase db = getWritableDatabase();
         
@@ -161,7 +173,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
                 if (updatedQuestion == null) {
                     // TODO
+                    Log.d("POTATO DB", "Error during sync. The updated question is null");
                 }
+                
+                Log.d("POTATO DB", "The updated question is : " + updatedQuestion);
                 
                 /*
                  * Update the question in cache : add the assigned id and owner
@@ -183,6 +198,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.close();
         }
         
+        Log.d("POTATO DB", questionsSumbmitted + " questions have been submitted.");
         return questionsSumbmitted;
     }
     

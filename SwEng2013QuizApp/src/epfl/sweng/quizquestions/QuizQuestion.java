@@ -180,6 +180,17 @@ public class QuizQuestion {
 	public Set<String> getTags() {
 		return new TreeSet<String>(mTags);
 	}
+	
+	/**
+	 * @return a JSON formatted string representing the question
+	 */
+	public String toString() {
+	    try {
+            return JSONUtilities.getJSONString(this);
+        } catch (JSONException e) {
+            return "Impossible to represent the question as a JSON string.";
+        }
+	}
 
 	/**
 	 * @return number of errors in the question
