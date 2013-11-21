@@ -13,36 +13,45 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/edit_question_button"
-        android:text="@string/show_random_question"
+        android:enabled="false"
         android:onClick="showQuestion"
-        android:enabled="false" />
-    
+        android:text="@string/show_random_question" />
+
     <Button
         android:id="@id/edit_question_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="@string/submit_question"
+        android:enabled="false"
         android:onClick="submitQuestion"
-        android:enabled="false" />
-    
-    <Button 
+        android:text="@string/submit_question" />
+
+    <Button
+        android:id="@+id/search_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edit_question_button"
+        android:enabled="false"
+        android:onClick="searchQuestion"
+        android:text="@string/search_question" />
+
+    <Button
         android:id="@+id/tequila_login_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/edit_question_button"
-        android:text="@string/tequila_login"
+        android:layout_below="@id/search_button"
+        android:enabled="true"
         android:onClick="tequilaLogin"
-        android:enabled="true" />
-    
+        android:text="@string/tequila_login" />
+
     <CheckBox
         android:id="@+id/checkbox_offline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="offlineMode"
-        android:text="@string/offline_mode"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:enabled="false" />
+        android:enabled="false"
+        android:onClick="offlineMode"
+        android:text="@string/offline_mode" />
 
 </RelativeLayout>

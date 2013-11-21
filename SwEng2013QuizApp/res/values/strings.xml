@@ -42,7 +42,7 @@
     <string name="button_add_answer">\u002B</string>
     <string name="remove_answer">\u002D</string>
     <string name="title_activity_authentication">Authentication</string>
-    
+
     <!-- AuthenticationActivity -->
     <string name="GASPAR_username">GASPAR Username</string>
     <string name="GASPAR_password">GASPAR Password</string>
@@ -51,12 +51,18 @@
     <string name="login_empty_fields_error">Please enter your username and password.</string>
     <string name="invalid_credentials">Impossible to log in. Please check your username and password!</string>
     <string name="not_logged_in">Please log in !</string>
-    
+
     <!-- Offline mode -->
     <string name="synchronization_success">Your questions have been successfully submitted.</string>
     <string name="synchronization_failure">Impossible to submit your offline questions!</string>
     <string name="broken_database">Your cache is corrupted. Please clear it !</string>
     <string name="now_offline">You\'re now offline.</string>
     <string name="now_online">You\'re now online.</string>
-    
+    <string name="title_activity_search">SearchActivity</string>
+    <string name="hello_world">Hello world!</string>
+	
+    <!--  SearchQuestionActivity -->
+    <string name="search_question">"Search question"</string>
+    <string name="type_in_search_query">"Type in the search query"</string>
+    <string name="search_button">"Search"</string>
 </resources>

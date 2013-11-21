@@ -43,6 +43,10 @@
             android:label="@string/title_activity_authentication"
             android:parentActivityName="epfl.sweng.entry.MainActivity" >
         </activity>
+        <activity
+            android:name="epfl.sweng.searchquestions.SearchActivity"
+            android:label="@string/title_activity_search" >
+        </activity>
     </application>
 
 </manifest>

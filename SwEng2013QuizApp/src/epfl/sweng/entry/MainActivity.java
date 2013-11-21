@@ -22,6 +22,7 @@ import epfl.sweng.offline.DatabaseHandler;
 import epfl.sweng.offline.OnSyncListener;
 import epfl.sweng.patterns.Proxy;
 import epfl.sweng.patterns.Proxy.ConnectionState;
+import epfl.sweng.searchquestions.SearchActivity;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
 import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
@@ -39,6 +40,7 @@ public class MainActivity extends Activity implements OnSyncListener {
     
     private Button mShowQuestions;
     private Button mEditQuestion;
+    private Button mSearchQuestion;
     private Button mTequilaLogin;
     private CheckBox mOfflineMode;
     
@@ -49,6 +51,7 @@ public class MainActivity extends Activity implements OnSyncListener {
 
         mShowQuestions = (Button) findViewById(R.id.show_random_question_button);
         mEditQuestion = (Button) findViewById(R.id.edit_question_button);
+        mSearchQuestion = (Button) findViewById(R.id.search_button);
         mTequilaLogin = (Button) findViewById(R.id.tequila_login_button);
         mOfflineMode = (CheckBox) findViewById(R.id.checkbox_offline);
     }
@@ -95,9 +98,18 @@ public class MainActivity extends Activity implements OnSyncListener {
     public void submitQuestion(View view) {
         startActivity(new Intent(this, EditQuestionActivity.class));
     }
+    
+    /**
+     * Called when third button is pressed, starts SearchActivity
+     * 
+     * @param view the button which is pressed
+     */
+    public void searchQuestion(View view) {
+    	startActivity(new Intent(this, SearchActivity.class));
+    }
 
     /**
-     * Called when the third button is pressed, either starts AuthenticationActivity
+     * Called when the fourth button is pressed, either starts AuthenticationActivity
      * if the user is not currently logged in or log out the user.
      * 
      * @param view the button which is pressed
@@ -174,11 +186,13 @@ public class MainActivity extends Activity implements OnSyncListener {
         if (UserCredentials.INSTANCE.isAuthenticated()) {
             mShowQuestions.setEnabled(true);
             mEditQuestion.setEnabled(true);
+            mSearchQuestion.setEnabled(true);
             mOfflineMode.setEnabled(true);
             mTequilaLogin.setText(R.string.tequila_logout);
         } else {
             mShowQuestions.setEnabled(false);
             mEditQuestion.setEnabled(false);
+            mSearchQuestion.setEnabled(false);
             mOfflineMode.setEnabled(false);
             mTequilaLogin.setText(R.string.tequila_login);
         }
