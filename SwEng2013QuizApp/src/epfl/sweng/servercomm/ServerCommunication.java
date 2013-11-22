@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.util.Log;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
@@ -45,7 +46,7 @@ import epfl.sweng.utils.JSONUtilities;
 public enum ServerCommunication implements QuestionsCommunicator {
 	INSTANCE;
 
-	private static final String SERVER_URL = "https://sweng-quiz.appspot.com/quizquestions";
+	private static final String SERVER_URL = "https://sweng-quiz.appspot.com";
 	private static final String SERVER_LOGIN_URL = "https://sweng-quiz.appspot.com/login";
 	private static final String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
 	
@@ -53,6 +54,57 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	    Log.d("POTATO SeverCom", "Constructor called");
 	}
 
+	
+	public String search(String query, String from)
+	    throws ServerCommunicationException {
+
+        int responseStatus = 0;
+        String httpBody = null;
+	    
+        Log.d("POTATO ServerCom", "Start sending query to the server = " + query);
+	    
+        if (!isNetworkAvailable()) {
+            Log.d("POTATO ServerCom", "Network is not available to send question");
+            throw new ServerCommunicationException("Not connected.");
+        }
+        
+        HttpPost request = new HttpPost(SERVER_URL + "/search");
+        
+        request.setHeader("Content-type", "application/json");
+        addAuthenticationHeader(request);
+	    
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        HttpResponse httpResponse = null;
+        
+        try {
+            request.setEntity(new StringEntity(JSONUtilities
+                    .getJSONQueryString(query, from)));
+            
+            httpResponse = SwengHttpClientFactory.getInstance().execute(request);
+            responseStatus = httpResponse.getStatusLine().getStatusCode();
+            httpBody = handler.handleResponse(httpResponse);
+
+            Log.d("POTATO ServerCom", "httpBody = " + httpBody + " status = " + responseStatus);
+        } catch (IOException e) {
+            Log.d("POTATO ServerCom", "IO Exception");
+            // Status code is 3xx or 4xx
+            if (responseStatus >= HttpStatus.SC_MULTIPLE_CHOICES
+                && responseStatus < HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+                throw new BadRequestException("Status code is " + responseStatus);
+            } else {
+                throw new ServerCommunicationException("Unable to send the question to the server. " +
+                    "Status code is " + responseStatus);
+            }
+        } catch (JSONException e) {
+            Log.d("POTATO ServerCom", "JSON exception");
+            throw new ServerCommunicationException("JSON badly formatted. "
+                    + e.getMessage());
+        }
+        
+	    return httpBody;
+	}
+	
+	
 	/**
 	 * Sends a question to the server. This is a blocking method and thus it
 	 * should be called by a class extending {@link AsyncTask}.
@@ -77,7 +129,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			throw new ServerCommunicationException("Not connected.");
 		}
 
-		HttpPost request = new HttpPost(SERVER_URL);
+		HttpPost request = new HttpPost(SERVER_URL + "/quizquestions");
 
 		request.setHeader("Content-type", "application/json");
 		addAuthenticationHeader(request);
@@ -142,7 +194,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			throw new ServerCommunicationException("Not connected.");
 		}
 
-		HttpUriRequest request = new HttpGet(SERVER_URL + "/random");
+		HttpUriRequest request = new HttpGet(SERVER_URL + "/quizquestions/random");
 		addAuthenticationHeader(request);
 
 		ResponseHandler<String> handler = new BasicResponseHandler();

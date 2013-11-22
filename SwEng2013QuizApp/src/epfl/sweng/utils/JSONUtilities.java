@@ -23,7 +23,7 @@ import epfl.sweng.quizquestions.QuizQuestion;
 public class JSONUtilities {
 
     /**
-     * Manipulates a {@link QuizQuestion} into a {@link JSONObject} 
+     * Translates a {@link QuizQuestion} into a {@link JSONObject} 
      * formatted String as follows:
      * "{ "
      * + "\"question\": \"<question_text>\", "
@@ -49,10 +49,7 @@ public class JSONUtilities {
         jsonObject.put("owner", question.getOwner());
         jsonObject.put("id", question.getId());
         
-        String test = jsonObject.toString();
-        System.out.println(test);
-        
-        return test;
+        return jsonObject.toString();
     }
     
     /**
@@ -84,5 +81,36 @@ public class JSONUtilities {
         }
         return set;
     }
+    
+    /**
+     * Translates a String into a {@link JSONObject}
+     * formatted as follows:
+     * "{ "
+     * + "\"query\": \"<query_text>\", "
+     * + "\"from\": \"<from_text>\""
+     * + " }"
+     * 
+     * @param query the string to translate into JSONString
+     * @return the formatted string
+     * @throws JSONException if there is a problem during parsing
+     */
+    
+    public static String getJSONQueryString(String query, String from) throws JSONException {
+        if (query == null) {
+            throw new IllegalArgumentException("");
+        }
+        
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("query", query);
+        if (!from.equals("")) {
+            jsonObject.put("from", from);
+        }
+        
+        String test = query.toString();
+        System.out.println(test);
+        
+        return test;
+    }
+    
 
 }
