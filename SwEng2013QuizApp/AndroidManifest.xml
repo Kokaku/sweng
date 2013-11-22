@@ -41,7 +41,8 @@
         <activity
             android:name="epfl.sweng.authentication.AuthenticationActivity"
             android:label="@string/title_activity_authentication"
-            android:parentActivityName="epfl.sweng.entry.MainActivity" >
+            android:parentActivityName="epfl.sweng.entry.MainActivity"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
         <activity
             android:name="epfl.sweng.searchquestions.SearchActivity"
