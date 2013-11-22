@@ -10,6 +10,8 @@ import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_SUBMIT;
 import static epfl.sweng.offline.CachedQuestionsTable.COLUMN_TAGS;
 import static epfl.sweng.offline.CachedQuestionsTable.TABLE_NAME;
 
+import java.util.StringTokenizer;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -22,6 +24,7 @@ import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.quizquestions.QuizQuestion;
+import epfl.sweng.searchquestions.QuestionIterator;
 import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.utils.JSONUtilities;
 
@@ -104,9 +107,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         
         db.close();
         
-//        if (!requestSuccessfull) {
-//            throw new DBException("Could not store the question.");
-//        }
+        if (!requestSuccessfull) {
+            throw new DBException("Could not store the question.");
+        }
     }
     
     /**
@@ -227,5 +230,61 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                                 JSONUtilities.parseJSONArrayToSet(tags),
                                 id,
                                 owner);
+    }
+
+    /**
+     * @param query
+     * @param next 
+     * @return
+     * @throws DBException 
+     */
+    public QuestionIterator searchQuestion(String query, String next)
+        throws DBException {
+        
+        String querySQL = parseQuerytoSQL(query);
+        
+        SQLiteDatabase db = getReadableDatabase();
+        
+        Cursor cursor = db.rawQuery(querySQL, null);
+        QuizQuestion[] questions = new QuizQuestion[cursor.getCount()];
+        try {
+            
+            for (int i = 0; cursor.moveToNext(); i++) {
+                questions[i] = getQuestionFromCursor(cursor);
+            }
+            
+        } catch (JSONException e) {
+            throw new DBException("JSON badly formatted.");
+        } finally {
+            cursor.close();
+            db.close(); 
+        }
+        
+        return new QuestionIterator(questions);
+    }
+
+    /**
+     * 
+     */
+    private String parseQuerytoSQL(String query) {
+        StringTokenizer queryTokenizer = new StringTokenizer(query, " ");
+        String exprAcc = "SELECT * FROM " + TABLE_NAME + " WHERE ";
+        String nextToken = null;
+        
+        while (queryTokenizer.hasMoreTokens()) {
+            nextToken = queryTokenizer.nextToken();
+            if (nextToken.equals("(") || nextToken.equals(")")) {
+                exprAcc += " " + nextToken + " ";
+            } else if (nextToken.equals("*")) {
+                exprAcc += " AND ";
+            } else if (nextToken.equals("+")) {
+                exprAcc += " OR ";
+            } else {
+                exprAcc += "("+COLUMN_QUESTION + " LIKE " + nextToken +" OR "+
+                        COLUMN_ANSWERS + " LIKE " + nextToken + " OR " +
+                        COLUMN_TAGS + " LIKE " + nextToken + ")";
+            }
+        }
+        return exprAcc;
     }
 }

@@ -1,5 +1,7 @@
 package epfl.sweng.patterns;
 
+import org.json.JSONException;
+
 import android.os.AsyncTask;
 import android.util.Log;
 import epfl.sweng.R;
@@ -74,6 +76,44 @@ public enum Proxy implements QuestionsCommunicator {
         mCurrentState = state;
         if (isOnline()) {
             new SynchronizationTask(listener).execute();
+        }
+    }
+    
+    /**
+     * 
+     * 
+     * @throws ServerCommunicationException
+     * @throws DBException
+     * @throws NotLoggedInException if the user is not logged in
+     * 
+     * @return
+     * @throws JSONException if there was a problem parsing the json 
+     */
+    @Override
+    public QuestionIterator searchQuestion(String query, String next)
+        throws NotLoggedInException, DBException, ServerCommunicationException,
+               JSONException {
+        
+        Log.d("POTATO PROXY", "searchQuestion("+query+") called");
+
+        if (!UserCredentials.INSTANCE.isAuthenticated()) {
+            throw new NotLoggedInException();
+        }
+
+        if (isOnline()) {
+            Log.d("POTATO PROXY", "Online => searching question from server and caching it");
+            
+            QuestionIterator questionIterator = instance.searchQuestion(query, next);
+            QuizQuestion[] questions = questionIterator.getLocalQuestions();
+            
+            for (QuizQuestion question : questions) {
+                mDatabase.storeQuestion(question, false);
+            }
+            
+            return questionIterator;
+        } else {
+            Log.d("POTATO PROXY", "Offline => searching question from cache");
+            return mDatabase.searchQuestion(query, next);
         }
     }
 
@@ -203,13 +243,4 @@ public enum Proxy implements QuestionsCommunicator {
         }
 
     }
-
-    @Override
-    public QuestionIterator searchQuestion(String query)
-        throws NotLoggedInException, DBException, ServerCommunicationException {
-        
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
 }

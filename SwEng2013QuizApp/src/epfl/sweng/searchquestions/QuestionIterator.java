@@ -2,6 +2,8 @@ package epfl.sweng.searchquestions;
 
 import java.util.NoSuchElementException;
 
+import org.json.JSONException;
+
 import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
@@ -63,10 +65,11 @@ public class QuestionIterator {
      * @throws DBException if the database request is unsuccessful
      * @throws ServerCommunicationException if the network request is unsuccessful
      * @throws NoSuchElementException if the iteration has no more elements
+     * @throws JSONException 
      */
     public QuizQuestion next()
         throws NotLoggedInException, DBException, ServerCommunicationException,
-               NoSuchElementException {
+               NoSuchElementException, JSONException {
         
         if (!hasNext()) {
             throw new NoSuchElementException();  
@@ -94,11 +97,14 @@ public class QuestionIterator {
      * @throws NotLoggedInException if the user is not logged in
      * @throws DBException if the database request is unsuccessful
      * @throws ServerCommunicationException if the network request is unsuccessful
+     * @throws JSONException if there was a problem parsing the json
      */
     private void fetchNextQuestions()
-        throws NotLoggedInException, DBException, ServerCommunicationException {
+        throws NotLoggedInException, DBException, ServerCommunicationException,
+               JSONException {
         
-        QuestionIterator responseIterator = Proxy.INSTANCE.searchQuestion(query);
+        QuestionIterator responseIterator =
+                Proxy.INSTANCE.searchQuestion(query, next);
         questions = responseIterator.getLocalQuestions();
         nextIndex = 0;
     }
