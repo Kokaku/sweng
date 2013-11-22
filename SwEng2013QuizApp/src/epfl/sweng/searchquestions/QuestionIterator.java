@@ -8,6 +8,14 @@ import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.patterns.Proxy;
 import epfl.sweng.quizquestions.QuizQuestion;
 
+/**
+ * Is an iterator over a collection of QuizQuestion.
+ * In addition QuestionIterator is able to fetch the remaining questions that
+ * match the query
+ * 
+ * @author kokaku
+ *
+ */
 public class QuestionIterator {
 
     private QuizQuestion[] questions;
@@ -17,6 +25,7 @@ public class QuestionIterator {
     
     /**
      * @param questions is the array of QuizQuestion over which you want to iterate
+     * @param query is a String representing the query that the questions must match
      * @param next is the String token received by the server in case the server
      * only return a fraction of all questions that match a query
      */
