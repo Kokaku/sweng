@@ -62,7 +62,7 @@
     <string name="now_online">You\'re now online.</string>
 	
     <!--  SearchQuestionActivity -->
-    <string name="search_question">"Search question"</string>
+    <string name="search_question">"Search"</string>
     <string name="type_in_search_query">"Type in the search query"</string>
     <string name="search_button">"Search"</string>
     <string name="title_activity_search">Search for a question</string>
