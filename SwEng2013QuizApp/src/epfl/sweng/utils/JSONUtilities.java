@@ -102,7 +102,7 @@ public class JSONUtilities {
         
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("query", query);
-        if (!from.equals("")) {
+        if (from != null) {
             jsonObject.put("from", from);
         }
         
@@ -111,6 +111,5 @@ public class JSONUtilities {
         
         return test;
     }
-    
 
 }

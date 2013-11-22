@@ -2,6 +2,7 @@ package epfl.sweng.servercomm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -14,13 +15,13 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.util.Log;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
@@ -53,57 +54,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	private ServerCommunication() {
 	    Log.d("POTATO SeverCom", "Constructor called");
 	}
-
-	
-	public String search(String query, String from)
-	    throws ServerCommunicationException {
-
-        int responseStatus = 0;
-        String httpBody = null;
-	    
-        Log.d("POTATO ServerCom", "Start sending query to the server = " + query);
-	    
-        if (!isNetworkAvailable()) {
-            Log.d("POTATO ServerCom", "Network is not available to send question");
-            throw new ServerCommunicationException("Not connected.");
-        }
-        
-        HttpPost request = new HttpPost(SERVER_URL + "/search");
-        
-        request.setHeader("Content-type", "application/json");
-        addAuthenticationHeader(request);
-	    
-        ResponseHandler<String> handler = new BasicResponseHandler();
-        HttpResponse httpResponse = null;
-        
-        try {
-            request.setEntity(new StringEntity(JSONUtilities
-                    .getJSONQueryString(query, from)));
-            
-            httpResponse = SwengHttpClientFactory.getInstance().execute(request);
-            responseStatus = httpResponse.getStatusLine().getStatusCode();
-            httpBody = handler.handleResponse(httpResponse);
-
-            Log.d("POTATO ServerCom", "httpBody = " + httpBody + " status = " + responseStatus);
-        } catch (IOException e) {
-            Log.d("POTATO ServerCom", "IO Exception");
-            // Status code is 3xx or 4xx
-            if (responseStatus >= HttpStatus.SC_MULTIPLE_CHOICES
-                && responseStatus < HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-                throw new BadRequestException("Status code is " + responseStatus);
-            } else {
-                throw new ServerCommunicationException("Unable to send the question to the server. " +
-                    "Status code is " + responseStatus);
-            }
-        } catch (JSONException e) {
-            Log.d("POTATO ServerCom", "JSON exception");
-            throw new ServerCommunicationException("JSON badly formatted. "
-                    + e.getMessage());
-        }
-        
-	    return httpBody;
-	}
-	
 	
 	/**
 	 * Sends a question to the server. This is a blocking method and thus it
@@ -435,11 +385,78 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	}
 
     @Override
-    public QuestionIterator searchQuestion(String query)
-        throws NotLoggedInException, DBException, ServerCommunicationException {
+    public QuestionIterator searchQuestion(String query, String next)
+        throws NotLoggedInException, DBException, ServerCommunicationException,
+               JSONException {
+
+        int responseStatus = 0;
+        String httpBody = null;
         
-        // TODO Auto-generated method stub
-        return null;
+        Log.d("POTATO ServerCom", "Start sending query to the server = " + query);
+        
+        if (!isNetworkAvailable()) {
+            Log.d("POTATO ServerCom", "Network is not available to send question");
+            throw new ServerCommunicationException("Not connected.");
+        }
+        
+        HttpPost request = new HttpPost(SERVER_URL + "/search");
+        
+        request.setHeader("Content-type", "application/json");
+        addAuthenticationHeader(request);
+        
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        HttpResponse httpResponse = null;
+        
+        try {
+            request.setEntity(new StringEntity(JSONUtilities
+                    .getJSONQueryString(query, next)));
+            
+            httpResponse = SwengHttpClientFactory.getInstance().execute(request);
+            responseStatus = httpResponse.getStatusLine().getStatusCode();
+            httpBody = handler.handleResponse(httpResponse);
+
+            Log.d("POTATO ServerCom", "httpBody = " + httpBody + " status = " + responseStatus);
+        } catch (IOException e) {
+            Log.d("POTATO ServerCom", "IO Exception");
+            // Status code is 3xx or 4xx
+            if (responseStatus >= HttpStatus.SC_MULTIPLE_CHOICES
+                && responseStatus < HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+                throw new BadRequestException("Status code is " + responseStatus);
+            } else {
+                throw new ServerCommunicationException("Unable to send the question to the server. " +
+                    "Status code is " + responseStatus);
+            }
+        } catch (JSONException e) {
+            Log.d("POTATO ServerCom", "JSON exception");
+            throw new ServerCommunicationException("JSON badly formatted. "
+                    + e.getMessage());
+        }
+        
+        return httpResponseToQuestionIterator(query, httpBody);
+        
+    }
+
+    /**
+     * @param httpBody
+     * @throws JSONException 
+     */
+    private QuestionIterator httpResponseToQuestionIterator(String query, String httpBody)
+        throws JSONException {
+
+        JSONObject jsonQuestions = new JSONObject(httpBody);
+        JSONArray jsonArrayQuestions = jsonQuestions.getJSONArray("questions");
+        String jsonNext = null;
+        if (!jsonQuestions.isNull("next")) {
+            jsonNext = jsonQuestions.getString("next");
+        }
+        List<String> stringQuestions = JSONUtilities.parseJSONArrayToList(jsonArrayQuestions);
+        QuizQuestion[] questions = new QuizQuestion[stringQuestions.size()];
+        int counter = 0;
+        for (String q : stringQuestions) {
+            questions[counter] = new QuizQuestion(q);
+            counter++;
+        }
+        return new QuestionIterator(questions, query, jsonNext);
     }
 	
 }
