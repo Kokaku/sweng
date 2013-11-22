@@ -25,10 +25,12 @@ import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.exceptions.BadRequestException;
+import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.InvalidCredentialsException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.quizquestions.QuizQuestion;
+import epfl.sweng.searchquestions.QuestionIterator;
 import epfl.sweng.utils.JSONUtilities;
 
 /**
@@ -379,5 +381,13 @@ public enum ServerCommunication implements QuestionsCommunicator {
 
 		return httpBody;
 	}
+
+    @Override
+    public QuestionIterator searchQuestion(String query)
+        throws NotLoggedInException, DBException, ServerCommunicationException {
+        
+        // TODO Auto-generated method stub
+        return null;
+    }
 	
 }

@@ -12,6 +12,7 @@ import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.offline.DatabaseHandler;
 import epfl.sweng.offline.OnSyncListener;
 import epfl.sweng.quizquestions.QuizQuestion;
+import epfl.sweng.searchquestions.QuestionIterator;
 import epfl.sweng.servercomm.QuestionsCommunicator;
 import epfl.sweng.servercomm.ServerCommunication;
 
@@ -201,6 +202,14 @@ public enum Proxy implements QuestionsCommunicator {
             }
         }
 
+    }
+
+    @Override
+    public QuestionIterator searchQuestion(String query)
+        throws NotLoggedInException, DBException, ServerCommunicationException {
+        
+        // TODO Auto-generated method stub
+        return null;
     }
     
 }
