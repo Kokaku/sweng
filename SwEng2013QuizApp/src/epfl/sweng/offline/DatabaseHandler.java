@@ -19,6 +19,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.SyncStateContract.Columns;
 import android.util.Log;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.DBException;
@@ -233,10 +234,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     /**
-     * @param query
-     * @param next 
-     * @return
-     * @throws DBException 
+     * This method searches a question in the Database if the device is off-line
+     * and queries some set of question
+     * 
+     * @param query: query in the proposed language (SwEngQL)
+     * @param next: hash pointing to the next page of searched questions
+     * @return a {@link QuestionIterator} with the questions retrieved from
+     *         the database
+     * @throws DBException if the database couldn't retrieve a question
      */
     public QuestionIterator searchQuestion(String query, String next)
         throws DBException {
@@ -254,37 +259,51 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }
             
         } catch (JSONException e) {
-            throw new DBException("JSON badly formatted.");
+            throw new DBException("Couldn't retrieve question from the Database");
         } finally {
             cursor.close();
             db.close(); 
         }
         
-        return new QuestionIterator(questions);
+        return new QuestionIterator(questions, query, null);
     }
 
     /**
+     * This method parses a SwEngQL query sanitized to a SQLite query:
+     *   - * operator is not optional
+     *   - spaces between each operator, term and parenthesis
+     *   
+     * Example of valid query: ( banana + garlic ) * fruit
+     * Examples of non valid query: 
+     *   - (banana + garlic ) * fruit
+     *   - ( banana + garlic ) fruit
+     *   - ( banana +garlic )fruit
+     *   - etc...
+     * It selects always all parameters from columns COLUMN_QUESTION,
+     * COLUMN_ANSWERS or COLUMN_TAGS
      * 
+     * @param query: a SwEngQL query
+     * @return querySQLite: query parsed from SwEngQL to SQLite
      */
     private String parseQuerytoSQL(String query) {
         StringTokenizer queryTokenizer = new StringTokenizer(query, " ");
-        String exprAcc = "SELECT * FROM " + TABLE_NAME + " WHERE ";
+        String querySQLite = "SELECT * FROM " + TABLE_NAME + " WHERE ";
         String nextToken = null;
         
         while (queryTokenizer.hasMoreTokens()) {
             nextToken = queryTokenizer.nextToken();
             if (nextToken.equals("(") || nextToken.equals(")")) {
-                exprAcc += " " + nextToken + " ";
+                querySQLite += " " + nextToken + " ";
             } else if (nextToken.equals("*")) {
-                exprAcc += " AND ";
+                querySQLite += " AND ";
             } else if (nextToken.equals("+")) {
-                exprAcc += " OR ";
+                querySQLite += " OR ";
             } else {
-                exprAcc += "("+COLUMN_QUESTION + " LIKE " + nextToken +" OR "+
+                querySQLite += "("+COLUMN_QUESTION + " LIKE " + nextToken +" OR "+
                         COLUMN_ANSWERS + " LIKE " + nextToken + " OR " +
                         COLUMN_TAGS + " LIKE " + nextToken + ")";
             }
         }
-        return exprAcc;
+        return querySQLite;
     }
 }

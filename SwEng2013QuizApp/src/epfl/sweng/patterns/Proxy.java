@@ -80,14 +80,18 @@ public enum Proxy implements QuestionsCommunicator {
     }
     
     /**
-     * 
+     * This method will distribute the query to the server or the database
+     * depending on whether the device is on-line or not.
+     * If the Proxy queries the server by intermediate of {@link ServerCommunication},
+     * it will store the questions in the database.
      * 
      * @throws ServerCommunicationException
      * @throws DBException
      * @throws NotLoggedInException if the user is not logged in
      * 
-     * @return
-     * @throws JSONException if there was a problem parsing the json 
+     * @return questionIterator: a {@link QuestionIterator} with the questions
+     *         retrieved from the server or the database 
+     * @throws JSONException if there was a problem parsing the JSON 
      */
     @Override
     public QuestionIterator searchQuestion(String query, String next)

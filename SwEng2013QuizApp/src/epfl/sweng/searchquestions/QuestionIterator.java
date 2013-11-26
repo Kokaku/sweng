@@ -92,7 +92,7 @@ public class QuestionIterator {
     }
     
     /**
-     * Replace the local cache with the next questions on whitch the query match
+     * Replace the local cache with the next questions on which the query match
      * Should only be called in an AsynTask
      * @throws NotLoggedInException if the user is not logged in
      * @throws DBException if the database request is unsuccessful

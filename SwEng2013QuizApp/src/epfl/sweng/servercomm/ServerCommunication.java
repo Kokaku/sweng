@@ -384,6 +384,20 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		return httpBody;
 	}
 
+	/**
+	 * This method sends a query to the server in SwEngQL and returns
+	 * a {@link QuestionIterator} over these questions
+	 * 
+	 * @param query: query in the proposed language (SwEngQL)
+     * @param next: hash pointing to the next page of searched questions
+     * @return a {@link QuestionIterator} with the questions retrieved from
+     *         the server
+     * @throws NotLoggedInException if the user is not logged in
+     * @throws DBException if the database couldn't retrieve a question
+     * @throws ServerCommunicationException if the device is not connected or if
+     *         the device cannot send the request to the server
+     * @throws JSONException if the JSONObject was badly formatted
+	 */
     @Override
     public QuestionIterator searchQuestion(String query, String next)
         throws NotLoggedInException, DBException, ServerCommunicationException,
@@ -418,9 +432,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
             Log.d("POTATO ServerCom", "httpBody = " + httpBody + " status = " + responseStatus);
         } catch (IOException e) {
             Log.d("POTATO ServerCom", "IO Exception");
-            // Status code is 3xx or 4xx
             if (responseStatus >= HttpStatus.SC_MULTIPLE_CHOICES
                 && responseStatus < HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+                // Status code is 3xx or 4xx
                 throw new BadRequestException("Status code is " + responseStatus);
             } else {
                 throw new ServerCommunicationException("Unable to send the question to the server. " +
@@ -435,27 +449,30 @@ public enum ServerCommunication implements QuestionsCommunicator {
         return httpResponseToQuestionIterator(query, httpBody);
         
     }
-
-    /**
-     * @param httpBody
-     * @throws JSONException 
-     */
-    private QuestionIterator httpResponseToQuestionIterator(String query, String httpBody)
+    
+    private QuestionIterator httpResponseToQuestionIterator(String query,
+                                                            String httpBody)
         throws JSONException {
 
         JSONObject jsonQuestions = new JSONObject(httpBody);
+        
         JSONArray jsonArrayQuestions = jsonQuestions.getJSONArray("questions");
+        
         String jsonNext = null;
         if (!jsonQuestions.isNull("next")) {
             jsonNext = jsonQuestions.getString("next");
         }
-        List<String> stringQuestions = JSONUtilities.parseJSONArrayToList(jsonArrayQuestions);
+        
+        List<String> stringQuestions =
+        JSONUtilities.parseJSONArrayToList(jsonArrayQuestions);
         QuizQuestion[] questions = new QuizQuestion[stringQuestions.size()];
+        
         int counter = 0;
         for (String q : stringQuestions) {
             questions[counter] = new QuizQuestion(q);
             counter++;
         }
+        
         return new QuestionIterator(questions, query, jsonNext);
     }
 	
