@@ -19,7 +19,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.SyncStateContract.Columns;
 import android.util.Log;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.DBException;

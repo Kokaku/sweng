@@ -464,7 +464,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
         }
         
         List<String> stringQuestions =
-        JSONUtilities.parseJSONArrayToList(jsonArrayQuestions);
+                JSONUtilities.parseJSONArrayToList(jsonArrayQuestions);
         QuizQuestion[] questions = new QuizQuestion[stringQuestions.size()];
         
         int counter = 0;
