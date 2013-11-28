@@ -22,7 +22,7 @@ public class QuestionIterator {
 
     private QuizQuestion[] questions;
     private int nextIndex = 0;
-    private final String next;
+    private String next;
     private final String query;
     
     /**
@@ -106,6 +106,7 @@ public class QuestionIterator {
         QuestionIterator responseIterator =
                 Proxy.INSTANCE.searchQuestion(query, next);
         questions = responseIterator.getLocalQuestions();
+        next = responseIterator.next;
         nextIndex = 0;
     }
 }
