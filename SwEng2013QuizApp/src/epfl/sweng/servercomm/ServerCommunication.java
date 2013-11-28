@@ -400,8 +400,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	 */
     @Override
     public QuestionIterator searchQuestion(String query, String next)
-        throws NotLoggedInException, DBException, ServerCommunicationException,
-               JSONException {
+        throws NotLoggedInException, DBException, ServerCommunicationException {
 
         int responseStatus = 0;
         String httpBody = null;
@@ -409,7 +408,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
         Log.d("POTATO ServerCom", "Start sending query to the server = " + query);
         
         if (!isNetworkAvailable()) {
-            Log.d("POTATO ServerCom", "Network is not available to send question");
+            Log.d("POTATO ServerCom", "Network is not available to send query");
             throw new ServerCommunicationException("Not connected.");
         }
         
@@ -420,6 +419,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
         
         ResponseHandler<String> handler = new BasicResponseHandler();
         HttpResponse httpResponse = null;
+        QuestionIterator iterator = null;
         
         try {
             request.setEntity(new StringEntity(JSONUtilities
@@ -430,6 +430,8 @@ public enum ServerCommunication implements QuestionsCommunicator {
             httpBody = handler.handleResponse(httpResponse);
 
             Log.d("POTATO ServerCom", "httpBody = " + httpBody + " status = " + responseStatus);
+            
+            iterator = httpResponseToQuestionIterator(query, httpBody);
         } catch (IOException e) {
             Log.d("POTATO ServerCom", "IO Exception");
             if (responseStatus >= HttpStatus.SC_MULTIPLE_CHOICES
@@ -446,7 +448,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
                     + e.getMessage());
         }
         
-        return httpResponseToQuestionIterator(query, httpBody);
+        return iterator;
         
     }
     

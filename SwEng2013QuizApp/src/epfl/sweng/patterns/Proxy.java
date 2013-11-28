@@ -95,8 +95,8 @@ public enum Proxy implements QuestionsCommunicator {
      */
     @Override
     public QuestionIterator searchQuestion(String query, String next)
-        throws NotLoggedInException, DBException, ServerCommunicationException,
-               JSONException {
+        throws NotLoggedInException, DBException, ServerCommunicationException
+                {
         
         Log.d("POTATO PROXY", "searchQuestion("+query+") called");
 
