@@ -248,7 +248,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String querySQL = "";
         
         if(query != null) {
-            querySQL = parseQuerytoSQL(query);
+            querySQL = parseQuerytoSQL(query +" LIMIT "+ MAX_QUESTIONS);
         }
         
         SQLiteDatabase db = getReadableDatabase();
@@ -262,10 +262,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         
         int nextPosition = 0;
         if (next != null || next != "") {
-            try {
             nextPosition = Integer.parseInt(next);
             cursor.moveToPosition(nextPosition);
-            } catch (NumberFormatException e) { }
         }
         
         try {
@@ -320,6 +318,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         COLUMN_TAGS +" LIKE "+ nextToken +" ) ";
             }
         }
-        return querySQLite += "ORDER BY "+ COLUMN_ID +" ASC";
+        return querySQLite += "ORDER BY "+ COLUMN_ID +" ASC ";
     }
 }
