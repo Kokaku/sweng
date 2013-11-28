@@ -38,6 +38,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "quizquestions.db";
     private static final int DATABASE_VERSION = 4;
+    private final int MAX_QUESTIONS = 50;
     
     public DatabaseHandler() {
         super(SwEng2013QuizApp.getAppContext(), DATABASE_NAME, null,
@@ -234,28 +235,44 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     /**
      * This method searches a question in the Database if the device is off-line
-     * and queries some set of question
+     * and queries some set of question.
      * 
      * @param query: query in the proposed language (SwEngQL)
-     * @param next: hash pointing to the next page of searched questions
+     * @param next: position to the next set of searched questions
      * @return a {@link QuestionIterator} with the questions retrieved from
      *         the database
      * @throws DBException if the database couldn't retrieve a question
      */
     public QuestionIterator searchQuestion(String query, String next)
         throws DBException {
+        String querySQL = "";
         
-        String querySQL = parseQuerytoSQL(query);
+        if(query != null) {
+            querySQL = parseQuerytoSQL(query);
+        }
         
         SQLiteDatabase db = getReadableDatabase();
-        
         Cursor cursor = db.rawQuery(querySQL, null);
-        QuizQuestion[] questions = new QuizQuestion[cursor.getCount()];
+        
+        QuizQuestion[] questions = new QuizQuestion[MAX_QUESTIONS];
+        
+        if (cursor == null || cursor.getCount() == 0) {
+            return new QuestionIterator(questions, query, null);
+        }
+        
+        int nextPosition = 0;
+        if (next != null || next != "") {
+            try {
+            nextPosition = Integer.parseInt(next);
+            cursor.moveToPosition(nextPosition);
+            } catch (NumberFormatException e) { }
+        }
+        
         try {
-            
-            for (int i = 0; cursor.moveToNext(); i++) {
+            for (int i = 0; i < MAX_QUESTIONS && cursor.moveToNext(); i++) {
                 questions[i] = getQuestionFromCursor(cursor);
             }
+            nextPosition = cursor.getPosition();
             
         } catch (JSONException e) {
             throw new DBException("Couldn't retrieve question from the Database");
@@ -264,13 +281,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.close(); 
         }
         
-        return new QuestionIterator(questions, query, null);
+        return new QuestionIterator(questions, query, nextPosition + "");
     }
 
     /**
      * This method parses a SwEngQL query sanitized to a SQLite query:
      *   - * operator is not optional
-     *   - spaces between each operator, term and parenthesis
+     *   - spaces wrapping each operator, term and parenthesis
      *   
      * Example of valid query: ( banana + garlic ) * fruit
      * Examples of non valid query: 
@@ -278,15 +295,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      *   - ( banana + garlic ) fruit
      *   - ( banana +garlic )fruit
      *   - etc...
-     * It selects always all parameters from columns COLUMN_QUESTION,
-     * COLUMN_ANSWERS or COLUMN_TAGS
+     * It selects always all attributes from columns COLUMN_QUESTION,
+     * COLUMN_ANSWERS or COLUMN_TAGS ordered by COLUMN_ID
      * 
      * @param query: a SwEngQL query
      * @return querySQLite: query parsed from SwEngQL to SQLite
      */
     private String parseQuerytoSQL(String query) {
         StringTokenizer queryTokenizer = new StringTokenizer(query, " ");
-        String querySQLite = "SELECT * FROM " + TABLE_NAME + " WHERE ";
+        String querySQLite = "SELECT * FROM "+ TABLE_NAME +" WHERE ";
         String nextToken = null;
         
         while (queryTokenizer.hasMoreTokens()) {
@@ -298,11 +315,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } else if (nextToken.equals("+")) {
                 querySQLite += " OR ";
             } else {
-                querySQLite += "("+COLUMN_QUESTION + " LIKE " + nextToken +" OR "+
-                        COLUMN_ANSWERS + " LIKE " + nextToken + " OR " +
-                        COLUMN_TAGS + " LIKE " + nextToken + ")";
+                querySQLite += " ( "+ COLUMN_QUESTION +" LIKE "+ nextToken +" OR "+
+                        COLUMN_ANSWERS +" LIKE "+ nextToken +" OR "+
+                        COLUMN_TAGS +" LIKE "+ nextToken +" ) ";
             }
         }
-        return querySQLite;
+        return querySQLite += "ORDER BY "+ COLUMN_ID +" ASC";
     }
 }
