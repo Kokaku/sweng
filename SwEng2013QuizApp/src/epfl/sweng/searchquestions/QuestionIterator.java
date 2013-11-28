@@ -35,6 +35,10 @@ public class QuestionIterator {
         if (questions == null) {
             throw new IllegalArgumentException("Argument questions cannot be null");
         }
+        if (next != null && query == null) {
+            throw new IllegalArgumentException(
+                    "Argument query cannot be null if next isn't null");
+        }
             
         this.questions = questions.clone();
         this.next = next;
@@ -75,7 +79,7 @@ public class QuestionIterator {
             throw new NoSuchElementException();  
         }
         
-        if (questions.length > nextIndex) {
+        if (questions.length <= nextIndex) {
             fetchNextQuestions();
         }
         
