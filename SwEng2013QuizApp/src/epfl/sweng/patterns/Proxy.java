@@ -85,6 +85,8 @@ public enum Proxy implements QuestionsCommunicator {
      * If the Proxy queries the server by intermediate of {@link ServerCommunication},
      * it will store the questions in the database.
      * 
+     * @param query: query in the proposed language (SwEngQL)
+     * @param next: pointer on the next page of searched questions
      * @throws ServerCommunicationException
      * @throws DBException
      * @throws NotLoggedInException if the user is not logged in

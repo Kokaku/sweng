@@ -38,6 +38,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "quizquestions.db";
     private static final int DATABASE_VERSION = 4;
+    private static final int MAX_RESPONSE_NUMBER = 10;
     
     public DatabaseHandler() {
         super(SwEng2013QuizApp.getAppContext(), DATABASE_NAME, null,
@@ -245,18 +246,28 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public QuestionIterator searchQuestion(String query, String next)
         throws DBException {
         
-        String querySQL = parseQuerytoSQL(query);
+        if (next == null || next.length() == 0) {
+            next = "0";
+        } else if (!next.matches("\\d+")) { //Check if next is a positive int
+            throw new IllegalArgumentException("Pointer next is not valid");
+        }
         
+        String limit = " LIMIT "+next+", "+ (MAX_RESPONSE_NUMBER+1);
+        String querySQL = parseQuerytoSQL(query) + limit;
         SQLiteDatabase db = getReadableDatabase();
         
         Cursor cursor = db.rawQuery(querySQL, null);
-        QuizQuestion[] questions = new QuizQuestion[cursor.getCount()];
+        int arraySize = Math.max(cursor.getCount(), MAX_RESPONSE_NUMBER);
+        QuizQuestion[] questions = new QuizQuestion[arraySize];
+        String newNext = null;
+        
         try {
-            
-            for (int i = 0; cursor.moveToNext(); i++) {
+            for (int i = 0; i<questions.length && cursor.moveToNext(); i++) {
                 questions[i] = getQuestionFromCursor(cursor);
             }
-            
+            if (cursor.moveToNext()) {
+                newNext = Integer.toString(Integer.parseInt(next)+MAX_RESPONSE_NUMBER);
+            }
         } catch (JSONException e) {
             throw new DBException("Couldn't retrieve question from the Database");
         } finally {
@@ -264,7 +275,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.close(); 
         }
         
-        return new QuestionIterator(questions, query, null);
+        return new QuestionIterator(questions, query, newNext);
     }
 
     /**
