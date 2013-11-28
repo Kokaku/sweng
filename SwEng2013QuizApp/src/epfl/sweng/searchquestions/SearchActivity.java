@@ -53,7 +53,7 @@ public class SearchActivity extends Activity {
 	}
 
 	public void onClickSearch(View view) {
-		new SearchTask().execute(interpreteWhiteSpaces(mSearchQuery.getText().toString()));
+		new SearchTask().execute(interpreteWhiteSpaces(mSearchQuery.getText().toString()), null);
 		
 	}
 
@@ -154,6 +154,9 @@ public class SearchActivity extends Activity {
 		}
 	}
 
+	
+	//This task should be modified so it can be called also from the QuestionIterator
+	//because it does the same thing.
 	private class SearchTask extends AsyncTask<String, Void, QuestionIterator> {
 		private AsyncTaskExceptions mException = null;
 
@@ -168,7 +171,7 @@ public class SearchActivity extends Activity {
 			Log.d("Potato SearchActivity",
 					"Sending query to server, getting questions");
 			try {
-				return Proxy.INSTANCE.searchQuestion(params[0], null);
+				return Proxy.INSTANCE.searchQuestion(params[0], params[1]);
 			} catch (NotLoggedInException e) {
 				Log.d("POTATO SearchActivity",
 						"NotLoggedInException : " + e.getMessage());
@@ -194,6 +197,8 @@ public class SearchActivity extends Activity {
 		protected void onPostExecute(QuestionIterator questionIterator) {
 			if (mException == null) {
 				if (questionIterator != null) {
+					
+					//can create the intent for ShowQuestions and launch it here
 					mQuestionIterator = questionIterator;
 					Log.d("POTATO SHOWQUESTIONS",
 							"Questions fetched successfully ");
