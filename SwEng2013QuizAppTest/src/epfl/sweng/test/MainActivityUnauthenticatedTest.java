@@ -18,6 +18,7 @@ public class MainActivityUnauthenticatedTest extends
     public static final String SHOW_QUESTION_TEXT = "Show a random question";
     public static final String SUBMIT_QUESTION_TEXT = "Submit a quiz question";
     public static final String TEQUILA_LOGIN = "Log in using Tequila";
+    public static final String SEARCH_TEXT = "Search";
 
     public MainActivityUnauthenticatedTest() {
         super(MainActivity.class);
@@ -27,6 +28,8 @@ public class MainActivityUnauthenticatedTest extends
     public void setUp() throws Exception {
         super.setUp();
         getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
+        Thread.sleep(1000);
+
     }
     
     @Override
@@ -60,17 +63,27 @@ public class MainActivityUnauthenticatedTest extends
         assertTrue("Tequila login button must be displayed",
                 solo.searchButton(TEQUILA_LOGIN));
     }
+    
+    public void testSearchButtonIsInitiallyDislayed() {
+    	assertTrue("Search button must be displayed", 
+    			solo.searchButton(SEARCH_TEXT));
+    }
 
     public void testRandomQuestionButtonIsInitiallyDisabled() {
         Button randomQuestion = solo.getButton(SHOW_QUESTION_TEXT);
         assertFalse("Show a random question button is initially disabled",
                 randomQuestion.isEnabled());
     }
-
+   
     public void testSubmitQuestionButtonIsInitiallyDisabled() {
         Button submitQuestion = solo.getButton(SUBMIT_QUESTION_TEXT);
         assertFalse("Submit a quiz question button is initially disabled",
                 submitQuestion.isEnabled());
+    }
+    
+    public void testSearchButtonIsInitiallyDisabled() {
+    	Button searchButton = solo.getButton(SEARCH_TEXT);
+    	assertFalse("Search question is initially disabled", searchButton.isEnabled());
     }
 
     public void testTequilaLoginButtonStartsActivity() {

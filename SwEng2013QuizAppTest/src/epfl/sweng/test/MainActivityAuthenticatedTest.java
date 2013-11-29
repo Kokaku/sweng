@@ -6,6 +6,7 @@ import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.entry.MainActivity;
+import epfl.sweng.searchquestions.SearchActivity;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
 import epfl.sweng.test.framework.QuizActivityTestCase;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
@@ -20,7 +21,7 @@ public class MainActivityAuthenticatedTest extends
     public static final String SUBMIT_QUESTION_TEXT = "Submit a quiz question";
     public static final String TEQUILA_LOGOUT = "Log out";
     public static final String TEQUILA_LOGIN = "Log in using Tequila";
-
+    public static final String SEARCH_TEXT = "Search";
     
     public MainActivityAuthenticatedTest() {
         super(MainActivity.class);
@@ -30,6 +31,7 @@ public class MainActivityAuthenticatedTest extends
     public void setUp() throws Exception {
         super.setUp();
         getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
+        Thread.sleep(1000);
         UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
     }
 
@@ -67,6 +69,18 @@ public class MainActivityAuthenticatedTest extends
         assertTrue("Logout button is displayed",
                 solo.searchButton(TEQUILA_LOGOUT));
     }
+    
+    public void testSearchButonIsDisplayed(){
+    	assertTrue("Search button is displayed", 
+    			solo.searchButton(SEARCH_TEXT));
+    }
+    
+    public void testSearchButtonIsEnabled() {
+    	Button searchButton = solo.getButton(SEARCH_TEXT);
+    	assertTrue("Search button is enabled", 
+    			searchButton.isEnabled());
+    }
+    
 
     public void testLogoutButtonDeleteCredentials() {
         clickOnTextViewAndWaitFor(TEQUILA_LOGOUT, TTChecks.LOGGED_OUT);
@@ -103,5 +117,10 @@ public class MainActivityAuthenticatedTest extends
         solo.assertCurrentActivity(
                 "Edit question button doesn't start activity",
                 EditQuestionActivity.class);
+    }
+    
+    public void testSearchButtonStartsActivity(){
+    	clickOnTextViewAndWaitFor(SEARCH_TEXT, TTChecks.SEARCH_ACTIVITY_SHOWN);
+    	solo.assertCurrentActivity("Search button starts the search activity", SearchActivity.class);
     }
 }
