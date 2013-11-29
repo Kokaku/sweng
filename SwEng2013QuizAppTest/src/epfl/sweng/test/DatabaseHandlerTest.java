@@ -87,7 +87,8 @@ public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
         } catch (DBException e) {
             fail("Should not be DBException: "+ e.getMessage());
         }
-        for(int i = 0; mIterator.hasNext(); i++) {
+        int i = 0;
+        for(i = 0; mIterator.hasNext(); i++) {
             try {
                 assertTrue("Question "+ i +" should be the same as "+mQuestion,
                         compareQuestions(mQuestion, mIterator.next(), false));
@@ -101,7 +102,7 @@ public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
                 fail("ServerCommunicationException: "+ e.getMessage());
             }
         }
-        
+        assertTrue("Should have fetched 11 questions form DB", i == 11);
     }
     
     public void testInvalidNext() {
