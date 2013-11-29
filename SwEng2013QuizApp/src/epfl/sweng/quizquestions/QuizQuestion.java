@@ -9,6 +9,8 @@ import java.util.TreeSet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import epfl.sweng.utils.JSONUtilities;
 
 /**
@@ -17,7 +19,7 @@ import epfl.sweng.utils.JSONUtilities;
  * @author kokaku
  * 
  */
-public class QuizQuestion {
+public class QuizQuestion implements Parcelable {
 	private static final int MAX_QUESTION_CARACTERS = 500;
 	private static final int MAX_ANSWERS = 10;
 	private static final int MAX_ANSWER_CARACTERS = 500;
@@ -129,6 +131,7 @@ public class QuizQuestion {
 		this(question, answers, solutionIndex, tags, 0, null);
 	}
 
+	
 	/**
 	 * @return the index of the correct answer
 	 */
@@ -180,16 +183,16 @@ public class QuizQuestion {
 	public Set<String> getTags() {
 		return new TreeSet<String>(mTags);
 	}
-	
+
 	/**
 	 * @return a JSON formatted string representing the question
 	 */
 	public String toString() {
-	    try {
-            return JSONUtilities.getJSONString(this);
-        } catch (JSONException e) {
-            return "Impossible to represent the question as a JSON string.";
-        }
+		try {
+			return JSONUtilities.getJSONString(this);
+		} catch (JSONException e) {
+			return "Impossible to represent the question as a JSON string.";
+		}
 	}
 
 	/**
@@ -215,9 +218,9 @@ public class QuizQuestion {
 	private int checkAnswers() {
 		int errors = (mAnswers == null || mAnswers.size() < 2 || mAnswers
 				.size() > MAX_ANSWERS) ? 1 : 0;
-		
+
 		if (mAnswers != null) {
-		    errors += checkAnswers(mAnswers);
+			errors += checkAnswers(mAnswers);
 		}
 
 		return errors;
@@ -238,10 +241,10 @@ public class QuizQuestion {
 		int errors = (mTags == null || mTags.size() < 1 || mTags.size() > MAX_TAGS) ? 1
 				: 0;
 
-        if (mTags != null) {
-            errors += checkTags(mTags);
-        }
-        
+		if (mTags != null) {
+			errors += checkTags(mTags);
+		}
+
 		return errors;
 	}
 
@@ -268,4 +271,56 @@ public class QuizQuestion {
 
 		return errors;
 	}
+
+	/* Parcelable implementation */
+	
+	public QuizQuestion(Parcel in) {
+		readFromParcel(in);
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(mQuestion);
+		dest.writeInt(mSolutionIndex);
+		dest.writeStringList(mAnswers);
+		dest.writeStringList(new ArrayList<String>(mTags));
+	}
+	
+	/**
+	 * Initializes the values of the members of the class
+	 * with the value written in the Parcel 
+	 * 
+	 * @param in the Parcel from which we are reading
+	 */
+	public void readFromParcel(Parcel in) {
+		mQuestion = in.readString();
+		mSolutionIndex = in.readInt();
+		mAnswers = new ArrayList<String>();
+		in.readStringList(mAnswers);
+		ArrayList<String> tags = new ArrayList<String>();
+		in.readStringList(tags);
+		mTags = new TreeSet<String>(tags);
+	}
+
+	
+	/**
+	 * Static field used to regenerate the object, individually or as an array
+	 */
+	public static final Parcelable.Creator<QuizQuestion> CREATOR = new Parcelable.Creator<QuizQuestion>() {
+		public QuizQuestion createFromParcel(Parcel in) {
+			return new QuizQuestion(in);
+		}
+
+		public QuizQuestion[] newArray(int size) {
+			return new QuizQuestion[size];
+		}
+	};
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	
+	
 }

@@ -107,9 +107,9 @@ public class JSONUtilities {
         }
         
         String test = query.toString();
-        System.out.println(test);
+        System.out.println(test + " JSON: " + jsonObject.toString());
         
-        return test;
+        return jsonObject.toString();
     }
 
 }

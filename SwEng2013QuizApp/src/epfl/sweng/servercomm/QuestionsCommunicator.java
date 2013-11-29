@@ -1,6 +1,5 @@
 package epfl.sweng.servercomm;
 
-import org.json.JSONException;
 
 import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.NotLoggedInException;
@@ -41,8 +40,7 @@ public interface QuestionsCommunicator {
      * @throws JSONException if there was a problem parsing the json
      */
     QuestionIterator searchQuestion(String query, String next)
-        throws NotLoggedInException, DBException, ServerCommunicationException,
-               JSONException;
+        throws NotLoggedInException, DBException, ServerCommunicationException;
     
     /**
      * Submit a new question

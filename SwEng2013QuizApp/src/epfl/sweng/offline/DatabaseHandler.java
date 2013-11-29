@@ -108,9 +108,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         
         db.close();
         
-        if (!requestSuccessfull) {
-            throw new DBException("Could not store the question.");
-        }
+//        if (!requestSuccessfull) {
+//            throw new DBException("Could not store the question.");
+//        }
     }
     
     /**
@@ -235,53 +235,85 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     /**
      * This method searches a question in the Database if the device is off-line
-     * and queries some set of question
+     * and queries some set of question.
      * 
      * @param query: query in the proposed language (SwEngQL)
-     * @param next: hash pointing to the next page of searched questions
+     * @param next: position to the next set of searched questions
      * @return a {@link QuestionIterator} with the questions retrieved from
      *         the database
      * @throws DBException if the database couldn't retrieve a question
      */
     public QuestionIterator searchQuestion(String query, String next)
         throws DBException {
-        
-        if (next == null || next.length() == 0) {
-            next = "0";
-        } else if (!next.matches("\\d+")) { //Check if next is a positive int
-            throw new IllegalArgumentException("Pointer next is not valid");
-        }
-        
-        String limit = " LIMIT "+next+", "+ (MAX_RESPONSE_NUMBER+1);
-        String querySQL = parseQuerytoSQL(query) + limit;
-        SQLiteDatabase db = getReadableDatabase();
-        
-        Cursor cursor = db.rawQuery(querySQL, null);
-        int arraySize = Math.max(cursor.getCount(), MAX_RESPONSE_NUMBER);
-        QuizQuestion[] questions = new QuizQuestion[arraySize];
-        String newNext = null;
-        
-        try {
-            for (int i = 0; i<questions.length && cursor.moveToNext(); i++) {
-                questions[i] = getQuestionFromCursor(cursor);
-            }
-            if (cursor.moveToNext()) {
-                newNext = Integer.toString(Integer.parseInt(next)+MAX_RESPONSE_NUMBER);
-            }
-        } catch (JSONException e) {
-            throw new DBException("Couldn't retrieve question from the Database");
-        } finally {
-            cursor.close();
-            db.close(); 
-        }
-        
-        return new QuestionIterator(questions, query, newNext);
+        String querySQL = "";
+//        
+//<<<<<<< HEAD
+//        if (next == null || next.length() == 0) {
+//            next = "0";
+//        } else if (!next.matches("\\d+")) { //Check if next is a positive int
+//            throw new IllegalArgumentException("Pointer next is not valid");
+//=======
+//        if (query != null) {
+//            querySQL = parseQuerytoSQL(query +" LIMIT "+ MAX_QUESTIONS);
+//>>>>>>> search
+//        }
+//        
+//        String limit = " LIMIT "+next+", "+ (MAX_RESPONSE_NUMBER+1);
+//        String querySQL = parseQuerytoSQL(query) + limit;
+//        SQLiteDatabase db = getReadableDatabase();
+//        Cursor cursor = db.rawQuery(querySQL, null);
+//<<<<<<< HEAD
+//        int arraySize = Math.max(cursor.getCount(), MAX_RESPONSE_NUMBER);
+//        QuizQuestion[] questions = new QuizQuestion[arraySize];
+//        String newNext = null;
+//        
+//        try {
+//            for (int i = 0; i<questions.length && cursor.moveToNext(); i++) {
+//                questions[i] = getQuestionFromCursor(cursor);
+//            }
+//            if (cursor.moveToNext()) {
+//                newNext = Integer.toString(Integer.parseInt(next)+MAX_RESPONSE_NUMBER);
+//            }
+//=======
+//        
+//        QuizQuestion[] questions = new QuizQuestion[MAX_QUESTIONS];
+//        
+//        if (cursor == null || cursor.getCount() == 0) {
+//            return new QuestionIterator(questions, query, null);
+//        }
+//        
+//        int nextPosition = 0;
+//        if (next != null && next.equals("")) {
+//            nextPosition = Integer.parseInt(next);
+//            cursor.moveToPosition(nextPosition);
+//        }
+//        
+//        try {
+//            for (int i = 0; i < MAX_QUESTIONS && cursor.moveToNext(); i++) {
+//                questions[i] = getQuestionFromCursor(cursor);
+//            }
+//            nextPosition = cursor.getPosition();
+//            
+//>>>>>>> search
+//        } catch (JSONException e) {
+//            throw new DBException("Couldn't retrieve question from the Database");
+//        } finally {
+//            cursor.close();
+//            db.close(); 
+//        }
+//        
+//<<<<<<< HEAD
+//        return new QuestionIterator(questions, query, newNext);
+//=======
+//        return new QuestionIterator(questions, query, nextPosition + "");
+//>>>>>>> search
+        return null;
     }
 
     /**
      * This method parses a SwEngQL query sanitized to a SQLite query:
      *   - * operator is not optional
-     *   - spaces between each operator, term and parenthesis
+     *   - spaces wrapping each operator, term and parenthesis
      *   
      * Example of valid query: ( banana + garlic ) * fruit
      * Examples of non valid query: 
@@ -289,15 +321,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      *   - ( banana + garlic ) fruit
      *   - ( banana +garlic )fruit
      *   - etc...
-     * It selects always all parameters from columns COLUMN_QUESTION,
-     * COLUMN_ANSWERS or COLUMN_TAGS
+     * It selects always all attributes from columns COLUMN_QUESTION,
+     * COLUMN_ANSWERS or COLUMN_TAGS ordered by COLUMN_ID
      * 
      * @param query: a SwEngQL query
      * @return querySQLite: query parsed from SwEngQL to SQLite
      */
     private String parseQuerytoSQL(String query) {
         StringTokenizer queryTokenizer = new StringTokenizer(query, " ");
-        String querySQLite = "SELECT * FROM " + TABLE_NAME + " WHERE ";
+        String querySQLite = "SELECT * FROM "+ TABLE_NAME +" WHERE ";
         String nextToken = null;
         
         while (queryTokenizer.hasMoreTokens()) {
@@ -309,11 +341,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } else if (nextToken.equals("+")) {
                 querySQLite += " OR ";
             } else {
-                querySQLite += "("+COLUMN_QUESTION + " LIKE " + nextToken +" OR "+
-                        COLUMN_ANSWERS + " LIKE " + nextToken + " OR " +
-                        COLUMN_TAGS + " LIKE " + nextToken + ")";
+                querySQLite += " ( "+ COLUMN_QUESTION +" LIKE "+ nextToken +" OR "+
+                        COLUMN_ANSWERS +" LIKE "+ nextToken +" OR "+
+                        COLUMN_TAGS +" LIKE "+ nextToken +" ) ";
             }
         }
+        querySQLite += "ORDER BY "+ COLUMN_ID +" ASC ";
         return querySQLite;
     }
 }
