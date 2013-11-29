@@ -302,16 +302,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         
         while (queryTokenizer.hasMoreTokens()) {
             nextToken = queryTokenizer.nextToken();
-            if (nextToken.equals("(") || nextToken.equals(")")) {
+            if (nextToken.isEmpty()) {
+                
+            } else if (nextToken.equals("(") || nextToken.equals(")")) {
                 querySQLite += " " + nextToken + " ";
             } else if (nextToken.equals("*")) {
                 querySQLite += " AND ";
             } else if (nextToken.equals("+")) {
                 querySQLite += " OR ";
             } else {
-                querySQLite += " ( "+ COLUMN_QUESTION +" LIKE "+ nextToken +" OR "+
-                        COLUMN_ANSWERS +" LIKE "+ nextToken +" OR "+
-                        COLUMN_TAGS +" LIKE "+ nextToken +" ) ";
+                querySQLite += " ( "+ COLUMN_QUESTION +" LIKE '%"+ nextToken +"%' OR "+
+                        COLUMN_ANSWERS +" LIKE '%"+ nextToken +"%' OR "+
+                        COLUMN_TAGS +" LIKE '%"+ nextToken +"%' ) ";
             }
         }
         return querySQLite;
