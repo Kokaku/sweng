@@ -5,6 +5,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.http.HttpStatus;
+
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.entry.MainActivity;
@@ -16,7 +18,9 @@ import epfl.sweng.patterns.Proxy;
 import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.searchquestions.QuestionIterator;
+import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.test.framework.QuizActivityTestCase;
+import epfl.sweng.test.minimalmock.MockHttpClient;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 /**
@@ -67,11 +71,22 @@ public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
     }
     
     public void testGetRandomQuestion() {
+        try {
+            db.storeQuestion(mQuestion, false);
+        } catch (DBException e) {
+            fail("Problem storing the question");
+        }
         assertTrue("Questions should be the same",
                 compareQuestions(getNewQuestionFromDB(), mQuestion, true));
     }
     
     public void testSynchronizeQuestions() {
+        MockHttpClient mockHttpClient = new MockHttpClient();
+        SwengHttpClientFactory.setInstance(mockHttpClient);
+        mockHttpClient.pushCannedResponse(
+                "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
+                HttpStatus.SC_OK, "", "application/json");
+        
         try {
             db.storeQuestion(mQuestion, true);
         } catch (DBException e) {
