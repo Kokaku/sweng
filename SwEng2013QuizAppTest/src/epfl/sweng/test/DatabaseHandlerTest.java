@@ -66,6 +66,27 @@ public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
         super.tearDown();   
     }
     
+    public void testGetRandomQuestion() {
+        assertTrue("Questions should be the same",
+                compareQuestions(getNewQuestionFromDB(), mQuestion, true));
+    }
+    
+    public void testSynchronizeQuestions() {
+        try {
+            db.storeQuestion(mQuestion, true);
+        } catch (DBException e) {
+            fail("testSynchronizeQuestions during storing"+ e.getMessage());
+        }
+        try {
+            assertTrue("DB should have send a question to server",
+                    db.synchronizeQuestions() == 1);
+        } catch (DBException e) {
+            fail("testSynchronizeQuestions during synchronizing"+ e.getMessage());
+        } catch (ServerCommunicationException e) {
+            fail("Question can't be submitted");
+        }
+    }
+    
     public void testNextGiveNextQuestionSet() {
         db.clearCache();
         for(int i = 0; i < 11; i++) {
