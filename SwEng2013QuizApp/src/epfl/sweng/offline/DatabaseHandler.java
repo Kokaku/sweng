@@ -258,7 +258,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         
         Cursor cursor = db.rawQuery(querySQL, null);
-        int arraySize = Math.max(cursor.getCount(), MAX_RESPONSE_NUMBER);
+        int arraySize = Math.min(cursor.getCount(), MAX_RESPONSE_NUMBER);
         QuizQuestion[] questions = new QuizQuestion[arraySize];
         String newNext = null;
         
@@ -303,7 +303,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         while (queryTokenizer.hasMoreTokens()) {
             nextToken = queryTokenizer.nextToken();
             if (nextToken.isEmpty()) {
-                
             } else if (nextToken.equals("(") || nextToken.equals(")")) {
                 querySQLite += " " + nextToken + " ";
             } else if (nextToken.equals("*")) {
