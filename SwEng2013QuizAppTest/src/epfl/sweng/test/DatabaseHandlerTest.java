@@ -82,10 +82,10 @@ public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
     
     public void testSynchronizeQuestions() {
         MockHttpClient mockHttpClient = new MockHttpClient();
+        mockHttpClient.clearCannedResponses();
         SwengHttpClientFactory.setInstance(mockHttpClient);
-        mockHttpClient.pushCannedResponse(
-                "GET (?:https?://[^/]+|[^/]+)?/+quizquestions/random\\b",
-                HttpStatus.SC_OK, "", "application/json");
+        mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_CREATED,
+                                          mQuestion.toString(), null);
         
         try {
             db.storeQuestion(mQuestion, true);
