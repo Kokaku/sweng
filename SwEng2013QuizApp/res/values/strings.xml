@@ -35,6 +35,7 @@
     <string name="failed_to_cache_question">An error occurred while caching the question!</string>
     <string name="text_retry">Retry</string>
     <string name="text_abort">Abort</string>
+    <string name="no_more_questions_to_show">There are no more questions matching your query</string>
 
     <!-- Unicode characters -->
     <string name="wrong_answer">\u2718</string>

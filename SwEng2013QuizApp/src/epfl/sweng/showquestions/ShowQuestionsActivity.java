@@ -258,7 +258,8 @@ public class ShowQuestionsActivity extends ListActivity {
 				Log.d("POTATO SHOWQUESTIONS", "DBException : " + e.getMessage());
 				mException = AsyncTaskExceptions.DB_EXCEPTION;
 			} catch (NoSuchElementException e) {
-				// TODO check what they ask in HW5
+				Log.d("POTATO SHOWQUESTIONS", "End of questions in question iterator" + e.getMessage());
+				mException = AsyncTaskExceptions.NO_SUCH_ELEMENT_EXCEPTION;
 			}
 
 			return null;
@@ -310,6 +311,10 @@ public class ShowQuestionsActivity extends ListActivity {
 									"Broken DB toast displayed");
 						}
 						break;
+					case NO_SUCH_ELEMENT_EXCEPTION:
+						if (mState == State.SEARCH) {
+							SwEng2013QuizApp.displayToast(R.string.no_more_questions_to_show);
+						} 
 					default:
 					assert false;
 				}
