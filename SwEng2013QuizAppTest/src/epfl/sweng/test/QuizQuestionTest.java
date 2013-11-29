@@ -3,11 +3,16 @@
  */
 package epfl.sweng.test;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.test.AndroidTestCase;
 import epfl.sweng.quizquestions.QuizQuestion;
@@ -163,4 +168,179 @@ public class QuizQuestionTest extends AndroidTestCase {
 		assertEquals(mTags, mQuestion.getTags());
 	}
 
+    public void testToString() {
+        testCreateQuestionWithOneAnswer();
+
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("question", mQuestion.getQuestion());
+                jsonObject.put("answers", new JSONArray(mQuestion.getAnswers()));
+            jsonObject.put("solutionIndex", mQuestion.getSolutionIndex());
+            jsonObject.put("tags", new JSONArray(mQuestion.getTags()));
+            jsonObject.put("owner", mQuestion.getOwner());
+            jsonObject.put("id", mQuestion.getId());
+            assertTrue(mQuestion.toString().equals(jsonObject.toString()));
+        } catch (JSONException e) {
+            fail("Unexpected JSONException");
+        }
+    }
+    
+    public void editQuestion(String question) {
+        try {
+            Field mQuestionField = QuizQuestion.class.getDeclaredField("mQuestion");
+            mQuestionField.setAccessible(true);
+            mQuestionField.set(mQuestion, question);
+        } catch (Exception e) {
+            fail("Java reflexion error");
+        }
+    }
+    
+    public void editAnswer(List<String> answers) {
+        try {
+            Field mAnswersField = QuizQuestion.class.getDeclaredField("mAnswers");
+            mAnswersField.setAccessible(true);
+            mAnswersField.set(mQuestion, answers);
+           
+        } catch (Exception e) {
+            fail("Java reflexion error");
+        }
+    }
+    
+    public void editSolution(int solutionIndex) {
+        try {
+            Field mSolutionIndexField = QuizQuestion.class.getDeclaredField("mSolutionIndex");
+            mSolutionIndexField.setAccessible(true);
+            mSolutionIndexField.set(mQuestion, solutionIndex);
+        } catch (Exception e) {
+            fail("Java reflexion error");
+        }
+    }
+    
+    public void editTags(Set<String> tags) {
+        try {
+            Field mTagsField = QuizQuestion.class.getDeclaredField("mTags");
+            mTagsField.setAccessible(true);
+            mTagsField.set(mQuestion, tags);
+        } catch (Exception e) {
+            fail("Java reflexion error");
+        }
+    }
+    
+    public void editId(long id) {
+        try {
+            Field mIdField = QuizQuestion.class.getDeclaredField("mId");
+            mIdField.setAccessible(true);
+            mIdField.set(mQuestion, id);
+        } catch (Exception e) {
+            fail("Java reflexion error");
+        }
+    }
+    
+    public void editOwner(String owner) {
+        try {
+            Field mOwnerField = QuizQuestion.class.getDeclaredField("mOwner");
+            mOwnerField.setAccessible(true);
+            mOwnerField.set(mQuestion, owner);
+        } catch (Exception e) {
+            fail("Java reflexion error");
+        }
+    }
+
+    public void testAuditWhenNoErrors() {
+        testCreateQuestionWithOneAnswer();
+        assertTrue(mQuestion.auditErrors() == 0);
+    }
+
+    public void testAuditWhenQuestionNull() {
+        testCreateQuestionWithOneAnswer();
+        editQuestion(null);
+        assertTrue(mQuestion.auditErrors() == 1);
+    }
+
+    public void testAuditWhenQuestionContainsOnlySpaces() {
+        testCreateQuestionWithOneAnswer();
+        editQuestion("   ");
+        assertTrue(mQuestion.auditErrors() == 1);
+    }
+
+    public void testAuditWhenQuestionToLong() {
+        testCreateQuestionWithOneAnswer();
+        String question = "";
+        for (int i = 0; i < 600; i++) {
+            question += "a";
+        }
+        editQuestion(question);
+        assertTrue(mQuestion.auditErrors() == 1);
+    }
+
+    public void testAuditWhenOneAnswer() {
+        testCreateQuestionWithOneAnswer();
+        ArrayList<String> answers = new ArrayList<String>();
+        answers.add("question");
+        editAnswer(answers);
+        editSolution(0);
+        assertTrue(mQuestion.auditErrors() == 1);
+    }
+
+    public void testAuditWhenToMuchAnswers() {
+        testCreateQuestionWithOneAnswer();
+        ArrayList<String> answers = new ArrayList<String>();
+        for (int i = 0; i < 11; i++) {
+            answers.add("question");
+        }
+        editAnswer(answers);
+        assertTrue(mQuestion.auditErrors() == 1);
+    }
+
+    public void testAuditWhenTagsNull() {
+        testCreateQuestionWithOneAnswer();
+        editTags(null);
+        if(mQuestion == null)
+        assertTrue(mQuestion.auditErrors() == 1);
+    }
+
+    public void testAuditWhenNoTag() {
+        testCreateQuestionWithOneAnswer();
+        TreeSet<String> tags = new TreeSet<String>();
+        editTags(tags);
+        editSolution(0);
+        assertTrue(mQuestion.auditErrors() == 1);
+    }
+
+    public void testAuditWhenToMuchTags() {
+        testCreateQuestionWithOneAnswer();
+        TreeSet<String> tags = new TreeSet<String>();
+        for (int i = 0; i < 21; i++) {
+            tags.add("a"+i);
+        }
+        editTags(tags);
+        assertTrue(mQuestion.auditErrors() == 1);
+    }
+
+    public void testAuditWhenSolutionIndexToBig() {
+        testCreateQuestionWithOneAnswer();
+        editSolution(42);
+        assertTrue(mQuestion.auditErrors() == 1);
+    }
+
+    public void testAuditWhenAllWrong() {
+        testCreateQuestionWithOneAnswer();
+        ArrayList<String> answers = new ArrayList<String>();
+        TreeSet<String> tags = new TreeSet<String>();
+        for (int i = 0; i < 11; i++) {
+            answers.add("   ");
+        }
+        for (int i = 0; i < 21; i++) {
+            String newTag = "";
+            for (int j = 0; j < i; j++) {
+                newTag += " ";
+            }
+            tags.add(newTag);
+        }
+        editQuestion(" ");
+        editAnswer(answers);
+        editTags(tags);
+        editSolution(42);
+        assertTrue(mQuestion.auditErrors() == 36);
+    }
 }
