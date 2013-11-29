@@ -10,19 +10,12 @@ import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-
-import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.entry.MainActivity;
 import epfl.sweng.exceptions.InvalidCredentialsException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
-import epfl.sweng.patterns.Proxy;
-import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
