@@ -10,11 +10,19 @@ import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
+import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.entry.MainActivity;
+import epfl.sweng.exceptions.InvalidCredentialsException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
+import epfl.sweng.patterns.Proxy;
+import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.servercomm.ServerCommunication;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
@@ -228,21 +236,15 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
     public void testQuestionWellRecieved() throws ServerCommunicationException {
         mTags.add("tag1");
         mQuestion = new QuizQuestion(mQuestionText, new ArrayList<String>(
-                Arrays.asList(mAnswers)), mSolutionIndex, mTags);
+                Arrays.asList(mAnswers)), mSolutionIndex, mTags, 0, "me");
 
+        mockHttpClient.clearCannedResponses();
         pushCannedAnswerForOKPostRequest();
         ServerCommunication.INSTANCE.send(mQuestion);
         QuizQuestion questionOnServer = null;
         try {
             questionOnServer = new QuizQuestion(new JSONObject(
                     mockHttpClient.getLastPostRequestContent()).toString());
-        } catch (JSONException e) {
-            System.out.println("prout1");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.out.println("prout2");
-            e.printStackTrace();
-        }
 
         assertTrue("Question text is well recieved", mQuestion.getQuestion()
                 .equals(questionOnServer.getQuestion()));
@@ -254,8 +256,15 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
         assertTrue("Question solution index is well recieved",
                 mQuestion.getSolutionIndex() == questionOnServer
                         .getSolutionIndex());
-
-        mockHttpClient.clearCannedResponses();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            fail("JSONException");
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("IOException");
+        } finally {
+            mockHttpClient.clearCannedResponses();
+        }
     }
 
     public void testQuestionNotRecieved() throws ServerCommunicationException {
@@ -269,5 +278,132 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
         } catch (ServerCommunicationException e) {
 
         }
+    }
+    
+    public void testLoginSteps1To6() {
+        UserCredentials.INSTANCE.setState(UserCredentials.AuthenticationState.UNAUTHENTICATED);
+        mockHttpClient.clearCannedResponses();
+        mockHttpClient.pushCannedResponse(
+                "GET (?:https?://[^/]+|[^/]+)?/+login\\b",
+                HttpStatus.SC_OK,
+                "{\"token\": \"rqtvk5d3za2x6ocak1a41dsmywogrdlv5\", " +
+                "\"message\": \"Here's your authentication token. Please " +
+                "validate it with Tequila at https://tequila.epfl.ch/cgi-bin/" +
+                "tequila/login\" }",
+                "application/json");
+        mockHttpClient.pushCannedResponse(
+                "POST https://tequila.epfl.ch/cgi-bin/tequila/login", HttpStatus.SC_MOVED_TEMPORARILY, "", null);
+        mockHttpClient.pushCannedResponse(
+                "POST https://sweng-quiz.appspot.com/login", HttpStatus.SC_OK,
+                "{\"session\": \"rqtvk5d3za2x6ocak1a41dsmywogrdlv5\", " +
+                "\"message\": \"Here's your authentication token. Please " +
+                "validate it with Tequila at https://tequila.epfl.ch/cgi-bin/" +
+                "tequila/login\" }", null);
+        
+        try {
+            ServerCommunication.INSTANCE.login("paul", "d01m07y73");
+            assertTrue(UserCredentials.INSTANCE.getState() == UserCredentials.AuthenticationState.AUTHENTICATED);
+        } catch (ServerCommunicationException e) {
+            fail("Unexpected exception");
+        } catch (InvalidCredentialsException e) {
+            fail("creditial are valide");
+        }
+        
+        mockHttpClient.clearCannedResponses();
+    }
+    
+    public void testLoginInvalidCreditial() {
+        UserCredentials.INSTANCE.setState(UserCredentials.AuthenticationState.UNAUTHENTICATED);
+        mockHttpClient.clearCannedResponses();
+        mockHttpClient.pushCannedResponse(
+                "GET (?:https?://[^/]+|[^/]+)?/+login\\b",
+                HttpStatus.SC_OK,
+                "{\"token\": \"rqtvk5d3za2x6ocak1a41dsmywogrdlv5\", " +
+                "\"message\": \"Here's your authentication token. Please " +
+                "validate it with Tequila at https://tequila.epfl.ch/cgi-bin/" +
+                "tequila/login\" }",
+                "application/json");
+        mockHttpClient.pushCannedResponse(
+                "POST https://tequila.epfl.ch/cgi-bin/tequila/login", HttpStatus.SC_OK, "", null);
+        mockHttpClient.pushCannedResponse(
+                "POST https://sweng-quiz.appspot.com/login", HttpStatus.SC_OK,
+                "{\"session\": \"rqtvk5d3za2x6ocak1a41dsmywogrdlv5\", " +
+                "\"message\": \"Here's your authentication token. Please " +
+                "validate it with Tequila at https://tequila.epfl.ch/cgi-bin/" +
+                "tequila/login\" }", null);
+        try {
+            ServerCommunication.INSTANCE.login("paul", "d01m07y73");
+            fail("Bad login must throw an InvalidCredentialsException");
+        } catch (ServerCommunicationException e) {
+            fail("Unexpected exception");
+        } catch (InvalidCredentialsException e) {
+        }
+        
+        assertTrue(UserCredentials.INSTANCE.getState() != UserCredentials.AuthenticationState.AUTHENTICATED);
+        mockHttpClient.clearCannedResponses();
+    }
+    
+    public void testLoginTokenResponseNonOk() {
+        UserCredentials.INSTANCE.setState(UserCredentials.AuthenticationState.UNAUTHENTICATED);
+        mockHttpClient.clearCannedResponses();
+        mockHttpClient.pushCannedResponse(
+                "GET (?:https?://[^/]+|[^/]+)?/+login\\b",
+                HttpStatus.SC_ACCEPTED,
+                "{\"token\": \"rqtvk5d3za2x6ocak1a41dsmywogrdlv5\", " +
+                "\"message\": \"Here's your authentication token. Please " +
+                "validate it with Tequila at https://tequila.epfl.ch/cgi-bin/" +
+                "tequila/login\" }",
+                "application/json");
+        mockHttpClient.pushCannedResponse(
+                "POST https://tequila.epfl.ch/cgi-bin/tequila/login", HttpStatus.SC_MOVED_TEMPORARILY, "", null);
+        mockHttpClient.pushCannedResponse(
+                "POST https://sweng-quiz.appspot.com/login", HttpStatus.SC_OK,
+                "{\"session\": \"rqtvk5d3za2x6ocak1a41dsmywogrdlv5\", " +
+                "\"message\": \"Here's your authentication token. Please " +
+                "validate it with Tequila at https://tequila.epfl.ch/cgi-bin/" +
+                "tequila/login\" }", null);
+        
+        try {
+            ServerCommunication.INSTANCE.login("paul", "d01m07y73");
+            fail("Exception expected to be thrown");
+        } catch (ServerCommunicationException e) {
+        } catch (InvalidCredentialsException e) {
+            fail("creditial are valide");
+        }
+        
+        assertTrue(UserCredentials.INSTANCE.getState() != UserCredentials.AuthenticationState.AUTHENTICATED);
+        mockHttpClient.clearCannedResponses();
+    }
+    
+    public void testLoginConfirmationResponseNonOk() {
+        UserCredentials.INSTANCE.setState(UserCredentials.AuthenticationState.UNAUTHENTICATED);
+        mockHttpClient.clearCannedResponses();
+        mockHttpClient.pushCannedResponse(
+                "GET (?:https?://[^/]+|[^/]+)?/+login\\b",
+                HttpStatus.SC_OK,
+                "{\"token\": \"rqtvk5d3za2x6ocak1a41dsmywogrdlv5\", " +
+                "\"message\": \"Here's your authentication token. Please " +
+                "validate it with Tequila at https://tequila.epfl.ch/cgi-bin/" +
+                "tequila/login\" }",
+                "application/json");
+        mockHttpClient.pushCannedResponse(
+                "POST https://tequila.epfl.ch/cgi-bin/tequila/login", HttpStatus.SC_MOVED_TEMPORARILY, "", null);
+        mockHttpClient.pushCannedResponse(
+                "POST https://sweng-quiz.appspot.com/login", HttpStatus.SC_ACCEPTED,
+                "{\"session\": \"rqtvk5d3za2x6ocak1a41dsmywogrdlv5\", " +
+                "\"message\": \"Here's your authentication token. Please " +
+                "validate it with Tequila at https://tequila.epfl.ch/cgi-bin/" +
+                "tequila/login\" }", null);
+        
+        try {
+            ServerCommunication.INSTANCE.login("paul", "d01m07y73");
+            fail("Exception expected to be thrown");
+        } catch (ServerCommunicationException e) {
+        } catch (InvalidCredentialsException e) {
+            fail("creditial are valide");
+        }
+        
+        assertTrue(UserCredentials.INSTANCE.getState() != UserCredentials.AuthenticationState.AUTHENTICATED);
+        mockHttpClient.clearCannedResponses();
     }
 }

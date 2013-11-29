@@ -265,7 +265,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	/**
 	 * @return true if the device is connected, false otherwise.
 	 */
-	private boolean isNetworkAvailable() {
+	public boolean isNetworkAvailable() {
 		Context context = SwEng2013QuizApp.getAppContext();
 		ConnectivityManager connectivityManager = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
