@@ -83,6 +83,11 @@ public class SearchActivity extends Activity {
 		int openParen = 0;
 		query = query.trim().replaceAll("(\\w+)(\\s+)(\\w+)", "$1*$3")
 				.replaceAll("\\s+", "").replaceAll("\\w+", "a");
+		query = query.replaceAll("(\\))(\\()", "$1*$2")
+				.replaceAll("(\\))(\\w+)", "$1 * $2")
+				.replaceAll("(\\w+)(\\()", "$1 * $2")
+				.replaceAll("\\s+", "");
+		System.out.println(query);
 		for (int i = 0; i < query.length(); i++) {
 			char current = query.charAt(i);
 			if (current == '(') {
@@ -93,7 +98,8 @@ public class SearchActivity extends Activity {
 					return false;
 				}
 			} else if (current == '+' || current == '*') {
-				if (i >= query.length() - 1 || query.charAt(i + 1) != 'a') {
+				if (i >= query.length() - 1
+						|| (query.charAt(i + 1) != 'a' && query.charAt(i + 1) != '(')) {
 					return false;
 				}
 				if (i == 0
@@ -145,33 +151,22 @@ public class SearchActivity extends Activity {
 			TestCoordinator.check(TTChecks.QUERY_EDITED);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * android.text.TextWatcher#beforeTextChanged(java.lang.CharSequence,
-		 * int, int, int)
-		 */
 		@Override
 		public void beforeTextChanged(CharSequence s, int start, int count,
 				int after) {
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.text.TextWatcher#onTextChanged(java.lang.CharSequence,
-		 * int, int, int)
-		 */
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before,
 				int count) {
 		}
 	}
 
-	// This task should be modified so it can be called also from the
-	// QuestionIterator
-	// because it does the same thing.
+	/**
+	 * 
+	 * @author Zhivka Gucevska
+	 * 
+	 */
 	private class SearchTask extends AsyncTask<String, Void, QuestionIterator> {
 		private AsyncTaskExceptions mException = null;
 
@@ -221,40 +216,40 @@ public class SearchActivity extends Activity {
 					// put extras in mIntent
 					mIntent.putExtra("Source", SearchActivity.class.getName());
 					mIntent.putExtra("iterator", questionIterator);
-				
+
 					startActivity(mIntent);
 					finish();
 				}
 			} else {
 				switch (mException) {
-					case NOT_LOGGED_IN_EXCEPTION:
-						SwEng2013QuizApp.displayToast(R.string.not_logged_in);
-						break;
-					case SERVER_COMMUNICATION_EXCEPTION:
+				case NOT_LOGGED_IN_EXCEPTION:
+					SwEng2013QuizApp.displayToast(R.string.not_logged_in);
+					break;
+				case SERVER_COMMUNICATION_EXCEPTION:
+					SwEng2013QuizApp
+							.displayToast(R.string.failed_to_get_question);
+					Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
+					SwEng2013QuizApp.displayToast(R.string.now_offline);
+					// TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
+					break;
+				case BAD_REQUEST_EXCEPTION:
+					SwEng2013QuizApp
+							.displayToast(R.string.failed_to_get_question);
+					break;
+				case DB_EXCEPTION:
+					if (Proxy.INSTANCE.isOnline()) {
 						SwEng2013QuizApp
-								.displayToast(R.string.failed_to_get_question);
-						Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
-						SwEng2013QuizApp.displayToast(R.string.now_offline);
-						// TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
-						break;
-					case BAD_REQUEST_EXCEPTION:
-						SwEng2013QuizApp
-								.displayToast(R.string.failed_to_get_question);
-						break;
-					case DB_EXCEPTION:
-						if (Proxy.INSTANCE.isOnline()) {
-							SwEng2013QuizApp
-									.displayToast(R.string.failed_to_cache_question);
-							Log.d("POTATO SHOWQUESTIONS",
-									"Toast failed to cache question displayed");
-						} else {
-							SwEng2013QuizApp.displayToast(R.string.broken_database);
-							Log.d("POTATO SHOWQUESTIONS",
-									"Broken DB toast displayed");
-						}
-						break;
-					default:
-						assert false;
+								.displayToast(R.string.failed_to_cache_question);
+						Log.d("POTATO SHOWQUESTIONS",
+								"Toast failed to cache question displayed");
+					} else {
+						SwEng2013QuizApp.displayToast(R.string.broken_database);
+						Log.d("POTATO SHOWQUESTIONS",
+								"Broken DB toast displayed");
+					}
+					break;
+				default:
+					assert false;
 				}
 			}
 		}
