@@ -85,8 +85,7 @@ public class SearchActivity extends Activity {
 				.replaceAll("\\s+", "").replaceAll("\\w+", "a");
 		query = query.replaceAll("(\\))(\\()", "$1*$2")
 				.replaceAll("(\\))(\\w+)", "$1 * $2")
-				.replaceAll("(\\w+)(\\()", "$1 * $2")
-				.replaceAll("\\s+", "");
+				.replaceAll("(\\w+)(\\()", "$1 * $2").replaceAll("\\s+", "");
 		System.out.println(query);
 		for (int i = 0; i < query.length(); i++) {
 			char current = query.charAt(i);
@@ -127,14 +126,15 @@ public class SearchActivity extends Activity {
 	 *         replaced by '*' when used as such
 	 */
 	private String interpreteWhiteSpaces(String query) {
-		// query =
-		// query.replaceAll("(\'(\'.* \')\')+) (\\s+) (\'(\'.* \')\')+) ",
-		// "$1 * $3");
 		query = query.trim().replaceAll("(\\w+)(\\s+)(\\w+)", "$1*$3")
-				.replaceAll("\\s+", "");
+				.replaceAll("\\s+", "").replaceAll("", "");
 
-		// query = query.replaceAll("*", " * ").replaceAll("+", " + ");
-
+		query = query.trim().replaceAll("(\\w+)(\\s+)(\\w+)", "$1*$3")
+				.replaceAll("\\s+", "").replaceAll("(\\))(\\()", "$1*$2")
+				.replaceAll("(\\))(\\w+)", "$1 * $2")
+				.replaceAll("(\\w+)(\\()", "$1 * $2").replaceAll("\\s+", "")
+				.replaceAll("\\*", " * ").replaceAll("\\+", " + ");
+		System.out.println("QUERY: " + query);
 		return query;
 	}
 
@@ -219,37 +219,40 @@ public class SearchActivity extends Activity {
 
 					startActivity(mIntent);
 					finish();
+				} else {
+					System.err
+							.println("Something went wrong in SearchActvivity, QuestionIterator was not created");
 				}
 			} else {
 				switch (mException) {
-				case NOT_LOGGED_IN_EXCEPTION:
-					SwEng2013QuizApp.displayToast(R.string.not_logged_in);
-					break;
-				case SERVER_COMMUNICATION_EXCEPTION:
-					SwEng2013QuizApp
-							.displayToast(R.string.failed_to_get_question);
-					Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
-					SwEng2013QuizApp.displayToast(R.string.now_offline);
-					// TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
-					break;
-				case BAD_REQUEST_EXCEPTION:
-					SwEng2013QuizApp
-							.displayToast(R.string.failed_to_get_question);
-					break;
-				case DB_EXCEPTION:
-					if (Proxy.INSTANCE.isOnline()) {
+					case NOT_LOGGED_IN_EXCEPTION:
+						SwEng2013QuizApp.displayToast(R.string.not_logged_in);
+						break;
+					case SERVER_COMMUNICATION_EXCEPTION:
 						SwEng2013QuizApp
-								.displayToast(R.string.failed_to_cache_question);
-						Log.d("POTATO SHOWQUESTIONS",
-								"Toast failed to cache question displayed");
-					} else {
-						SwEng2013QuizApp.displayToast(R.string.broken_database);
-						Log.d("POTATO SHOWQUESTIONS",
-								"Broken DB toast displayed");
-					}
-					break;
-				default:
-					assert false;
+								.displayToast(R.string.failed_to_get_question);
+						Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
+						SwEng2013QuizApp.displayToast(R.string.now_offline);
+						// TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
+						break;
+					case BAD_REQUEST_EXCEPTION:
+						SwEng2013QuizApp
+								.displayToast(R.string.failed_to_get_question);
+						break;
+					case DB_EXCEPTION:
+						if (Proxy.INSTANCE.isOnline()) {
+							SwEng2013QuizApp
+									.displayToast(R.string.failed_to_cache_question);
+							Log.d("POTATO SHOWQUESTIONS",
+									"Toast failed to cache question displayed");
+						} else {
+							SwEng2013QuizApp.displayToast(R.string.broken_database);
+							Log.d("POTATO SHOWQUESTIONS",
+									"Broken DB toast displayed");
+						}
+						break;
+					default:
+						assert false;
 				}
 			}
 		}
