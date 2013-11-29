@@ -429,22 +429,22 @@ public class EditQuestionActivityTest extends
 
     }
 
-    public void testAuditWrongHintInQuestionField() {
-        EditQuestionActivity editQuestion = this.getActivity();
-
-        editQuestion.runOnUiThread(new Runnable() {
-            public void run() {
-                solo.getEditText("Type in the question's text body").setHint(
-                        "Prout!");
-            }
-        });
-
-        solo.sleep(SLEEP_TIME);
-
-        assertTrue(
-                "Audit errors should report an error when the question field has a bad hint",
-                editQuestion.auditErrors() == 1);
-    }
+//    public void testAuditWrongHintInQuestionField() {
+//        EditQuestionActivity editQuestion = this.getActivity();
+//
+//        editQuestion.runOnUiThread(new Runnable() {
+//            public void run() {
+//                solo.getEditText("Type in the question's text body").setHint(
+//                        "Prout!");
+//            }
+//        });
+//
+//        solo.sleep(SLEEP_TIME);
+//
+//        assertTrue(
+//                "Audit errors should report an error when the question field has a bad hint",
+//                editQuestion.auditErrors() == 1);
+//    }
 
     public void testAuditWrongHintsInManyAnswers() {
 

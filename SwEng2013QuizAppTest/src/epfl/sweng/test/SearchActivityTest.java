@@ -35,6 +35,23 @@ public class SearchActivityTest extends QuizActivityTestCase<SearchActivity> {
 		UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
 		UserCredentials.INSTANCE.saveUserCredentials("test");
 		getActivityAndWaitFor(TTChecks.SEARCH_ACTIVITY_SHOWN);
+		mockHttpClient
+		.pushCannedResponse(
+				"POST [^/]+",
+				HttpStatus.SC_OK,
+				"{\"questions\": ["
+						+ " {"
+						+ "\"id\": \"7654765\","
+						+ " \"owner\": \"fruitninja\","
+						+ " \"question\": \"How many calories are in a banana?\","
+						+ " \"answers\": [ \"Just enough\", \"Too many\" ],"
+						+ " \"solutionIndex\": 0,"
+						+ " \"tags\": [ \"fruit\", \"banana\", \"trivia\" ]"
+						+ "},{\"question\": \"What is the answer to life, the universe, and everything?\","
+						+ " \"answers\": [\"Forty-two\", \"Twenty-seven\"], \"owner\": \"sweng\","
+						+ " \"solutionIndex\": 0, \"tags\": [\"h2g2\", \"trivia\"], \"id\": \"1\" }  ],"
+						+ "\"next\": \"YG9HB8)H9*-BYb88fdsfsyb(08bfsdybfdsoi4\""
+						+ "}", "application/json");
 
 	}
 
@@ -183,15 +200,73 @@ public class SearchActivityTest extends QuizActivityTestCase<SearchActivity> {
 		solo.enterText(solo.getEditText(QUERY_HINT), "banana");
 		clickOnTextViewAndWaitFor(SEARCH_TEXT, TTChecks.QUESTION_SHOWN);
 		solo.sleep(100);
-		assertTrue("Question is displayed",
-				solo.searchText("banana"));
-		clickOnTextViewAndWaitFor( "Just enough", TTChecks.ANSWER_SELECTED);
+		assertTrue("Question is displayed", solo.searchText("banana"));
+		clickOnTextViewAndWaitFor("Just enough", TTChecks.ANSWER_SELECTED);
 		clickOnTextViewAndWaitFor("Next question", TTChecks.QUESTION_SHOWN);
 		solo.sleep(100);
-		assertTrue("Question is displayed",
-				 solo.searchText("universe"));
-		clickOnTextViewAndWaitFor( "Forty-two", TTChecks.ANSWER_SELECTED);
+		assertTrue("Question is displayed", solo.searchText("universe"));
+		clickOnTextViewAndWaitFor("Forty-two", TTChecks.ANSWER_SELECTED);
 		clickOnTextViewAndWaitFor("Next question", TTChecks.QUESTION_SHOWN);
+
+	}
+
+	public void testNotLoggedIn() {
+		solo.sleep(100);
+		solo.enterText(solo.getEditText(QUERY_HINT), "banana");
+		UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
+		solo.clickOnButton(SEARCH_TEXT);
+		solo.searchText("Please log in");
+		UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
+
 		
 	}
+	
+	public void testBadRequest(){
+		mockHttpClient
+		.pushCannedResponse(
+				"POST [^/]+",
+				HttpStatus.SC_BAD_REQUEST,
+				"{\"questions\": ["
+						+ " {"
+						+ "\"id\": \"7654765\","
+						+ " \"owner\": \"fruitninja\","
+						+ " \"question\": \"How many calories are in a banana?\","
+						+ " \"answers\": [ \"Just enough\", \"Too many\" ],"
+						+ " \"solutionIndex\": 0,"
+						+ " \"tags\": [ \"fruit\", \"banana\", \"trivia\" ]"
+						+ "},{\"question\": \"What is the answer to life, the universe, and everything?\","
+						+ " \"answers\": [\"Forty-two\", \"Twenty-seven\"], \"owner\": \"sweng\","
+						+ " \"solutionIndex\": 0, \"tags\": [\"h2g2\", \"trivia\"], \"id\": \"1\" }  ],"
+						+ "\"next\": \"YG9HB8)H9*-BYb88fdsfsyb(08bfsdybfdsoi4\""
+						+ "}", "application/json");
+		solo.sleep(100);
+		solo.enterText(solo.getEditText(QUERY_HINT), "banana");
+		solo.clickOnButton(SEARCH_TEXT);
+		solo.searchText("Network error");
+	}
+	
+	public void testServerExcpetion(){
+		mockHttpClient
+		.pushCannedResponse(
+				"POST [^/]+",
+				HttpStatus.SC_INTERNAL_SERVER_ERROR,
+				"{\"questions\": ["
+						+ " {"
+						+ "\"id\": \"7654765\","
+						+ " \"owner\": \"fruitninja\","
+						+ " \"question\": \"How many calories are in a banana?\","
+						+ " \"answers\": [ \"Just enough\", \"Too many\" ],"
+						+ " \"solutionIndex\": 0,"
+						+ " \"tags\": [ \"fruit\", \"banana\", \"trivia\" ]"
+						+ "},{\"question\": \"What is the answer to life, the universe, and everything?\","
+						+ " \"answers\": [\"Forty-two\", \"Twenty-seven\"], \"owner\": \"sweng\","
+						+ " \"solutionIndex\": 0, \"tags\": [\"h2g2\", \"trivia\"], \"id\": \"1\" }  ],"
+						+ "\"next\": \"YG9HB8)H9*-BYb88fdsfsyb(08bfsdybfdsoi4\""
+						+ "}", "application/json");
+		solo.sleep(100);
+		solo.enterText(solo.getEditText(QUERY_HINT), "banana");
+		solo.clickOnButton(SEARCH_TEXT);
+		solo.searchText("Network error");
+	}
+	
 }
