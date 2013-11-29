@@ -7,9 +7,9 @@ import java.util.TreeSet;
 
 import org.apache.http.HttpStatus;
 
+import android.test.AndroidTestCase;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
-import epfl.sweng.entry.MainActivity;
 import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
@@ -19,15 +19,13 @@ import epfl.sweng.patterns.Proxy.ConnectionState;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.searchquestions.QuestionIterator;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
-import epfl.sweng.test.framework.QuizActivityTestCase;
 import epfl.sweng.test.minimalmock.MockHttpClient;
-import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 /**
  * @author ValentinRutz
  *
  */
-public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
+public class DatabaseHandlerTest extends AndroidTestCase {
     
     private QuizQuestion mQuestion;
     private String mQuestionText = "How many rings the Olympic flag Five has?";
@@ -41,10 +39,6 @@ public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
     private QuestionIterator mIterator;
     
     private DatabaseHandler db;
-    
-    public DatabaseHandlerTest() {
-        super(MainActivity.class);
-    }
 
     @Override
     public void setUp() throws Exception {
@@ -55,12 +49,15 @@ public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
         mQuestion = new QuizQuestion(mQuestionText, Arrays.asList(mAnswers),
                 mSolutionIndex, mTags, mID, mOwner);
         
-        getActivityAndWaitFor(TTChecks.MAIN_ACTIVITY_SHOWN);
         UserCredentials.INSTANCE.setState(AuthenticationState.AUTHENTICATED);
         UserCredentials.INSTANCE.saveUserCredentials("test");
         
         db.clearCache();
-        
+        try {
+            db.storeQuestion(mQuestion, false);
+        } catch (DBException e) {
+            fail("Problem storing the question");
+        }
         Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
     }
     
@@ -70,31 +67,50 @@ public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
         super.tearDown();   
     }
     
-    public void testGetRandomQuestion() {
-        try {
-            db.storeQuestion(mQuestion, false);
+    public void testQueryWithMultipleConsecutiveSpaces() {
+        mQuery = "( Olympics +     Five ) * flag";
+        mNext = null;try {
+            mIterator = db.searchQuestion(mQuery, mNext);
+        } catch (IllegalArgumentException e) {
+            fail("next should be valid: "+ e.getMessage());
         } catch (DBException e) {
-            fail("Problem storing the question");
+            fail("Should not be DBException: "+ e.getMessage());
         }
+        try {
+            assertTrue("Questions should be the same",
+                    compareQuestions(mIterator.next(), mQuestion, true));
+        } catch (NoSuchElementException e) {
+            fail("NoSuchElementException: "+ e.getMessage());
+        } catch (NotLoggedInException e) {
+            fail("NotLoggedInException: "+ e.getMessage());
+        } catch (DBException e) {
+            fail("DBException: "+ e.getMessage());
+        } catch (ServerCommunicationException e) {
+            fail("ServerCommunicationException: "+ e.getMessage());
+        }
+    }
+    
+    public void testGetRandomQuestion() {
         assertTrue("Questions should be the same",
                 compareQuestions(getNewQuestionFromDB(), mQuestion, true));
     }
     
     public void testSynchronizeQuestions() {
+        try {
+            db.storeQuestion(mQuestion, true);
+        } catch (DBException e) {
+            fail("Problem storing the question");
+        }
         MockHttpClient mockHttpClient = new MockHttpClient();
         mockHttpClient.clearCannedResponses();
         SwengHttpClientFactory.setInstance(mockHttpClient);
         mockHttpClient.pushCannedResponse("POST [^/]+", HttpStatus.SC_CREATED,
                                           mQuestion.toString(), null);
-        
+
         try {
-            db.storeQuestion(mQuestion, true);
-        } catch (DBException e) {
-            fail("testSynchronizeQuestions during storing"+ e.getMessage());
-        }
-        try {
-            assertTrue("DB should have send a question to server",
-                    db.synchronizeQuestions() == 1);
+            int nbSentQuestions = db.synchronizeQuestions();
+            assertTrue("DB should have send a question to server, instead sent "+ nbSentQuestions,
+                    nbSentQuestions == 1);
         } catch (DBException e) {
             fail("testSynchronizeQuestions during synchronizing"+ e.getMessage());
         } catch (ServerCommunicationException e) {
@@ -105,11 +121,10 @@ public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
     public void testNextGiveNextQuestionSet() {
         db.clearCache();
         for(int i = 0; i < 11; i++) {
-            mQuestion = new QuizQuestion(mQuestionText,
-                    Arrays.asList(mAnswers),
-                    mSolutionIndex, mTags, i, mOwner);
             try {
-                db.storeQuestion(mQuestion, false);
+                db.storeQuestion(new QuizQuestion(mQuestionText,
+                        Arrays.asList(mAnswers),
+                        mSolutionIndex, mTags, i, mOwner), false);
             } catch (DBException e) {
                 fail("DBException: "+ e.getMessage());
             } 
@@ -158,12 +173,12 @@ public class DatabaseHandlerTest extends QuizActivityTestCase<MainActivity> {
         mNext = null;
         try {
             mIterator = db.searchQuestion(mQuery, mNext);
-            assertTrue("Should be no questions for query without matches",
-                    mIterator.getLocalQuestions().length == 0);
+            assertTrue("Should be a question for query with matches",
+                    mIterator.getLocalQuestions().length != 0);
         } catch (IllegalArgumentException e) {
             fail("next should be valid");
         } catch (DBException e) {
-            fail("testSearchQuestionValidQueryWithoutMatch: DBException");
+            fail("testSearchQuestionValidQueryWithMatch: DBException");
         }
     }
     
