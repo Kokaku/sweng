@@ -50,6 +50,7 @@ public class EditQuestionActivity extends ListActivity {
     private List<String> mAnswersArrayList;
     private boolean mValidQuestion;
     private boolean mValidTags;
+    
 
     private boolean mOnReset;
 

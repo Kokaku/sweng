@@ -1,6 +1,7 @@
 package epfl.sweng.searchquestions;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -20,6 +21,7 @@ import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
 import epfl.sweng.patterns.Proxy;
 import epfl.sweng.patterns.Proxy.ConnectionState;
+import epfl.sweng.showquestions.ShowQuestionsActivity;
 import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
 
@@ -29,7 +31,7 @@ public class SearchActivity extends Activity {
 	private EditText mSearchQuery;
 	private ProgressBar mProgressBar;
 
-	private QuestionIterator mQuestionIterator;
+	private Intent mIntent;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +55,10 @@ public class SearchActivity extends Activity {
 	}
 
 	public void onClickSearch(View view) {
-		new SearchTask().execute(interpreteWhiteSpaces(mSearchQuery.getText().toString()), null);
-		
+		mIntent = new Intent(this, ShowQuestionsActivity.class);
+		new SearchTask().execute(interpreteWhiteSpaces(mSearchQuery.getText()
+				.toString()), null);
+
 	}
 
 	private void updateSearchButton() {
@@ -92,6 +96,10 @@ public class SearchActivity extends Activity {
 				if (i >= query.length() - 1 || query.charAt(i + 1) != 'a') {
 					return false;
 				}
+				if (i == 0
+						|| (query.charAt(i - 1) != 'a' && query.charAt(i - 1) != ')')) {
+					return false;
+				}
 			} else if (current != 'a') {
 				return false;
 			}
@@ -113,8 +121,15 @@ public class SearchActivity extends Activity {
 	 *         replaced by '*' when used as such
 	 */
 	private String interpreteWhiteSpaces(String query) {
-		return query.trim().replaceAll("(\\w+)(\\s+)(\\w+)", "$1 * $3")
+		// query =
+		// query.replaceAll("(\'(\'.* \')\')+) (\\s+) (\'(\'.* \')\')+) ",
+		// "$1 * $3");
+		query = query.trim().replaceAll("(\\w+)(\\s+)(\\w+)", "$1*$3")
 				.replaceAll("\\s+", "");
+
+		// query = query.replaceAll("*", " * ").replaceAll("+", " + ");
+
+		return query;
 	}
 
 	/**
@@ -154,9 +169,9 @@ public class SearchActivity extends Activity {
 		}
 	}
 
-	
-	//This task should be modified so it can be called also from the QuestionIterator
-	//because it does the same thing.
+	// This task should be modified so it can be called also from the
+	// QuestionIterator
+	// because it does the same thing.
 	private class SearchTask extends AsyncTask<String, Void, QuestionIterator> {
 		private AsyncTaskExceptions mException = null;
 
@@ -197,11 +212,17 @@ public class SearchActivity extends Activity {
 		protected void onPostExecute(QuestionIterator questionIterator) {
 			if (mException == null) {
 				if (questionIterator != null) {
-					
-					//can create the intent for ShowQuestions and launch it here
-					mQuestionIterator = questionIterator;
+
+					// can create the intent for ShowQuestions and launch it
+					// here
 					Log.d("POTATO SHOWQUESTIONS",
 							"Questions fetched successfully ");
+
+					// put extras in mIntent
+					mIntent.putExtra("Source", SearchActivity.class.getName());
+					mIntent.putExtra("iterator", questionIterator);
+				
+					startActivity(mIntent);
 				}
 			} else {
 				switch (mException) {

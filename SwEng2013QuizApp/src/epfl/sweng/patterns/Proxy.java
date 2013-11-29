@@ -31,220 +31,244 @@ import epfl.sweng.servercomm.ServerCommunication;
  */
 // TODO : Change name ? ConnectionManager? OfflineManager?
 public enum Proxy implements QuestionsCommunicator {
-    INSTANCE;
+	INSTANCE;
 
-    private ConnectionState mCurrentState = ConnectionState.ONLINE;
-    private DatabaseHandler mDatabase;
-    private QuestionsCommunicator instance = ServerCommunication.INSTANCE;
-    
-    public enum ConnectionState {
-        ONLINE, OFFLINE;
-    }
+	private ConnectionState mCurrentState = ConnectionState.ONLINE;
+	private DatabaseHandler mDatabase;
+	private QuestionsCommunicator instance = ServerCommunication.INSTANCE;
 
-    private Proxy() {
-        mDatabase = new DatabaseHandler();
-    }
-  
-    /**
-     * @return true if the app is in {@code ConnectionState.ONLINE} state.
-     */
-    public boolean isOnline() {
-        return mCurrentState == ConnectionState.ONLINE;
-    }
-    
-    /**
-     * Change the connection state of the application.
-     * 
-     * @param state the new connection state
-     */
-    public void setState(ConnectionState state) {
-        setState(state, null);
-    }
-    
-    /**
-     * Change the connection state of the application. The activity implementing
-     * {@link OnSyncListener} will be signaled when synchronization is over.
-     * 
-     * @param state the new connection state
-     * @param listener the activity waiting for feedback
-     */
-    public void setState(ConnectionState state, OnSyncListener listener) {
-        Log.d("POTATO PROXY", "Setting connection state to " + state);
-        if (listener != null) {
-            Log.d("POTATO PROXY", "OnSyncListener activity is " + listener);
-        }
-        mCurrentState = state;
-        if (isOnline()) {
-            new SynchronizationTask(listener).execute();
-        }
-    }
-    
-    /**
-     * This method will distribute the query to the server or the database
-     * depending on whether the device is on-line or not.
-     * If the Proxy queries the server by intermediate of {@link ServerCommunication},
-     * it will store the questions in the database.
-     * 
-     * @throws ServerCommunicationException
-     * @throws DBException
-     * @throws NotLoggedInException if the user is not logged in
-     * 
-     * @return questionIterator: a {@link QuestionIterator} with the questions
-     *         retrieved from the server or the database 
-     * @throws JSONException if there was a problem parsing the JSON 
-     */
-    @Override
-    public QuestionIterator searchQuestion(String query, String next)
-        throws NotLoggedInException, DBException, ServerCommunicationException
-                {
-        
-        Log.d("POTATO PROXY", "searchQuestion("+query+") called");
+	public enum ConnectionState {
+		ONLINE, OFFLINE;
+	}
 
-        if (!UserCredentials.INSTANCE.isAuthenticated()) {
-            throw new NotLoggedInException();
-        }
+	private Proxy() {
+		mDatabase = new DatabaseHandler();
+	}
 
-        if (isOnline()) {
-            Log.d("POTATO PROXY", "Online => searching question from server and caching it");
-            
-            QuestionIterator questionIterator = instance.searchQuestion(query, next);
-            QuizQuestion[] questions = questionIterator.getLocalQuestions();
-            
-            for (QuizQuestion question : questions) {
-                mDatabase.storeQuestion(question, false);
-            }
-            
-            return questionIterator;
-        } else {
-            Log.d("POTATO PROXY", "Offline => searching question from cache");
-            return mDatabase.searchQuestion(query, next);
-        }
-    }
+	/**
+	 * @return true if the app is in {@code ConnectionState.ONLINE} state.
+	 */
+	public boolean isOnline() {
+		return mCurrentState == ConnectionState.ONLINE;
+	}
 
-    /**
-     * If in state {@link ConnectionState.ONLINE}, gets a question from the
-     * server and stores in cache. Otherwise, if in state
-     * {@link ConnectionState.OFFLINE} gets a question from the local cache.
-     * 
-     * @return a random question or null if there is no cached question
-     * @throws NotLoggedInException if the user is not logged in
-     * @throws ServerCommunicationException if the network request is unsuccessful
-     * @throws DBException if the question can't be cached or
-     *      can't be fetched from the cache
-     */
-    @Override
-    public QuizQuestion getRandomQuestion() throws ServerCommunicationException,
-        DBException, NotLoggedInException {
-        
-        Log.d("POTATO PROXY", "getRandomQuestion() called");
+	/**
+	 * Change the connection state of the application.
+	 * 
+	 * @param state
+	 *            the new connection state
+	 */
+	public void setState(ConnectionState state) {
+		setState(state, null);
+	}
 
-        if (!UserCredentials.INSTANCE.isAuthenticated()) {
-            throw new NotLoggedInException();
-        }
+	/**
+	 * Change the connection state of the application. The activity implementing
+	 * {@link OnSyncListener} will be signaled when synchronization is over.
+	 * 
+	 * @param state
+	 *            the new connection state
+	 * @param listener
+	 *            the activity waiting for feedback
+	 */
+	public void setState(ConnectionState state, OnSyncListener listener) {
+		Log.d("POTATO PROXY", "Setting connection state to " + state);
+		if (listener != null) {
+			Log.d("POTATO PROXY", "OnSyncListener activity is " + listener);
+		}
+		mCurrentState = state;
+		if (isOnline()) {
+			new SynchronizationTask(listener).execute();
+		}
+	}
 
-        if (isOnline()) {
-            Log.d("POTATO PROXY", "Online => getting question from server and caching it");
-            QuizQuestion question = instance.getRandomQuestion();
-            mDatabase.storeQuestion(question, false);
-            return question;
-        } else {
-            Log.d("POTATO PROXY", "Offline => getting question from cache");
-            return mDatabase.getRandomQuestion();
-        }
-    }
+	/**
+	 * This method will distribute the query to the server or the database
+	 * depending on whether the device is on-line or not. If the Proxy queries
+	 * the server by intermediate of {@link ServerCommunication}, it will store
+	 * the questions in the database.
+	 * 
+	 * @throws ServerCommunicationException
+	 * @throws DBException
+	 * @throws NotLoggedInException
+	 *             if the user is not logged in
+	 * 
+	 * @return questionIterator: a {@link QuestionIterator} with the questions
+	 *         retrieved from the server or the database
+	 * @throws JSONException
+	 *             if there was a problem parsing the JSON
+	 */
+	@Override
+	public QuestionIterator searchQuestion(String query, String next)
+		throws NotLoggedInException, DBException,
+			ServerCommunicationException {
 
-    /**
-     * If in state {@link ConnectionState.ONLINE}, sends a question to the
-     * server. Otherwise, if in state {@link ConnectionState.OFFLINE} stores the
-     * question in the cache so that it's submitted when back online.
-     * 
-     * @param question the question to be sent
-     * @throws NotLoggedInException if the user is not logged in
-     * @throws DBException if the database request is unsuccessful
-     * @throws ServerCommunicationException if the network request is unsuccessful
-     * @return the question sent
-     */
-    @Override
-    public QuizQuestion send(QuizQuestion question) throws DBException,
-        NotLoggedInException, ServerCommunicationException {
+		Log.d("POTATO PROXY", "searchQuestion(" + query + ") called");
 
-        Log.d("POTATO PROXY", "send() called");
-        
-        if (!UserCredentials.INSTANCE.isAuthenticated()) {
-            throw new NotLoggedInException();
-        }
+		if (!UserCredentials.INSTANCE.isAuthenticated()) {
+			throw new NotLoggedInException();
+		}
 
-        if (isOnline()) {
-            Log.d("POTATO PROXY", "Online => sending question to server and caching it");
-            QuizQuestion submittedQuestion = instance.send(question);
-            mDatabase.storeQuestion(submittedQuestion, false);
-            return submittedQuestion;
-        } else {
-            Log.d("POTATO PROXY", "Offline => storing question in cache");
-            mDatabase.storeQuestion(question, true);
-            return question;
-        }
-    }
-    
-    /**
-     * During synchronization, submit the questions in a separate thread.
-     */
-    private class SynchronizationTask extends AsyncTask<Void, Void, Integer> {
-        
-        private AsyncTaskExceptions mException = null;
-        private OnSyncListener mListeningActivity = null;
-        
-        public SynchronizationTask(OnSyncListener listener) {
-            mListeningActivity = listener;
-        }
-        
-        @Override
-        protected Integer doInBackground(Void... unused) {
-            Log.d("POTATO PROXY", "SyncTask doing its job");
-            try {
-                return mDatabase.synchronizeQuestions();
-            } catch (ServerCommunicationException e) {
-                Log.d("POTATO PROXY", "ServerComException in SyncTask : " + e.getMessage());
-                mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
-            } catch (DBException e) {
-                Log.d("POTATO PROXY", "DBException in SyncTask : " + e.getMessage());
-                mException = AsyncTaskExceptions.DB_EXCEPTION;
-            }
+		if (isOnline()) {
+			Log.d("POTATO PROXY",
+					"Online => searching question from server and caching it");
 
-            return 0;
-        }
+			QuestionIterator questionIterator = instance.searchQuestion(query,
+					next);
+			QuizQuestion[] questions = questionIterator.getLocalQuestions();
 
-        @Override
-        protected void onPostExecute(Integer questionsSubmitted) {
-            if (mException == null) {
-                if (questionsSubmitted > 0) {
-                    SwEng2013QuizApp.displayToast(R.string.synchronization_success);
-                    Log.d("POTATO PROXY", "SyncTask has submitted " + questionsSubmitted + " questions");
-                }
-                Log.d("POTATO PROXY", "SyncTask executed successfully");
-                SwEng2013QuizApp.displayToast(R.string.now_online);
-            } else {
-                switch (mException) {
-                    case SERVER_COMMUNICATION_EXCEPTION:
-                        SwEng2013QuizApp.displayToast(R.string.synchronization_failure);
-                        break;
-                    case DB_EXCEPTION:
-                        SwEng2013QuizApp.displayToast(R.string.broken_database);
-                        break;
-                    default:
-                        assert false;
-                }
-                
-                Log.d("POTATO PROXY", "Exception in SyncTask, going offline");
-                setState(ConnectionState.OFFLINE);
-                SwEng2013QuizApp.displayToast(R.string.now_offline);
-            }
-            
-            if (mListeningActivity != null) {
-                Log.d("POTATO PROXY", "SyncTask signal to the listening activity : " + mListeningActivity);
-                mListeningActivity.onSyncCompleted();
-            }
-        }
+			for (QuizQuestion question : questions) {
+				mDatabase.storeQuestion(question, false);
+			}
 
-    }
+			return questionIterator;
+		} else {
+			Log.d("POTATO PROXY", "Offline => searching question from cache");
+			return mDatabase.searchQuestion(query, next);
+		}
+	}
+
+	/**
+	 * If in state {@link ConnectionState.ONLINE}, gets a question from the
+	 * server and stores in cache. Otherwise, if in state
+	 * {@link ConnectionState.OFFLINE} gets a question from the local cache.
+	 * 
+	 * @return a random question or null if there is no cached question
+	 * @throws NotLoggedInException
+	 *             if the user is not logged in
+	 * @throws ServerCommunicationException
+	 *             if the network request is unsuccessful
+	 * @throws DBException
+	 *             if the question can't be cached or can't be fetched from the
+	 *             cache
+	 */
+	@Override
+	public QuizQuestion getRandomQuestion()
+			throws ServerCommunicationException, DBException,
+			NotLoggedInException {
+
+		Log.d("POTATO PROXY", "getRandomQuestion() called");
+
+		if (!UserCredentials.INSTANCE.isAuthenticated()) {
+			throw new NotLoggedInException();
+		}
+
+		if (isOnline()) {
+			Log.d("POTATO PROXY",
+					"Online => getting question from server and caching it");
+			QuizQuestion question = instance.getRandomQuestion();
+			mDatabase.storeQuestion(question, false);
+			return question;
+		} else {
+			Log.d("POTATO PROXY", "Offline => getting question from cache");
+			return mDatabase.getRandomQuestion();
+		}
+	}
+
+	/**
+	 * If in state {@link ConnectionState.ONLINE}, sends a question to the
+	 * server. Otherwise, if in state {@link ConnectionState.OFFLINE} stores the
+	 * question in the cache so that it's submitted when back online.
+	 * 
+	 * @param question
+	 *            the question to be sent
+	 * @throws NotLoggedInException
+	 *             if the user is not logged in
+	 * @throws DBException
+	 *             if the database request is unsuccessful
+	 * @throws ServerCommunicationException
+	 *             if the network request is unsuccessful
+	 * @return the question sent
+	 */
+	@Override
+	public QuizQuestion send(QuizQuestion question) throws DBException,
+			NotLoggedInException, ServerCommunicationException {
+
+		Log.d("POTATO PROXY", "send() called");
+
+		if (!UserCredentials.INSTANCE.isAuthenticated()) {
+			throw new NotLoggedInException();
+		}
+
+		if (isOnline()) {
+			Log.d("POTATO PROXY",
+					"Online => sending question to server and caching it");
+			QuizQuestion submittedQuestion = instance.send(question);
+			mDatabase.storeQuestion(submittedQuestion, false);
+			return submittedQuestion;
+		} else {
+			Log.d("POTATO PROXY", "Offline => storing question in cache");
+			mDatabase.storeQuestion(question, true);
+			return question;
+		}
+	}
+
+	/**
+	 * During synchronization, submit the questions in a separate thread.
+	 */
+	private class SynchronizationTask extends AsyncTask<Void, Void, Integer> {
+
+		private AsyncTaskExceptions mException = null;
+		private OnSyncListener mListeningActivity = null;
+
+		public SynchronizationTask(OnSyncListener listener) {
+			mListeningActivity = listener;
+		}
+
+		@Override
+		protected Integer doInBackground(Void... unused) {
+			Log.d("POTATO PROXY", "SyncTask doing its job");
+			try {
+				return mDatabase.synchronizeQuestions();
+			} catch (ServerCommunicationException e) {
+				Log.d("POTATO PROXY",
+						"ServerComException in SyncTask : " + e.getMessage());
+				mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
+			} catch (DBException e) {
+				Log.d("POTATO PROXY",
+						"DBException in SyncTask : " + e.getMessage());
+				mException = AsyncTaskExceptions.DB_EXCEPTION;
+			}
+
+			return 0;
+		}
+
+		@Override
+		protected void onPostExecute(Integer questionsSubmitted) {
+			if (mException == null) {
+				if (questionsSubmitted > 0) {
+					SwEng2013QuizApp
+							.displayToast(R.string.synchronization_success);
+					Log.d("POTATO PROXY", "SyncTask has submitted "
+							+ questionsSubmitted + " questions");
+				}
+				Log.d("POTATO PROXY", "SyncTask executed successfully");
+				SwEng2013QuizApp.displayToast(R.string.now_online);
+			} else {
+				switch (mException) {
+				case SERVER_COMMUNICATION_EXCEPTION:
+					SwEng2013QuizApp
+							.displayToast(R.string.synchronization_failure);
+					break;
+				case DB_EXCEPTION:
+					SwEng2013QuizApp.displayToast(R.string.broken_database);
+					break;
+				default:
+					assert false;
+				}
+
+				Log.d("POTATO PROXY", "Exception in SyncTask, going offline");
+				setState(ConnectionState.OFFLINE);
+				SwEng2013QuizApp.displayToast(R.string.now_offline);
+			}
+
+			if (mListeningActivity != null) {
+				Log.d("POTATO PROXY",
+						"SyncTask signal to the listening activity : "
+								+ mListeningActivity);
+				mListeningActivity.onSyncCompleted();
+			}
+		}
+
+	}
 }

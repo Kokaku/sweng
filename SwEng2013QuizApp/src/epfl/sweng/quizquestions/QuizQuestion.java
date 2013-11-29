@@ -131,23 +131,7 @@ public class QuizQuestion implements Parcelable {
 		this(question, answers, solutionIndex, tags, 0, null);
 	}
 
-	public QuizQuestion(Parcel in) {
-
-	}
-
-	/**
-	 * Static field used to regenerate the object, individually or as an array
-	 */
-	public static final Parcelable.Creator<QuizQuestion> CREATOR = new Parcelable.Creator<QuizQuestion>() {
-		public QuizQuestion createFromParcel(Parcel pc) {
-			return new QuizQuestion(pc);
-		}
-
-		public QuizQuestion[] newArray(int size) {
-			return new QuizQuestion[size];
-		}
-	};
-
+	
 	/**
 	 * @return the index of the correct answer
 	 */
@@ -288,18 +272,55 @@ public class QuizQuestion implements Parcelable {
 		return errors;
 	}
 
-	/* Parcelable methods */
+	/* Parcelable implementation */
+	
+	public QuizQuestion(Parcel in) {
+		readFromParcel(in);
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(mQuestion);
+		dest.writeInt(mSolutionIndex);
+		dest.writeStringList(mAnswers);
+		dest.writeStringList(new ArrayList<String>(mTags));
+	}
+	
+	/**
+	 * Initializes the values of the members of the class
+	 * with the value written in the Parcel 
+	 * 
+	 * @param in the Parcel from which we are reading
+	 */
+	public void readFromParcel(Parcel in) {
+		mQuestion = in.readString();
+		mSolutionIndex = in.readInt();
+		mAnswers = new ArrayList<String>();
+		in.readStringList(mAnswers);
+		ArrayList<String> tags = new ArrayList<String>();
+		in.readStringList(tags);
+		mTags = new TreeSet<String>(tags);
+	}
+
+	
+	/**
+	 * Static field used to regenerate the object, individually or as an array
+	 */
+	public static final Parcelable.Creator<QuizQuestion> CREATOR = new Parcelable.Creator<QuizQuestion>() {
+		public QuizQuestion createFromParcel(Parcel in) {
+			return new QuizQuestion(in);
+		}
+
+		public QuizQuestion[] newArray(int size) {
+			return new QuizQuestion[size];
+		}
+	};
+
 	@Override
 	public int describeContents() {
 		return 0;
 	}
 
-	@Override
-	public void writeToParcel(Parcel in, int flag) {
-		in.writeString(mQuestion);
-		in.writeStringList(mAnswers);
-		in.writeInt(mSolutionIndex);
-		in.writeStringList(new ArrayList<String>(mTags));
-	}
-
+	
+	
 }
