@@ -91,6 +91,9 @@ public class SearchActivity extends Activity {
 			char current = query.charAt(i);
 			if (current == '(') {
 				openParen++;
+				if (i >= query.length()-1 || (query.charAt(i) != 'a' && query.charAt(i) != '(')) {
+					return false;
+				}
 			} else if (current == ')') {
 				openParen--;
 				if (openParen < 0) {
@@ -133,7 +136,9 @@ public class SearchActivity extends Activity {
 				.replaceAll("\\s+", "").replaceAll("(\\))(\\()", "$1*$2")
 				.replaceAll("(\\))(\\w+)", "$1 * $2")
 				.replaceAll("(\\w+)(\\()", "$1 * $2").replaceAll("\\s+", "")
-				.replaceAll("\\*", " * ").replaceAll("\\+", " + ");
+				.replaceAll("\\*", " * ").replaceAll("\\+", " + ")
+				.replaceAll("(\\()", " " + "$1" + " ")
+				.replaceAll("(\\))", " " + "$1" + " ");
 		System.out.println("QUERY: " + query);
 		return query;
 	}
