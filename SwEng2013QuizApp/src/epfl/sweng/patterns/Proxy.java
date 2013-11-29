@@ -7,6 +7,7 @@ import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.exceptions.AsyncTaskExceptions;
+import epfl.sweng.exceptions.BadRequestException;
 import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.NotLoggedInException;
 import epfl.sweng.exceptions.ServerCommunicationException;
@@ -123,7 +124,13 @@ public enum Proxy implements QuestionsCommunicator {
 			return questionIterator;
 		} else {
 			Log.d("POTATO PROXY", "Offline => searching question from cache");
-			return mDatabase.searchQuestion(query, next);
+			try {
+			    return mDatabase.searchQuestion(query, next);
+			} catch (IllegalArgumentException e) {
+			    throw new BadRequestException("Unrecognized next argument");
+			}
+			
+			
 		}
 	}
 

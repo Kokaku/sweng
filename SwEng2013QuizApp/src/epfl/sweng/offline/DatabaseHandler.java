@@ -244,70 +244,39 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * @throws DBException if the database couldn't retrieve a question
      */
     public QuestionIterator searchQuestion(String query, String next)
-        throws DBException {
-        String querySQL = "";
-//        
-//<<<<<<< HEAD
-//        if (next == null || next.length() == 0) {
-//            next = "0";
-//        } else if (!next.matches("\\d+")) { //Check if next is a positive int
-//            throw new IllegalArgumentException("Pointer next is not valid");
-//=======
-//        if (query != null) {
-//            querySQL = parseQuerytoSQL(query +" LIMIT "+ MAX_QUESTIONS);
-//>>>>>>> search
-//        }
-//        
-//        String limit = " LIMIT "+next+", "+ (MAX_RESPONSE_NUMBER+1);
-//        String querySQL = parseQuerytoSQL(query) + limit;
-//        SQLiteDatabase db = getReadableDatabase();
-//        Cursor cursor = db.rawQuery(querySQL, null);
-//<<<<<<< HEAD
-//        int arraySize = Math.max(cursor.getCount(), MAX_RESPONSE_NUMBER);
-//        QuizQuestion[] questions = new QuizQuestion[arraySize];
-//        String newNext = null;
-//        
-//        try {
-//            for (int i = 0; i<questions.length && cursor.moveToNext(); i++) {
-//                questions[i] = getQuestionFromCursor(cursor);
-//            }
-//            if (cursor.moveToNext()) {
-//                newNext = Integer.toString(Integer.parseInt(next)+MAX_RESPONSE_NUMBER);
-//            }
-//=======
-//        
-//        QuizQuestion[] questions = new QuizQuestion[MAX_QUESTIONS];
-//        
-//        if (cursor == null || cursor.getCount() == 0) {
-//            return new QuestionIterator(questions, query, null);
-//        }
-//        
-//        int nextPosition = 0;
-//        if (next != null && next.equals("")) {
-//            nextPosition = Integer.parseInt(next);
-//            cursor.moveToPosition(nextPosition);
-//        }
-//        
-//        try {
-//            for (int i = 0; i < MAX_QUESTIONS && cursor.moveToNext(); i++) {
-//                questions[i] = getQuestionFromCursor(cursor);
-//            }
-//            nextPosition = cursor.getPosition();
-//            
-//>>>>>>> search
-//        } catch (JSONException e) {
-//            throw new DBException("Couldn't retrieve question from the Database");
-//        } finally {
-//            cursor.close();
-//            db.close(); 
-//        }
-//        
-//<<<<<<< HEAD
-//        return new QuestionIterator(questions, query, newNext);
-//=======
-//        return new QuestionIterator(questions, query, nextPosition + "");
-//>>>>>>> search
-        return null;
+        throws DBException, IllegalArgumentException {
+            
+        if (next == null || next.length() == 0) {
+            next = "0";
+        } else if (!next.matches("\\d+")) { //Check if next is a positive int
+            throw new IllegalArgumentException("Pointer next is not valid");
+        }
+        
+        String limit = "ORDER BY "+ COLUMN_ID +" ASC "+
+                "LIMIT "+next+", "+ (MAX_RESPONSE_NUMBER+1);
+        String querySQL = parseQuerytoSQL(query) + limit;
+        SQLiteDatabase db = getReadableDatabase();
+        
+        Cursor cursor = db.rawQuery(querySQL, null);
+        int arraySize = Math.max(cursor.getCount(), MAX_RESPONSE_NUMBER);
+        QuizQuestion[] questions = new QuizQuestion[arraySize];
+        String newNext = null;
+        
+        try {
+            for (int i = 0; i<questions.length && cursor.moveToNext(); i++) {
+                questions[i] = getQuestionFromCursor(cursor);
+            }
+            if (cursor.moveToNext()) {
+                newNext = Integer.toString(Integer.parseInt(next)+MAX_RESPONSE_NUMBER);
+            }
+        } catch (JSONException e) {
+            throw new DBException("Couldn't retrieve question from the Database");
+        } finally {
+            cursor.close();
+            db.close(); 
+        }
+        
+        return new QuestionIterator(questions, query, newNext);
     }
 
     /**
@@ -320,7 +289,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      *   - (banana + garlic ) * fruit
      *   - ( banana + garlic ) fruit
      *   - ( banana +garlic )fruit
-     *   - etc...
      * It selects always all attributes from columns COLUMN_QUESTION,
      * COLUMN_ANSWERS or COLUMN_TAGS ordered by COLUMN_ID
      * 
@@ -346,7 +314,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         COLUMN_TAGS +" LIKE "+ nextToken +" ) ";
             }
         }
-        querySQLite += "ORDER BY "+ COLUMN_ID +" ASC ";
         return querySQLite;
     }
 }
