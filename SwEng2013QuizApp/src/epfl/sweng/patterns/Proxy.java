@@ -1,6 +1,5 @@
 package epfl.sweng.patterns;
 
-import org.json.JSONException;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -144,7 +143,7 @@ public enum Proxy implements QuestionsCommunicator {
 	 */
 	@Override
 	public QuizQuestion getRandomQuestion()
-			throws ServerCommunicationException, DBException,
+		throws ServerCommunicationException, DBException,
 			NotLoggedInException {
 
 		Log.d("POTATO PROXY", "getRandomQuestion() called");
@@ -246,15 +245,15 @@ public enum Proxy implements QuestionsCommunicator {
 				SwEng2013QuizApp.displayToast(R.string.now_online);
 			} else {
 				switch (mException) {
-				case SERVER_COMMUNICATION_EXCEPTION:
-					SwEng2013QuizApp
-							.displayToast(R.string.synchronization_failure);
-					break;
-				case DB_EXCEPTION:
-					SwEng2013QuizApp.displayToast(R.string.broken_database);
-					break;
-				default:
-					assert false;
+					case SERVER_COMMUNICATION_EXCEPTION:
+						SwEng2013QuizApp
+								.displayToast(R.string.synchronization_failure);
+						break;
+					case DB_EXCEPTION:
+						SwEng2013QuizApp.displayToast(R.string.broken_database);
+						break;
+					default:
+						assert false;
 				}
 
 				Log.d("POTATO PROXY", "Exception in SyncTask, going offline");

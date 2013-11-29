@@ -83,15 +83,15 @@ public class ShowQuestionsActivity extends ListActivity {
 
 		// Enable scrolling for the question
 		mQuestionText.setMovementMethod(new ScrollingMovementMethod());
-		// set state according to starting intent
-		Bundle data = getIntent().getExtras();
 		
-		if (data.get("Source").equals(SearchActivity.class.getName())) {
+		if (SearchActivity.class.getName().equals(getIntent().getStringExtra("Source"))) {
+			Bundle data = getIntent().getExtras();
 			mQuestionIterator = data.getParcelable("iterator");
 			mState = State.SEARCH;
 		} else {
 			mState = State.RANDOM;
 		}
+		
 		showNewQuestion();
 	}
 

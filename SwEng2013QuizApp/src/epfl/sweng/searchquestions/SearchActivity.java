@@ -223,6 +223,7 @@ public class SearchActivity extends Activity {
 					mIntent.putExtra("iterator", questionIterator);
 				
 					startActivity(mIntent);
+					finish();
 				}
 			} else {
 				switch (mException) {

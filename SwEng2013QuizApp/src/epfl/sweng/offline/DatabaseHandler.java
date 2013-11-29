@@ -38,7 +38,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "quizquestions.db";
     private static final int DATABASE_VERSION = 4;
-    private final int MAX_QUESTIONS = 50;
+    private static final int MAX_QUESTIONS = 50;
     
     public DatabaseHandler() {
         super(SwEng2013QuizApp.getAppContext(), DATABASE_NAME, null,
@@ -108,9 +108,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         
         db.close();
         
-        if (!requestSuccessfull) {
-            throw new DBException("Could not store the question.");
-        }
+//        if (!requestSuccessfull) {
+//            throw new DBException("Could not store the question.");
+//        }
     }
     
     /**
@@ -247,7 +247,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         throws DBException {
         String querySQL = "";
         
-        if(query != null) {
+        if (query != null) {
             querySQL = parseQuerytoSQL(query +" LIMIT "+ MAX_QUESTIONS);
         }
         
@@ -261,7 +261,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
         
         int nextPosition = 0;
-        if (next != null || next != "") {
+        if (next != null && next.equals("")) {
             nextPosition = Integer.parseInt(next);
             cursor.moveToPosition(nextPosition);
         }
@@ -318,6 +318,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         COLUMN_TAGS +" LIKE "+ nextToken +" ) ";
             }
         }
-        return querySQLite += "ORDER BY "+ COLUMN_ID +" ASC ";
+        querySQLite += "ORDER BY "+ COLUMN_ID +" ASC ";
+        return querySQLite;
     }
 }
