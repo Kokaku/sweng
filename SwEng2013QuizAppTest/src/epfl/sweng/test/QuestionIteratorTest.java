@@ -98,7 +98,8 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
     
     public void testCannotConstructWithoutQuestion() {
         try {
-            new QuestionIterator(null);
+            QuizQuestion[] question = null;
+            new QuestionIterator(question);
             fail("QuestionIterator constructed without any questions");
         } catch (IllegalArgumentException e) {}
         
