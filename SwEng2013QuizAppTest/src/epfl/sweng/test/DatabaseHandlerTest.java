@@ -232,7 +232,7 @@ public class DatabaseHandlerTest extends AndroidTestCase {
                     QuizQuestion question = new QuizQuestion(mQuestionText, Arrays.asList(mAnswers),
                         mSolutionIndex, mTags, id + i, mOwner);
                     try {
-                        db.storeQuestion(mQuestion, false);
+                        db.storeQuestion(question, false);
                     } catch (DBException e) {
                         fail("testConcurrentWriting DBException : " + e);
                     }

@@ -58,7 +58,7 @@ public class AuthenticationActivityTest extends QuizActivityTestCase<Authenticat
 		solo.enterText(solo.getEditText("GASPAR Username"), "whatever");
 		solo.enterText(solo.getEditText("GASPAR Password"), "whatever");
 		solo.clickOnButton("Log in using Tequila");
-//		solo.sleep(1000);
+		solo.sleep(1000);
 		assertTrue("Activity is authenticated", UserCredentials.INSTANCE.getState() == AuthenticationState.AUTHENTICATED);
 //		clickOnTextViewAndWaitFor("Log in using Tequila", TTChecks.MAIN_ACTIVITY_SHOWN);
 	}
