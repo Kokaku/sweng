@@ -169,7 +169,6 @@ public class QuestionIterator implements Parcelable {
 		ArrayList<QuizQuestion> questions = new ArrayList<QuizQuestion>();
 		in.readTypedList(questions, QuizQuestion.CREATOR);
 		questions.toArray(mQuestions);
-		System.out.println("QuestionIterator: ");
 	}
 	
 	@Override

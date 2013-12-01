@@ -52,7 +52,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	private static final String TEQUILA_URL = "https://tequila.epfl.ch/cgi-bin/tequila/login";
 	
 	private ServerCommunication() {
-	    Log.d("POTATO SeverCom", "Constructor called");
+//	    Log.d("POTATO SeverCom", "Constructor called");
 	}
 	
 	/**
@@ -73,9 +73,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	    int responseStatus = 0;
 	    String httpBody = null;
 	    
-		Log.d("POTATO ServerCom", "Starting to send question = " + question);
+//		Log.d("POTATO ServerCom", "Starting to send question = " + question);
 		if (!isNetworkAvailable()) {
-			Log.d("POTATO ServerCom", "Network is not available to send question");
+//			Log.d("POTATO ServerCom", "Network is not available to send question");
 			throw new ServerCommunicationException("Not connected.");
 		}
 
@@ -95,11 +95,11 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
 	        responseStatus = httpResponse.getStatusLine().getStatusCode();
 		    httpBody = handler.handleResponse(httpResponse);
-			Log.d("POTATO ServerCom", "httpBody = " + httpBody + " status = " + responseStatus);
+//			Log.d("POTATO ServerCom", "httpBody = " + httpBody + " status = " + responseStatus);
 			updatedQuestion = new QuizQuestion(httpBody);
-			Log.d("POTATO ServerCom", "updated question = " + updatedQuestion);
+//			Log.d("POTATO ServerCom", "updated question = " + updatedQuestion);
 		} catch (IOException e) {
-			Log.d("POTATO ServerCom", "IO Exception");
+//			Log.d("POTATO ServerCom", "IO Exception");
 			// Status code is 3xx or 4xx
 			if (responseStatus >= HttpStatus.SC_MULTIPLE_CHOICES
 			    && responseStatus < HttpStatus.SC_INTERNAL_SERVER_ERROR) {
@@ -109,17 +109,17 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			        "Status code is " + responseStatus);
 			}
 		} catch (JSONException e) {
-			Log.d("POTATO ServerCom", "JSON exception");
+//			Log.d("POTATO ServerCom", "JSON exception");
 			throw new ServerCommunicationException("JSON badly formatted. "
 					+ e.getMessage());
 		}
 		
 		if (httpBody == null || responseStatus != HttpStatus.SC_CREATED) {
-		    Log.d("POTATO ServerCom", "httpBody is " + httpBody + " and status is " + responseStatus);
+//		    Log.d("POTATO ServerCom", "httpBody is " + httpBody + " and status is " + responseStatus);
 		    throw new ServerCommunicationException("Unable to send the question to the server.");
 		}
 		
-		Log.d("POTATO ServerCom", "question sent, updated question = " + updatedQuestion);
+//		Log.d("POTATO ServerCom", "question sent, updated question = " + updatedQuestion);
 		return updatedQuestion;
 	}
 
@@ -138,7 +138,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	    int responseStatus = 0;
         String httpBody = null;
 	    
-		Log.d("POTATO ServerCom", "Starting to fetch a question");
+//		Log.d("POTATO ServerCom", "Starting to fetch a question");
 		if (!isNetworkAvailable()) {
 			Log.d("POTATO ServerCom", "Network not available in getRQuestion");
 			throw new ServerCommunicationException("Not connected.");
@@ -152,14 +152,14 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		try {
 			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
 			if (httpResponse == null) {
-				Log.d("POTATO ServerCom", "Response null, ServerComException thrown");
+//				Log.d("POTATO ServerCom", "Response null, ServerComException thrown");
 			    throw new ServerCommunicationException("Unable to contact server");
 			}
 			responseStatus = httpResponse.getStatusLine().getStatusCode();
 			httpBody = handler.handleResponse(httpResponse);
-			Log.d("POTATO ServerCom", "Response: body = " + httpBody + " status = " + responseStatus);
+//			Log.d("POTATO ServerCom", "Response: body = " + httpBody + " status = " + responseStatus);
 		} catch (IOException e) {
-		    Log.d("POTATO ServerCom", "IO exception, nothing is done :)");
+//		    Log.d("POTATO ServerCom", "IO exception, nothing is done :)");
             // Status code is 3xx or 4xx
             if (responseStatus >= HttpStatus.SC_MULTIPLE_CHOICES
                 && responseStatus < HttpStatus.SC_INTERNAL_SERVER_ERROR) {
@@ -172,16 +172,16 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		
 
 		if (httpBody == null || responseStatus != HttpStatus.SC_OK) {
-			Log.d("POTATO ServerCom", "httpBody is null, or status not correct");
+//			Log.d("POTATO ServerCom", "httpBody is null, or status not correct");
 			throw new ServerCommunicationException("Unable to get a question from the server.");
 		}
 
 		try {
 			QuizQuestion question = new QuizQuestion(httpBody);
-			Log.d("POTATO ServerCom", "Question fetched: " + question);
+//			Log.d("POTATO ServerCom", "Question fetched: " + question);
 			return question;
 		} catch (JSONException e) {
-			Log.d("POTATO ServerCom", "JSON badly formatted.");
+//			Log.d("POTATO ServerCom", "JSON badly formatted.");
 			throw new ServerCommunicationException("JSON badly formatted.");
 		}
 	}
@@ -204,7 +204,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	    throws ServerCommunicationException, InvalidCredentialsException {
 
 		if (!isNetworkAvailable()) {
-			Log.d("POTATO ServerCom - login", "Network not available in login");
+//			Log.d("POTATO ServerCom - login", "Network not available in login");
 
 			throw new ServerCommunicationException("Not connected");
 		}/*
@@ -214,32 +214,32 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		 */
 
 		try {
-			Log.d("POTATO ServerCom - login", "Start loging in");
+//			Log.d("POTATO ServerCom - login", "Start loging in");
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.TOKEN);
-			Log.v("POTATO ServerCom - login", "State: TOKEN "
-					+ UserCredentials.INSTANCE.getState());
+//			Log.v("POTATO ServerCom - login", "State: TOKEN "
+//					+ UserCredentials.INSTANCE.getState());
 			
 			String httpResponse = requestToken();
 			JSONObject json = new JSONObject(httpResponse);
 			String token = json.getString("token");
-			Log.v("POTATO ServerCom - login", "token = " + token);
+//			Log.v("POTATO ServerCom - login", "token = " + token);
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.TEQUILA);
-			Log.v("POTATO ServerCom - login", "State: TEQUILA "
-					+ UserCredentials.INSTANCE.getState());
+//			Log.v("POTATO ServerCom - login", "State: TEQUILA "
+//					+ UserCredentials.INSTANCE.getState());
 
 			authTequila(token, username, password);
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.CONFIRMATION);
-			Log.v("POTATO ServerCom - login", "State: CONFIRMATION "
-					+ UserCredentials.INSTANCE.getState());
+//			Log.v("POTATO ServerCom - login", "State: CONFIRMATION "
+//					+ UserCredentials.INSTANCE.getState());
 
 			httpResponse = requestSessionID(token);
 
 			json = new JSONObject(httpResponse);
 			String session = json.getString("session");
-			Log.v("POTATO ServerCom - login", "session = " + session);
+//			Log.v("POTATO ServerCom - login", "session = " + session);
 
 			UserCredentials.INSTANCE
 					.setState(AuthenticationState.AUTHENTICATED);
@@ -247,15 +247,15 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		} catch (JSONException e) {
 			UserCredentials.INSTANCE
 					.setState(AuthenticationState.UNAUTHENTICATED);
-			Log.v("POTATO ServerCom - login", "Exception: JSON");
+//			Log.v("POTATO ServerCom - login", "Exception: JSON");
 			throw new ServerCommunicationException("JSON badly formatted.");
 		} catch (ServerCommunicationException e) {
-			Log.v("POTATO ServerCom - login", "Exception: ServerCom");
+//			Log.v("POTATO ServerCom - login", "Exception: ServerCom");
 			UserCredentials.INSTANCE
 					.setState(AuthenticationState.UNAUTHENTICATED);
 			throw e;
 		} catch (InvalidCredentialsException e) {
-			Log.v("POTATO ServerCom - login", "Exception: InvalidCred");
+//			Log.v("POTATO ServerCom - login", "Exception: InvalidCred");
 			UserCredentials.INSTANCE
 					.setState(AuthenticationState.UNAUTHENTICATED);
 			throw e;
@@ -277,8 +277,8 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	private void addAuthenticationHeader(HttpUriRequest request) {
 		request.setHeader("Authorization", "Tequila "
 				+ UserCredentials.INSTANCE.getSessionID());
-		Log.v("POTATO ServerCom - addAuthenticationHeader",
-				"Adding athentication header");
+//		Log.v("POTATO ServerCom - addAuthenticationHeader",
+//				"Adding athentication header");
 
 	}
 
@@ -301,16 +301,16 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		} catch (IOException e) {
 		}
 
-		Log.d("POTATO ServerCom", "status = " + responseStatus);
+//		Log.d("POTATO ServerCom", "status = " + responseStatus);
 		
 		if (httpBody == null || responseStatus != HttpStatus.SC_OK) {
-			Log.v("POTATO ServerCom - requestToken", "Exception: request = "
-					+ httpResponse + " status = " + responseStatus);
+//			Log.v("POTATO ServerCom - requestToken", "Exception: request = "
+//					+ httpResponse + " status = " + responseStatus);
 
 			throw new ServerCommunicationException("Unable to get a token.");
 		}
-		Log.v("POTATO ServerCom - requestToken", "httpResponse = "
-				+ httpResponse);
+//		Log.v("POTATO ServerCom - requestToken", "httpResponse = "
+//				+ httpResponse);
 
 		return httpBody;
 	}
@@ -337,10 +337,10 @@ public enum ServerCommunication implements QuestionsCommunicator {
             }
 			responseStatus = httpResponse.getStatusLine().getStatusCode();
 		} catch (IOException e) {
-        	Log.v("POTATO ServerCom - authTequila", "Exception: IO");
+//        	Log.v("POTATO ServerCom - authTequila", "Exception: IO");
 		}
 
-    	Log.v("POTATO ServerCom - authTequila", "Response status = " + responseStatus);
+//    	Log.v("POTATO ServerCom - authTequila", "Response status = " + responseStatus);
 
 		if (responseStatus != HttpStatus.SC_MOVED_TEMPORARILY) {
 			throw new InvalidCredentialsException(
@@ -374,8 +374,8 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		} catch (IOException e) {
 		}
 		
-    	Log.v("POTATO ServerCom - requestSessionID", "Response status = " 
-    			+ responseStatus + "response = " + httpResponse);
+//    	Log.v("POTATO ServerCom - requestSessionID", "Response status = " 
+//    			+ responseStatus + "response = " + httpResponse);
 
 		if (httpBody == null || responseStatus != HttpStatus.SC_OK) {
 			throw new ServerCommunicationException("Unable to confirm token.");
@@ -405,10 +405,10 @@ public enum ServerCommunication implements QuestionsCommunicator {
         int responseStatus = 0;
         String httpBody = null;
         
-        Log.d("POTATO ServerCom", "Start sending query to the server = " + query);
+//        Log.d("POTATO ServerCom", "Start sending query to the server = " + query);
         
         if (!isNetworkAvailable()) {
-            Log.d("POTATO ServerCom", "Network is not available to send query");
+//            Log.d("POTATO ServerCom", "Network is not available to send query");
             throw new ServerCommunicationException("Not connected.");
         }
         
@@ -429,11 +429,11 @@ public enum ServerCommunication implements QuestionsCommunicator {
             responseStatus = httpResponse.getStatusLine().getStatusCode();
             httpBody = handler.handleResponse(httpResponse);
 
-            Log.d("POTATO ServerCom", "httpBody = " + httpBody + " status = " + responseStatus);
+//            Log.d("POTATO ServerCom", "httpBody = " + httpBody + " status = " + responseStatus);
             
             iterator = httpResponseToQuestionIterator(query, httpBody);
         } catch (IOException e) {
-            Log.d("POTATO ServerCom", "IO Exception");
+//            Log.d("POTATO ServerCom", "IO Exception");
             if (responseStatus >= HttpStatus.SC_MULTIPLE_CHOICES
                 && responseStatus < HttpStatus.SC_INTERNAL_SERVER_ERROR) {
                 // Status code is 3xx or 4xx
@@ -443,7 +443,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
                     "Status code is " + responseStatus);
             }
         } catch (JSONException e) {
-            Log.d("POTATO ServerCom", "JSON exception");
+//            Log.d("POTATO ServerCom", "JSON exception");
             throw new ServerCommunicationException("JSON badly formatted. "
                     + e.getMessage());
         }
