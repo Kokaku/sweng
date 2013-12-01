@@ -23,6 +23,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 
+import android.util.Log;
+
 /**
  * This factory creates HttpClients. It also allows to inject custom HttpClients
  * for testing.
@@ -82,14 +84,14 @@ public class SwengHttpClientFactory {
     final private static HttpRequestInterceptor LOGGING_REQUEST_INTERCEPTOR = new HttpRequestInterceptor() {
         @Override
         public void process(HttpRequest request, HttpContext context) {
-            //Log.d("HTTP REQUEST", request.getRequestLine().toString());
+            Log.d("HTTP REQUEST", request.getRequestLine().toString());
         }
     };
 
     final private static HttpResponseInterceptor LOGGING_RESPONSE_INTERCEPTOR = new HttpResponseInterceptor() {
         @Override
         public void process(HttpResponse response, HttpContext context) {
-            //Log.d("HTTP RESPONSE", response.getStatusLine().toString());
+            Log.d("HTTP RESPONSE", response.getStatusLine().toString());
         }
     };
 

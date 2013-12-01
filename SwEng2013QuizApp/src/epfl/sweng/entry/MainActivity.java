@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -132,12 +133,12 @@ public class MainActivity extends Activity implements OnSyncListener {
         CheckBox checkbox = (CheckBox) view;
         
         if (checkbox.isChecked()) {
-            //Log.d("POTATO MAIN", "Checkbox checked");
+            Log.d("POTATO MAIN", "Checkbox checked");
             Proxy.INSTANCE.setState(ConnectionState.OFFLINE, this);
             TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
             SwEng2013QuizApp.displayToast(R.string.now_offline);
         } else {
-            //Log.d("POTATO MAIN", "Checkbox unchecked");
+            Log.d("POTATO MAIN", "Checkbox unchecked");
             Proxy.INSTANCE.setState(ConnectionState.ONLINE, this);
         }
     }
@@ -145,10 +146,10 @@ public class MainActivity extends Activity implements OnSyncListener {
     @Override
     public void onSyncCompleted() {
         if (Proxy.INSTANCE.isOnline()) {
-            //Log.d("POTATO MAIN", "Sync completed. We're now online.");
+            Log.d("POTATO MAIN", "Sync completed. We're now online.");
             TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_DISABLED);
         } else {
-            //Log.d("POTATO MAIN", "Sync completed. We're now offline.");
+            Log.d("POTATO MAIN", "Sync completed. We're now offline.");
             TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
         }
         updateButtons();

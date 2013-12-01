@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -182,20 +183,25 @@ public class SearchActivity extends Activity {
 
 		@Override
 		protected QuestionIterator doInBackground(String... params) {
-			//Log.d("Potato SearchActivity", "Sending query to server, getting questions");
+			Log.d("Potato SearchActivity",
+					"Sending query to server, getting questions");
 			try {
 				return Proxy.INSTANCE.searchQuestion(params[0], params[1]);
 			} catch (NotLoggedInException e) {
-				//Log.d("POTATO SearchActivity". "NotLoggedInException : " + e.getMessage());
+				Log.d("POTATO SearchActivity",
+						"NotLoggedInException : " + e.getMessage());
 				mException = AsyncTaskExceptions.NOT_LOGGED_IN_EXCEPTION;
 			} catch (BadRequestException e) {
-				//Log.d("POTATO SearchActivity", "BadRequestException : " + e.getMessage());
+				Log.d("POTATO SearchActivity",
+						"BadRequestException : " + e.getMessage());
 				mException = AsyncTaskExceptions.BAD_REQUEST_EXCEPTION;
 			} catch (ServerCommunicationException e) {
-				//Log.d("POTATO SearchActivity", "ServerComException : " + e.getMessage());
+				Log.d("POTATO SearchActivity",
+						"ServerComException : " + e.getMessage());
 				mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
 			} catch (DBException e) {
-				//Log.d("POTATO SearchActivity", "DBException : " + e.getMessage());
+				Log.d("POTATO SearchActivity",
+						"DBException : " + e.getMessage());
 				mException = AsyncTaskExceptions.DB_EXCEPTION;
 			}
 
@@ -209,7 +215,8 @@ public class SearchActivity extends Activity {
 
 					// can create the intent for ShowQuestions and launch it
 					// here
-					//Log.d("POTATO SHOWQUESTIONS", "Questions fetched successfully ");
+					Log.d("POTATO SHOWQUESTIONS",
+							"Questions fetched successfully ");
 
 					// put extras in mIntent
 					mIntent.putExtra("Source", SearchActivity.class.getName());
@@ -241,10 +248,12 @@ public class SearchActivity extends Activity {
 						if (Proxy.INSTANCE.isOnline()) {
 							SwEng2013QuizApp
 									.displayToast(R.string.failed_to_cache_question);
-							//Log.d("POTATO SHOWQUESTIONS", "Toast failed to cache question displayed");
+							Log.d("POTATO SHOWQUESTIONS",
+									"Toast failed to cache question displayed");
 						} else {
 							SwEng2013QuizApp.displayToast(R.string.broken_database);
-							//Log.d("POTATO SHOWQUESTIONS", "Broken DB toast displayed");
+							Log.d("POTATO SHOWQUESTIONS",
+									"Broken DB toast displayed");
 						}
 						break;
 					default:
