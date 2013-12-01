@@ -43,7 +43,7 @@ public class DatabaseHandlerTest extends AndroidTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        db = new DatabaseHandler();
+        db = DatabaseHandler.getHandler();
         mTags.add("Olympics");
         mTags.add("FunWithFlags");
         mQuestion = new QuizQuestion(mQuestionText, Arrays.asList(mAnswers),
@@ -215,6 +215,38 @@ public class DatabaseHandlerTest extends AndroidTestCase {
         
         assertTrue("Questions should be the same",
                 compareQuestions(newQuestion, mQuestion, true));
+    }
+    
+    public void testConcurrentWriting() {
+        db.clearCache();
+        
+        class Writer implements Runnable {
+            private int id;
+            
+            public Writer(int id) {
+                this.id = id;
+            }
+            
+            public void run() {
+                for (int i = 0; i < 500; ++i) {
+                    QuizQuestion question = new QuizQuestion(mQuestionText, Arrays.asList(mAnswers),
+                        mSolutionIndex, mTags, id + i, mOwner);
+                    try {
+                        db.storeQuestion(mQuestion, false);
+                    } catch (DBException e) {
+                        fail("testConcurrentWriting DBException : " + e);
+                    }
+                }
+            }
+            
+        }
+        
+        Thread t1 = new Thread(new Writer(1));
+        Thread t2 = new Thread(new Writer(1000));
+        Thread t3 = new Thread(new Writer(2000));
+        t1.run();
+        t2.run();
+        t3.run();
     }
     
     private QuizQuestion getNewQuestionFromDB() {

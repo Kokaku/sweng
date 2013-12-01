@@ -34,34 +34,44 @@ import epfl.sweng.utils.JSONUtilities;
  * @author lseguy
  *
  */
-public class DatabaseHandler extends SQLiteOpenHelper {
+public final class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "quizquestions.db";
     private static final int DATABASE_VERSION = 4;
     private static final int MAX_RESPONSE_NUMBER = 10;
     
-    public DatabaseHandler() {
+    private static DatabaseHandler instance;
+    private SQLiteDatabase db;
+    
+    private DatabaseHandler() {
         super(SwEng2013QuizApp.getAppContext(), DATABASE_NAME, null,
             DATABASE_VERSION);
+        db = getWritableDatabase();
+    }
+    
+    public static synchronized DatabaseHandler getHandler() {
+        if (instance == null) {
+            instance = new DatabaseHandler();
+        }
+        
+        return instance;
     }
     
     @Override
-    public void onCreate(SQLiteDatabase db) {
-        CachedQuestionsTable.onCreate(db);
+    public void onCreate(SQLiteDatabase database) {
+        CachedQuestionsTable.onCreate(database);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        CachedQuestionsTable.onUpgrade(db, oldVersion, newVersion);
+    public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
+        CachedQuestionsTable.onUpgrade(database, oldVersion, newVersion);
     }
     
     /**
      * Clears all the cached data.
      */
     public void clearCache() {
-        SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_NAME);
-        db.close();
     }
 
     /**
@@ -74,8 +84,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         throws DBException {
         
         Log.d("POTATO DB", "Caching the question " + question);
-        
-        SQLiteDatabase db = getWritableDatabase();
         
         ContentValues values = new ContentValues();
         
@@ -106,8 +114,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         
         Log.d("POTATO DB", "Request successful : " + requestSuccessfull);
         
-        db.close();
-        
 //        if (!requestSuccessfull) {
 //            throw new DBException("Could not store the question.");
 //        }
@@ -123,8 +129,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         throws DBException {
         
         Log.d("POTATO DB", "Getting a question from cache.");
-        
-        SQLiteDatabase db = getReadableDatabase();
         
         // Get a random question
         Cursor cursor = db.rawQuery("SELECT * FROM " +
@@ -144,7 +148,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             throw new DBException("JSON badly formatted.");
         } finally {
             cursor.close();
-            db.close();
         }
     }
     
@@ -161,7 +164,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Log.d("POTATO DB", "Synchronizing questions");
         
         int questionsSumbmitted = 0;
-        SQLiteDatabase db = getWritableDatabase();
         
         Cursor cursor = db.query(TABLE_NAME, null, COLUMN_SUBMIT + "=1",
             null, null, null, null);
@@ -200,7 +202,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             throw new DBException("JSON badly formatted.");
         } finally {
             cursor.close();
-            db.close();
         }
         
         Log.d("POTATO DB", questionsSumbmitted + " questions have been submitted.");
@@ -255,7 +256,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String limit = "ORDER BY "+ COLUMN_ID +" ASC "+
                 "LIMIT "+next+", "+ (MAX_RESPONSE_NUMBER+1);
         String querySQL = parseQuerytoSQL(query) + limit;
-        SQLiteDatabase db = getReadableDatabase();
         
         Cursor cursor = db.rawQuery(querySQL, null);
         int arraySize = Math.min(cursor.getCount(), MAX_RESPONSE_NUMBER);
@@ -273,7 +273,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             throw new DBException("Couldn't retrieve question from the Database");
         } finally {
             cursor.close();
-            db.close(); 
         }
         
         return new QuestionIterator(questions, query, newNext);

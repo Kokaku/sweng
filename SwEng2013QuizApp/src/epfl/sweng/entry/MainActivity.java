@@ -167,7 +167,7 @@ public class MainActivity extends Activity implements OnSyncListener {
         builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                DatabaseHandler db = new DatabaseHandler();
+                DatabaseHandler db = DatabaseHandler.getHandler();
                 db.clearCache();
                 SwEng2013QuizApp.displayToast(R.string.cache_cleared);
             }
