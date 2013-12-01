@@ -108,8 +108,8 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_OWNER, question.getOwner());
         }
                 
-//        boolean requestSuccessfull = db.insertWithOnConflict(TABLE_NAME, null, values,
-//            SQLiteDatabase.CONFLICT_IGNORE) != -1;
+        db.insertWithOnConflict(TABLE_NAME, null, values,
+                 SQLiteDatabase.CONFLICT_IGNORE);
         
         // Log.d("POTATO DB", "Request successful : " + requestSuccessfull);
         
