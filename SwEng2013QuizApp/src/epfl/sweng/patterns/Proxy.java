@@ -34,7 +34,6 @@ public enum Proxy implements QuestionsCommunicator {
 	INSTANCE;
 
 	private ConnectionState mCurrentState = ConnectionState.ONLINE;
-	private DatabaseHandler mDatabase;
 	private QuestionsCommunicator instance = ServerCommunication.INSTANCE;
 
 	public enum ConnectionState {
@@ -42,7 +41,6 @@ public enum Proxy implements QuestionsCommunicator {
 	}
 
 	private Proxy() {
-		mDatabase = new DatabaseHandler();
 	}
 
 	/**
@@ -118,14 +116,14 @@ public enum Proxy implements QuestionsCommunicator {
 			QuizQuestion[] questions = questionIterator.getLocalQuestions();
 
 			for (QuizQuestion question : questions) {
-				mDatabase.storeQuestion(question, false);
+				SwEng2013QuizApp.getDbHandler().storeQuestion(question, false);
 			}
 
 			return questionIterator;
 		} else {
 			Log.d("POTATO PROXY", "Offline => searching question from cache");
 			try {
-			    return mDatabase.searchQuestion(query, next);
+			    return SwEng2013QuizApp.getDbHandler().searchQuestion(query, next);
 			} catch (IllegalArgumentException e) {
 			    throw new BadRequestException("Unrecognized next argument");
 			}
@@ -163,11 +161,11 @@ public enum Proxy implements QuestionsCommunicator {
 			Log.d("POTATO PROXY",
 					"Online => getting question from server and caching it");
 			QuizQuestion question = instance.getRandomQuestion();
-			mDatabase.storeQuestion(question, false);
+			SwEng2013QuizApp.getDbHandler().storeQuestion(question, false);
 			return question;
 		} else {
 			Log.d("POTATO PROXY", "Offline => getting question from cache");
-			return mDatabase.getRandomQuestion();
+			return SwEng2013QuizApp.getDbHandler().getRandomQuestion();
 		}
 	}
 
@@ -200,11 +198,11 @@ public enum Proxy implements QuestionsCommunicator {
 			Log.d("POTATO PROXY",
 					"Online => sending question to server and caching it");
 			QuizQuestion submittedQuestion = instance.send(question);
-			mDatabase.storeQuestion(submittedQuestion, false);
+			SwEng2013QuizApp.getDbHandler().storeQuestion(submittedQuestion, false);
 			return submittedQuestion;
 		} else {
 			Log.d("POTATO PROXY", "Offline => storing question in cache");
-			mDatabase.storeQuestion(question, true);
+			SwEng2013QuizApp.getDbHandler().storeQuestion(question, true);
 			return question;
 		}
 	}
@@ -225,7 +223,7 @@ public enum Proxy implements QuestionsCommunicator {
 		protected Integer doInBackground(Void... unused) {
 			Log.d("POTATO PROXY", "SyncTask doing its job");
 			try {
-				return mDatabase.synchronizeQuestions();
+				return SwEng2013QuizApp.getDbHandler().synchronizeQuestions();
 			} catch (ServerCommunicationException e) {
 				Log.d("POTATO PROXY",
 						"ServerComException in SyncTask : " + e.getMessage());

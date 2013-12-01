@@ -1,7 +1,9 @@
 package epfl.sweng;
 
+import epfl.sweng.offline.DatabaseHandler;
 import android.app.Application;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
 /**
@@ -16,13 +18,18 @@ import android.widget.Toast;
 public class SwEng2013QuizApp extends Application {
 
     private static Context context;
+    private static DatabaseHandler dbHandler;
 
     /**
      * Initialization
      */
+    @Override
     public void onCreate() {
         super.onCreate();
         SwEng2013QuizApp.context = getApplicationContext();
+        if (dbHandler == null) {
+            dbHandler = new DatabaseHandler();
+        }
     }
     
     /**
@@ -42,4 +49,10 @@ public class SwEng2013QuizApp extends Application {
         return SwEng2013QuizApp.context;
     }
     
+    /**
+     * @return the instance of DatabaseHandler used by the app
+     */
+    public static DatabaseHandler getDbHandler() {
+        return dbHandler;
+    }
 }

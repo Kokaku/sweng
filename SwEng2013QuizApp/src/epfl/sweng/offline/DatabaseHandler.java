@@ -40,9 +40,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 4;
     private static final int MAX_RESPONSE_NUMBER = 10;
     
+    private SQLiteDatabase db;
+    
     public DatabaseHandler() {
         super(SwEng2013QuizApp.getAppContext(), DATABASE_NAME, null,
             DATABASE_VERSION);
+        db = getWritableDatabase();
     }
     
     @Override
@@ -58,24 +61,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     /**
      * Clears all the cached data.
      */
-    public void clearCache() {
-        SQLiteDatabase db = getWritableDatabase();
+    public synchronized void clearCache() {
         db.execSQL("DELETE FROM " + TABLE_NAME);
-        db.close();
     }
-
+    
     /**
      * Stores a question in the database. If the question is already in the
      * database, do nothing.
      * 
      * @param question the question to be stored
      */
-    public void storeQuestion(QuizQuestion question, boolean toBeSubmitted)
+    public synchronized void storeQuestion(QuizQuestion question, boolean toBeSubmitted)
         throws DBException {
         
         Log.d("POTATO DB", "Caching the question " + question);
-        
-        SQLiteDatabase db = getWritableDatabase();
         
         ContentValues values = new ContentValues();
         
@@ -106,8 +105,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         
         Log.d("POTATO DB", "Request successful : " + requestSuccessfull);
         
-        db.close();
-        
 //        if (!requestSuccessfull) {
 //            throw new DBException("Could not store the question.");
 //        }
@@ -119,12 +116,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * @return a random question or null if there is no cached question
      * @throws DBException if the request is unsuccessful
      */
-    public QuizQuestion getRandomQuestion()
+    public synchronized QuizQuestion getRandomQuestion()
         throws DBException {
         
         Log.d("POTATO DB", "Getting a question from cache.");
-        
-        SQLiteDatabase db = getReadableDatabase();
         
         // Get a random question
         Cursor cursor = db.rawQuery("SELECT * FROM " +
@@ -144,7 +139,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             throw new DBException("JSON badly formatted.");
         } finally {
             cursor.close();
-            db.close();
         }
     }
     
@@ -155,13 +149,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * @throws DBException if a DB request is unsuccessful
      * @throws ServerCommunicationException if a question can't be submitted
      */
-    public int synchronizeQuestions()
+    public synchronized int synchronizeQuestions()
         throws DBException, ServerCommunicationException {
         
         Log.d("POTATO DB", "Synchronizing questions");
         
         int questionsSumbmitted = 0;
-        SQLiteDatabase db = getWritableDatabase();
         
         Cursor cursor = db.query(TABLE_NAME, null, COLUMN_SUBMIT + "=1",
             null, null, null, null);
@@ -200,7 +193,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             throw new DBException("JSON badly formatted.");
         } finally {
             cursor.close();
-            db.close();
         }
         
         Log.d("POTATO DB", questionsSumbmitted + " questions have been submitted.");
@@ -243,7 +235,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      *         the database
      * @throws DBException if the database couldn't retrieve a question
      */
-    public QuestionIterator searchQuestion(String query, String next)
+    public synchronized QuestionIterator searchQuestion(String query, String next)
         throws DBException, IllegalArgumentException {
             
         if (next == null || next.length() == 0) {
@@ -255,7 +247,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String limit = "ORDER BY "+ COLUMN_ID +" ASC "+
                 "LIMIT "+next+", "+ (MAX_RESPONSE_NUMBER+1);
         String querySQL = parseQuerytoSQL(query) + limit;
-        SQLiteDatabase db = getReadableDatabase();
         
         Cursor cursor = db.rawQuery(querySQL, null);
         int arraySize = Math.min(cursor.getCount(), MAX_RESPONSE_NUMBER);
@@ -273,7 +264,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             throw new DBException("Couldn't retrieve question from the Database");
         } finally {
             cursor.close();
-            db.close(); 
         }
         
         return new QuestionIterator(questions, query, newNext);
