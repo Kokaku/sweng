@@ -11,7 +11,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -384,16 +383,16 @@ public class EditQuestionActivity extends ListActivity {
             try {
                 Proxy.INSTANCE.send(questions[0]);
             } catch (NotLoggedInException e) {
-            	Log.d("POTATO EditQuestionActivity", "Not logged in " + e.getMessage());
+            	//Log.d("POTATO EditQuestionActivity", "Not logged in " + e.getMessage());
                 mException = AsyncTaskExceptions.NOT_LOGGED_IN_EXCEPTION;
             } catch (DBException e) {
-            	Log.d("POTATO EditQuestionActivity", "DB exception " + e.getMessage());
+            	//Log.d("POTATO EditQuestionActivity", "DB exception " + e.getMessage());
                 mException = AsyncTaskExceptions.DB_EXCEPTION;
             } catch (BadRequestException e) {
-                Log.d("POTATO EditQuestionActivity", "BadRequest exception " + e.getMessage());
+                //Log.d("POTATO EditQuestionActivity", "BadRequest exception " + e.getMessage());
                 mException = AsyncTaskExceptions.BAD_REQUEST_EXCEPTION;
             } catch (ServerCommunicationException e) {
-            	Log.d("POTATO EditQuestionActivity", "ServerCom excpt " + e.getMessage());
+            	//Log.d("POTATO EditQuestionActivity", "ServerCom excpt " + e.getMessage());
                 mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
             }
             
@@ -403,16 +402,16 @@ public class EditQuestionActivity extends ListActivity {
         @Override
         protected void onPostExecute(QuizQuestion question) {
             if (mException == null) {
-            	Log.d("POTATO EditQuestionActivity", "No exception");
+            	//Log.d("POTATO EditQuestionActivity", "No exception");
                 if (!Proxy.INSTANCE.isOnline()) {
-                	Log.d("POTATO EditQuestionActivity", "Proxy is not online, toast displayed");
+                	//Log.d("POTATO EditQuestionActivity", "Proxy is not online, toast displayed");
                     SwEng2013QuizApp.displayToast(R.string.question_cached);
                 }
                 TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
             } else {
                 switch (mException) {
                     case NOT_LOGGED_IN_EXCEPTION:
-                    	Log.d("POTATO EditQuestionActivity", "Not logged in");
+                    	//Log.d("POTATO EditQuestionActivity", "Not logged in");
                         SwEng2013QuizApp.displayToast(R.string.not_logged_in);
                         TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                         break;
@@ -425,7 +424,7 @@ public class EditQuestionActivity extends ListActivity {
                         Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
                         SwEng2013QuizApp.displayToast(R.string.now_offline);
                         // Send it again to cache the question
-                        Log.d("POTATO EditQuestionActivity", "ServerCom exception, go offline");
+                        //Log.d("POTATO EditQuestionActivity", "ServerCom exception, go offline");
                         new SendQuestionTask().execute(question);
                         break;
                     case DB_EXCEPTION:

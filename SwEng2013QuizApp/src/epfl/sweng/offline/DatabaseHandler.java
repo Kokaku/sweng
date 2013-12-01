@@ -19,7 +19,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.ServerCommunicationException;
@@ -83,7 +82,7 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
     public void storeQuestion(QuizQuestion question, boolean toBeSubmitted)
         throws DBException {
         
-        Log.d("POTATO DB", "Caching the question " + question);
+        //Log.d("POTATO DB", "Caching the question " + question);
         
         ContentValues values = new ContentValues();
         
@@ -109,10 +108,10 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_OWNER, question.getOwner());
         }
                 
-        boolean requestSuccessfull = db.insertWithOnConflict(TABLE_NAME, null, values,
-            SQLiteDatabase.CONFLICT_IGNORE) != -1;
+//        boolean requestSuccessfull = db.insertWithOnConflict(TABLE_NAME, null, values,
+//            SQLiteDatabase.CONFLICT_IGNORE) != -1;
         
-        Log.d("POTATO DB", "Request successful : " + requestSuccessfull);
+        //Log.d("POTATO DB", "Request successful : " + requestSuccessfull);
         
 //        if (!requestSuccessfull) {
 //            throw new DBException("Could not store the question.");
@@ -128,7 +127,7 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
     public QuizQuestion getRandomQuestion()
         throws DBException {
         
-        Log.d("POTATO DB", "Getting a question from cache.");
+        //Log.d("POTATO DB", "Getting a question from cache.");
         
         // Get a random question
         Cursor cursor = db.rawQuery("SELECT * FROM " +
@@ -142,7 +141,7 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
         
         try {
             QuizQuestion question = getQuestionFromCursor(cursor);
-            Log.d("POTATO DB", "This question has been fetched from cache : " + question);
+            //Log.d("POTATO DB", "This question has been fetched from cache : " + question);
             return question;
         } catch (JSONException e) {
             throw new DBException("JSON badly formatted.");
@@ -161,7 +160,7 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
     public int synchronizeQuestions()
         throws DBException, ServerCommunicationException {
         
-        Log.d("POTATO DB", "Synchronizing questions");
+        //Log.d("POTATO DB", "Synchronizing questions");
         
         int questionsSumbmitted = 0;
         
@@ -179,10 +178,10 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
 
                 if (updatedQuestion == null) {
                     // TODO
-                    Log.d("POTATO DB", "Error during sync. The updated question is null");
+                    //Log.d("POTATO DB", "Error during sync. The updated question is null");
                 }
                 
-                Log.d("POTATO DB", "The updated question is : " + updatedQuestion);
+                //Log.d("POTATO DB", "The updated question is : " + updatedQuestion);
                 
                 /*
                  * Update the question in cache : add the assigned id and owner
@@ -204,7 +203,7 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
             cursor.close();
         }
         
-        Log.d("POTATO DB", questionsSumbmitted + " questions have been submitted.");
+        //Log.d("POTATO DB", questionsSumbmitted + " questions have been submitted.");
         return questionsSumbmitted;
     }
     
