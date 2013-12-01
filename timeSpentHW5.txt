@@ -1,5 +1,5 @@
-Member 1:
-Member 2:
+Member 1: 15h
+Member 2: 25h
 Member 3: 12h
 Member 4: 5h
 Member 5: 13h
