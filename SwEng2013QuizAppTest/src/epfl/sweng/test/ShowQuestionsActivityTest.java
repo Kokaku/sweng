@@ -158,7 +158,7 @@ public class ShowQuestionsActivityTest extends
         selectRightAnswer();
         clickOnTextViewAndWaitFor("Next question", TTChecks.QUESTION_SHOWN);
         solo.searchText("There was an error retrieving the question.");
-        
+        mockHttpClient.clearCannedResponses();
     }
    
     

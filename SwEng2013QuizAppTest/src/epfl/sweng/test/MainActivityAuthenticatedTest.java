@@ -2,12 +2,10 @@ package epfl.sweng.test;
 
 
 import android.widget.Button;
-import android.widget.CheckBox;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.editquestions.EditQuestionActivity;
 import epfl.sweng.entry.MainActivity;
-import epfl.sweng.patterns.Proxy;
 import epfl.sweng.searchquestions.SearchActivity;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
 import epfl.sweng.test.framework.QuizActivityTestCase;
@@ -124,25 +122,5 @@ public class MainActivityAuthenticatedTest extends
     public void testSearchButtonStartsActivity(){
     	clickOnTextViewAndWaitFor(SEARCH_TEXT, TTChecks.SEARCH_ACTIVITY_SHOWN);
     	solo.assertCurrentActivity("Search button starts the search activity", SearchActivity.class);
-    }
-    
-    public void testCheckBoxDisplayed(){
-    	assertTrue("Checkbox is displayed", solo.searchText("Offline mode"));
-    }
-    
-    public void testCheckBoxEnabled(){
-    	CheckBox checkBox = (CheckBox) solo.getButton("Offline mode");
-    	assertTrue("CheckBox is enabled" , checkBox.isEnabled());
-    }
-    
-    public void testCheckBoxOnlineToOffline(){
-    	clickOnTextViewAndWaitFor("Offline mode", TTChecks.OFFLINE_CHECKBOX_ENABLED);
-    	assertFalse("Correct transit to offline mode", Proxy.INSTANCE.isOnline());
-    }
-    
-    public void testCheckBoxOfflineToOnline(){
-    	clickOnTextViewAndWaitFor("Offline mode", TTChecks.OFFLINE_CHECKBOX_ENABLED);
-    	clickOnTextViewAndWaitFor("Offline mode", TTChecks.OFFLINE_CHECKBOX_DISABLED);
-    	assertTrue("Correct transit to offline mode", Proxy.INSTANCE.isOnline());
     }
 }
