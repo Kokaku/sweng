@@ -1,11 +1,15 @@
 package epfl.sweng.test;
 
+import org.apache.http.HttpStatus;
+
 import android.widget.Button;
 import epfl.sweng.authentication.AuthenticationActivity;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.entry.MainActivity;
+import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.test.framework.QuizActivityTestCase;
+import epfl.sweng.test.minimalmock.MockHttpClient;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 /**
@@ -14,6 +18,7 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
  */
 public class MainActivityUnauthenticatedTest extends
         QuizActivityTestCase<MainActivity> {
+	MockHttpClient mock = new MockHttpClient();
 
     public static final String SHOW_QUESTION_TEXT = "Show a random question";
     public static final String SUBMIT_QUESTION_TEXT = "Submit a quiz question";
@@ -100,5 +105,28 @@ public class MainActivityUnauthenticatedTest extends
         String userCredentials = UserCredentials.INSTANCE.getSessionID();
         assertTrue("User creditentials correctly stored",
                 userCredentials.equals("test"));
+    }
+    
+    public void testLogingIn() {
+    	setUpMock();
+		clickOnTextViewAndWaitFor("Log in", TTChecks.AUTHENTICATION_ACTIVITY_SHOWN);
+
+    	
+		solo.enterText(solo.getEditText("GASPAR Username"), "whatever");
+		solo.enterText(solo.getEditText("GASPAR Password"), "whatever");
+
+		clickOnTextViewAndWaitFor("Log in using Tequila", TTChecks.MAIN_ACTIVITY_SHOWN);
+		UserCredentials.INSTANCE.setState(AuthenticationState.UNAUTHENTICATED);
+    }
+    
+    private void  setUpMock(){
+    	mock.pushCannedResponse("GET https://sweng-quiz.appspot.com/login", HttpStatus.SC_OK, "{ \"token\": \"rqtvk5d3za2x6ocak1a41dsmywogrdlv5\"," 
+  			  + " \"message\": \"Here's your authentication token. Please validate it" 
+  			  +  "with Tequila at https://tequila.epfl.ch/cgi-bin/tequila/login\"}", null);
+  		mock.pushCannedResponse("POST https://tequila.epfl.ch/cgi-bin/tequila/login", HttpStatus.SC_MOVED_TEMPORARILY, "", null);
+  		mock.pushCannedResponse("POST https://sweng-quiz.appspot.com/login", HttpStatus.SC_OK, "{\"session\": \"<random_string>\","
+  			 + "\"message\": \"Here's your session id. Please include the following HTTP header in your subsequent requests:\n"
+  			       + "Authorization: Tequila <random_string>\"}", null);
+  		SwengHttpClientFactory.setInstance(mock);
     }
 }

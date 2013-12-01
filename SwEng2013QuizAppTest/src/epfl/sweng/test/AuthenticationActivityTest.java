@@ -7,6 +7,8 @@ import org.apache.http.HttpStatus;
 
 
 import epfl.sweng.authentication.AuthenticationActivity;
+import epfl.sweng.authentication.UserCredentials;
+import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.test.framework.QuizActivityTestCase;
 import epfl.sweng.test.minimalmock.MockHttpClient;
@@ -52,11 +54,13 @@ public class AuthenticationActivityTest extends QuizActivityTestCase<Authenticat
 				solo.searchButton("Log in using Tequila"));
 	}
 
-//	public void testLogingIn() {
-//		solo.enterText(solo.getEditText("GASPAR Username"), "whatever");
-//		solo.enterText(solo.getEditText("GASPAR Password"), "whatever");
-//
+	public void testLogingIn() {
+		solo.enterText(solo.getEditText("GASPAR Username"), "whatever");
+		solo.enterText(solo.getEditText("GASPAR Password"), "whatever");
+		solo.clickOnButton("Log in using Tequila");
+//		solo.sleep(1000);
+		assertTrue("Activity is authenticated", UserCredentials.INSTANCE.getState() == AuthenticationState.AUTHENTICATED);
 //		clickOnTextViewAndWaitFor("Log in using Tequila", TTChecks.MAIN_ACTIVITY_SHOWN);
-//	}
+	}
 	
 }
