@@ -16,6 +16,7 @@ public abstract class QuizActivityTestCase<T extends Activity>
     extends ActivityInstrumentationTestCase2<T>
     {
     
+    public static final int WAIT_TIME_FOR_ACTIVITY = 2000;
     protected Solo solo;
     
     public QuizActivityTestCase(Class<T> activityClass) {
@@ -43,6 +44,10 @@ public abstract class QuizActivityTestCase<T extends Activity>
             
             @Override
             public void verify(TestCoordinator.TTChecks notification) {
+                // No matter what the docs say, and no matter how testing transactions are implemented,
+                // starting activities is not synchronous. Thus, we wait... sigh...
+                // With a two second delay, it worked for Jonas for 10 repetitions. 
+                solo.sleep(WAIT_TIME_FOR_ACTIVITY);
                 assertEquals(String.format(
                     "Expected notification %s, but received %s", expected,
                     notification), expected, notification);
