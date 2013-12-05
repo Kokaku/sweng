@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 import epfl.sweng.utils.JSONUtilities;
 
 /**
@@ -20,6 +21,9 @@ import epfl.sweng.utils.JSONUtilities;
  * 
  */
 public class QuizQuestion implements Parcelable {
+    
+    private static final String LOG_TAG = QuizQuestion.class.getName();
+    
 	private static final int MAX_QUESTION_CARACTERS = 500;
 	private static final int MAX_ANSWERS = 10;
 	private static final int MAX_ANSWER_CARACTERS = 500;
@@ -191,6 +195,7 @@ public class QuizQuestion implements Parcelable {
 		try {
 			return JSONUtilities.getJSONString(this);
 		} catch (JSONException e) {
+		    Log.d(LOG_TAG, "JSONException in toString()", e);
 			return "Impossible to represent the question as a JSON string.";
 		}
 	}
