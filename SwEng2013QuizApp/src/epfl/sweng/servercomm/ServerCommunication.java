@@ -159,7 +159,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			httpBody = handler.handleResponse(httpResponse);
 //			Log.d("POTATO ServerCom", "Response: body = " + httpBody + " status = " + responseStatus);
 		} catch (IOException e) {
-//		    Log.d("POTATO ServerCom", "IO exception, nothing is done :)");
+		    Log.d("POTATO ServerCom", "IO exception, nothing is done :)");
             // Status code is 3xx or 4xx
             if (responseStatus >= HttpStatus.SC_MULTIPLE_CHOICES
                 && responseStatus < HttpStatus.SC_INTERNAL_SERVER_ERROR) {
@@ -255,7 +255,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 					.setState(AuthenticationState.UNAUTHENTICATED);
 			throw e;
 		} catch (InvalidCredentialsException e) {
-//			Log.v("POTATO ServerCom - login", "Exception: InvalidCred");
+			Log.v("POTATO ServerCom - login", "Exception: InvalidCred", e);
 			UserCredentials.INSTANCE
 					.setState(AuthenticationState.UNAUTHENTICATED);
 			throw e;
