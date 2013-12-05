@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -40,6 +41,8 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
 
 public class EditQuestionActivity extends ListActivity {
 
+    private static final String LOG_TAG = EditQuestionActivity.class.getName();
+    
     private EditText mQuestionEditText;
     private EditText mTagsEditText;
     private Button mSubmitButton;
@@ -258,6 +261,7 @@ public class EditQuestionActivity extends ListActivity {
                 return true;
             }
         } catch (IllegalArgumentException e) {
+            Log.d(LOG_TAG, "IllegalArgumentException in isSubmitButtonEnabled()", e);
             if (mSubmitButton.isEnabled()) {
                 return true;
             }
@@ -383,16 +387,16 @@ public class EditQuestionActivity extends ListActivity {
             try {
                 Proxy.INSTANCE.send(questions[0]);
             } catch (NotLoggedInException e) {
-//            	Log.d("POTATO EditQuestionActivity", "Not logged in " + e.getMessage());
+                Log.d(LOG_TAG, "NotLoggedInException in SendQuestionTask", e);
                 mException = AsyncTaskExceptions.NOT_LOGGED_IN_EXCEPTION;
             } catch (DBException e) {
-//            	Log.d("POTATO EditQuestionActivity", "DB exception " + e.getMessage());
+                Log.d(LOG_TAG, "DBException in SendQuestionTask", e);
                 mException = AsyncTaskExceptions.DB_EXCEPTION;
             } catch (BadRequestException e) {
-//                Log.d("POTATO EditQuestionActivity", "BadRequest exception " + e.getMessage());
+                Log.d(LOG_TAG, "BadRequestException in SendQuestionTask", e);
                 mException = AsyncTaskExceptions.BAD_REQUEST_EXCEPTION;
             } catch (ServerCommunicationException e) {
-//            	Log.d("POTATO EditQuestionActivity", "ServerCom excpt " + e.getMessage());
+                Log.d(LOG_TAG, "ServerCommunicationException in SendQuestionTask", e);
                 mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
             }
             
@@ -402,16 +406,16 @@ public class EditQuestionActivity extends ListActivity {
         @Override
         protected void onPostExecute(QuizQuestion question) {
             if (mException == null) {
-//            	Log.d("POTATO EditQuestionActivity", "No exception");
+//            	Log.d(LOG_TAG, "No exception");
                 if (!Proxy.INSTANCE.isOnline()) {
-//                	Log.d("POTATO EditQuestionActivity", "Proxy is not online, toast displayed");
+//                	Log.d(LOG_TAG, "Proxy is not online, toast displayed");
                     SwEng2013QuizApp.displayToast(R.string.question_cached);
                 }
                 TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
             } else {
                 switch (mException) {
                     case NOT_LOGGED_IN_EXCEPTION:
-//                    	Log.d("POTATO EditQuestionActivity", "Not logged in");
+//                    	Log.d(LOG_TAG, "Not logged in");
                         SwEng2013QuizApp.displayToast(R.string.not_logged_in);
                         TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                         break;
@@ -424,7 +428,7 @@ public class EditQuestionActivity extends ListActivity {
                         Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
                         SwEng2013QuizApp.displayToast(R.string.now_offline);
                         // Send it again to cache the question
-//                        Log.d("POTATO EditQuestionActivity", "ServerCom exception, go offline");
+//                        Log.d(LOG_TAG, "ServerCom exception, go offline");
                         new SendQuestionTask().execute(question);
                         break;
                     case DB_EXCEPTION:
@@ -433,6 +437,7 @@ public class EditQuestionActivity extends ListActivity {
                         break;
                     default:
                         assert false;
+                        break;
                 }
             }
         }
