@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import org.apache.http.HttpStatus;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.exceptions.DBException;
@@ -26,6 +27,8 @@ import epfl.sweng.test.minimalmock.MockHttpClient;
  *
  */
 public class DatabaseHandlerTest extends AndroidTestCase {
+    
+    private static final String LOG_TAG = DatabaseHandlerTest.class.getName();
     
     private QuizQuestion mQuestion;
     private String mQuestionText = "How many rings the Olympic flag Five has?";
@@ -56,6 +59,7 @@ public class DatabaseHandlerTest extends AndroidTestCase {
         try {
             db.storeQuestion(mQuestion, false);
         } catch (DBException e) {
+            Log.v(LOG_TAG, "DBException in setUp()", e);
             fail("Problem storing the question");
         }
         Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
@@ -72,20 +76,26 @@ public class DatabaseHandlerTest extends AndroidTestCase {
         mNext = null;try {
             mIterator = db.searchQuestion(mQuery, mNext);
         } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "Exception in testQueryWithMultipleConsecutiveSpaces()", e);
             fail("next should be valid: "+ e.getMessage());
         } catch (DBException e) {
+            Log.v(LOG_TAG, "Exception in testQueryWithMultipleConsecutiveSpaces()", e);
             fail("Should not be DBException: "+ e.getMessage());
         }
         try {
             assertTrue("Questions should be the same",
                     compareQuestions(mIterator.next(), mQuestion, true));
         } catch (NoSuchElementException e) {
+            Log.v(LOG_TAG, "Exception in testQueryWithMultipleConsecutiveSpaces()", e);
             fail("NoSuchElementException: "+ e.getMessage());
         } catch (NotLoggedInException e) {
+            Log.v(LOG_TAG, "Exception in testQueryWithMultipleConsecutiveSpaces()", e);
             fail("NotLoggedInException: "+ e.getMessage());
         } catch (DBException e) {
+            Log.v(LOG_TAG, "Exception in testQueryWithMultipleConsecutiveSpaces()", e);
             fail("DBException: "+ e.getMessage());
         } catch (ServerCommunicationException e) {
+            Log.v(LOG_TAG, "Exception in testQueryWithMultipleConsecutiveSpaces()", e);
             fail("ServerCommunicationException: "+ e.getMessage());
         }
     }
@@ -99,6 +109,7 @@ public class DatabaseHandlerTest extends AndroidTestCase {
         try {
             db.storeQuestion(mQuestion, true);
         } catch (DBException e) {
+            Log.v(LOG_TAG, "Exception in testSynchronizeQuestions()", e);
             fail("Problem storing the question");
         }
         MockHttpClient mockHttpClient = new MockHttpClient();
@@ -112,8 +123,10 @@ public class DatabaseHandlerTest extends AndroidTestCase {
             assertTrue("DB should have send a question to server, instead sent "+ nbSentQuestions,
                     nbSentQuestions == 1);
         } catch (DBException e) {
+            Log.v(LOG_TAG, "Exception in testSynchronizeQuestions()", e);
             fail("testSynchronizeQuestions during synchronizing"+ e.getMessage());
         } catch (ServerCommunicationException e) {
+            Log.v(LOG_TAG, "Exception in testSynchronizeQuestions()", e);
             fail("Question can't be submitted");
         }
     }
@@ -126,6 +139,7 @@ public class DatabaseHandlerTest extends AndroidTestCase {
                         Arrays.asList(mAnswers),
                         mSolutionIndex, mTags, i, mOwner), false);
             } catch (DBException e) {
+                Log.v(LOG_TAG, "Exception in testNextGiveNextQuestionSet()", e);
                 fail("DBException: "+ e.getMessage());
             } 
         }
@@ -134,8 +148,10 @@ public class DatabaseHandlerTest extends AndroidTestCase {
         try {
             mIterator = db.searchQuestion(mQuery, mNext);
         } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "Exception in testNextGiveNextQuestionSet()", e);
             fail("next should be valid: "+ e.getMessage());
         } catch (DBException e) {
+            Log.v(LOG_TAG, "Exception in testNextGiveNextQuestionSet()", e);
             fail("Should not be DBException: "+ e.getMessage());
         }
         int i = 0;
@@ -144,12 +160,16 @@ public class DatabaseHandlerTest extends AndroidTestCase {
                 assertTrue("Question "+ i +" should be the same as "+mQuestion,
                         compareQuestions(mQuestion, mIterator.next(), false));
             } catch (NoSuchElementException e) {
+                Log.v(LOG_TAG, "Exception in testNextGiveNextQuestionSet()", e);
                 fail("NoSuchElementException: "+ e.getMessage());
             } catch (NotLoggedInException e) {
+                Log.v(LOG_TAG, "Exception in testNextGiveNextQuestionSet()", e);
                 fail("NotLoggedInException: "+ e.getMessage());
             } catch (DBException e) {
+                Log.v(LOG_TAG, "Exception in testNextGiveNextQuestionSet()", e);
                 fail("DBException: "+ e.getMessage());
             } catch (ServerCommunicationException e) {
+                Log.v(LOG_TAG, "Exception in testNextGiveNextQuestionSet()", e);
                 fail("ServerCommunicationException: "+ e.getMessage());
             }
         }
@@ -163,7 +183,9 @@ public class DatabaseHandlerTest extends AndroidTestCase {
             mIterator = db.searchQuestion(mQuery, mNext);
             fail("Should have IllegalArgumentException with invalid next");
         } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "Exception in testInvalidNext()", e);
         } catch (DBException e) {
+            Log.v(LOG_TAG, "Exception in testInvalidNext()", e);
             fail("testSearchQuestionValidQueryWithoutMatch: DBException");
         }
     }
@@ -176,8 +198,10 @@ public class DatabaseHandlerTest extends AndroidTestCase {
             assertTrue("Should be a question for query with matches",
                     mIterator.getLocalQuestions().length != 0);
         } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "Exception in testSearchQuestionValidQueryWithMatch()", e);
             fail("next should be valid");
         } catch (DBException e) {
+            Log.v(LOG_TAG, "Exception in testSearchQuestionValidQueryWithMatch()", e);
             fail("testSearchQuestionValidQueryWithMatch: DBException");
         }
     }
@@ -190,8 +214,10 @@ public class DatabaseHandlerTest extends AndroidTestCase {
             assertTrue("Should be no questions for query without matches",
                     mIterator.getLocalQuestions().length == 0);
         } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "Exception in testSearchQuestionValidQueryWithoutMatch()", e);
             fail("next should be valid");
         } catch (DBException e) {
+            Log.v(LOG_TAG, "Exception in testSearchQuestionValidQueryWithoutMatch()", e);
             fail("testSearchQuestionValidQueryWithoutMatch: DBException");
         }
     }
@@ -207,6 +233,7 @@ public class DatabaseHandlerTest extends AndroidTestCase {
         try {
             db.storeQuestion(mQuestion, false);
         } catch (DBException e) {
+            Log.v(LOG_TAG, "Exception in testStoreQuestion()", e);
             fail("testStoreQuestion: DBException");
         }
         
@@ -234,6 +261,7 @@ public class DatabaseHandlerTest extends AndroidTestCase {
                     try {
                         db.storeQuestion(question, false);
                     } catch (DBException e) {
+                        Log.v(LOG_TAG, "Exception in testConcurrentWriting()", e);
                         fail("testConcurrentWriting DBException : " + e);
                     }
                 }
@@ -253,6 +281,7 @@ public class DatabaseHandlerTest extends AndroidTestCase {
         try {
             return db.getRandomQuestion();
         } catch (DBException e) {
+            Log.v(LOG_TAG, "Exception in getNewQuestionFromDB()", e);
             fail("getNewQuestionFromDB: DBException");
         }
         
