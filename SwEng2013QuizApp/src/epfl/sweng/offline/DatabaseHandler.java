@@ -19,6 +19,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.exceptions.DBException;
 import epfl.sweng.exceptions.ServerCommunicationException;
@@ -34,6 +35,8 @@ import epfl.sweng.utils.JSONUtilities;
  *
  */
 public final class DatabaseHandler extends SQLiteOpenHelper {
+    
+    private static final String LOG_TAG = DatabaseHandler.class.getName();
 
     private static final String DATABASE_NAME = "quizquestions.db";
     private static final int DATABASE_VERSION = 4;
@@ -82,7 +85,7 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
     public void storeQuestion(QuizQuestion question, boolean toBeSubmitted)
         throws DBException {
         
-        // Log.d("POTATO DB", "Caching the question " + question);
+        // Log.d(LOG_TAG, "Caching the question " + question);
         
         ContentValues values = new ContentValues();
         
@@ -111,7 +114,7 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
         db.insertWithOnConflict(TABLE_NAME, null, values,
                  SQLiteDatabase.CONFLICT_IGNORE);
         
-        // Log.d("POTATO DB", "Request successful : " + requestSuccessfull);
+        // Log.d(LOG_TAG, "Request successful : " + requestSuccessfull);
         
 //        if (!requestSuccessfull) {
 //            throw new DBException("Could not store the question.");
@@ -127,7 +130,7 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
     public QuizQuestion getRandomQuestion()
         throws DBException {
         
-        // Log.d("POTATO DB", "Getting a question from cache.");
+        // Log.d(LOG_TAG, "Getting a question from cache.");
         
         // Get a random question
         Cursor cursor = db.rawQuery("SELECT * FROM " +
@@ -141,9 +144,10 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
         
         try {
             QuizQuestion question = getQuestionFromCursor(cursor);
-            // Log.d("POTATO DB", "This question has been fetched from cache : " + question);
+            // Log.d(LOG_TAG, "This question has been fetched from cache : " + question);
             return question;
         } catch (JSONException e) {
+            Log.d(LOG_TAG, "JSONException in getRandomQuestion()", e);
             throw new DBException("JSON badly formatted.");
         } finally {
             cursor.close();
@@ -160,7 +164,7 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
     public int synchronizeQuestions()
         throws DBException, ServerCommunicationException {
         
-        // Log.d("POTATO DB", "Synchronizing questions");
+//         Log.d(LOG_TAG, "Synchronizing questions");
         
         int questionsSumbmitted = 0;
         
@@ -178,10 +182,10 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
 
                 if (updatedQuestion == null) {
                     // TODO
-                    // Log.d("POTATO DB", "Error during sync. The updated question is null");
+                    // Log.d(LOG_TAG, "Error during sync. The updated question is null");
                 }
                 
-                // Log.d("POTATO DB", "The updated question is : " + updatedQuestion);
+                // Log.d(LOG_TAG, "The updated question is : " + updatedQuestion);
                 
                 /*
                  * Update the question in cache : add the assigned id and owner
@@ -198,12 +202,13 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
                 ++questionsSumbmitted;
             }
         } catch (JSONException e) {
+            Log.d(LOG_TAG, "JSONException in synchronizeQuestions()", e);
             throw new DBException("JSON badly formatted.");
         } finally {
             cursor.close();
         }
         
-        // Log.d("POTATO DB", questionsSumbmitted + " questions have been submitted.");
+        // Log.d(LOG_TAG, questionsSumbmitted + " questions have been submitted.");
         return questionsSumbmitted;
     }
     
@@ -269,6 +274,7 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
                 newNext = Integer.toString(Integer.parseInt(next)+MAX_RESPONSE_NUMBER);
             }
         } catch (JSONException e) {
+            Log.d(LOG_TAG, "JSONException in searchQuestion()", e);
             throw new DBException("Couldn't retrieve question from the Database");
         } finally {
             cursor.close();
@@ -295,24 +301,24 @@ public final class DatabaseHandler extends SQLiteOpenHelper {
      */
     private String parseQuerytoSQL(String query) {
         StringTokenizer queryTokenizer = new StringTokenizer(query, " ");
-        String querySQLite = "SELECT * FROM "+ TABLE_NAME +" WHERE ";
+        StringBuilder querySQLite = new StringBuilder("SELECT * FROM " + TABLE_NAME + " WHERE");
         String nextToken = null;
         
         while (queryTokenizer.hasMoreTokens()) {
             nextToken = queryTokenizer.nextToken();
             if (nextToken.isEmpty()) {
             } else if (nextToken.equals("(") || nextToken.equals(")")) {
-                querySQLite += " " + nextToken + " ";
+                querySQLite.append(" " + nextToken + " ");
             } else if (nextToken.equals("*")) {
-                querySQLite += " AND ";
+                querySQLite.append(" AND ");
             } else if (nextToken.equals("+")) {
-                querySQLite += " OR ";
+                querySQLite.append(" OR ");
             } else {
-                querySQLite += " ( "+ COLUMN_QUESTION +" LIKE '%"+ nextToken +"%' OR "+
+                querySQLite.append(" ( "+ COLUMN_QUESTION +" LIKE '%"+ nextToken +"%' OR "+
                         COLUMN_ANSWERS +" LIKE '%"+ nextToken +"%' OR "+
-                        COLUMN_TAGS +" LIKE '%"+ nextToken +"%' ) ";
+                        COLUMN_TAGS +" LIKE '%"+ nextToken +"%' ) ");
             }
         }
-        return querySQLite;
+        return querySQLite.toString();
     }
 }
