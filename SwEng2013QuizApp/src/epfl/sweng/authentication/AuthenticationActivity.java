@@ -30,7 +30,7 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
  */
 public class AuthenticationActivity extends Activity {
 
-    private static final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
+//    private static final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
     
     private AuthenticationTask mAuthTask = null;
     

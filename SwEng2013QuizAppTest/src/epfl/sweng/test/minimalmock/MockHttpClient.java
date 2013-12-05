@@ -11,11 +11,9 @@ import java.util.regex.Pattern;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.AuthenticationHandler;
 import org.apache.http.client.HttpRequestRetryHandler;
@@ -42,7 +40,7 @@ import android.util.Log;
 public class MockHttpClient extends DefaultHttpClient {
 
     /** Prepared response */
-    private class CannedResponse {
+    private static class CannedResponse {
         private final Pattern pattern;
         private final int statusCode;
         private final String responseBody;
@@ -56,10 +54,9 @@ public class MockHttpClient extends DefaultHttpClient {
         }
     }
 
-    private HttpRequest lastRequest;
-    private List<HttpResponseInterceptor> httpResponseInterceptors = new ArrayList<HttpResponseInterceptor>();
     private final List<CannedResponse> responses = new ArrayList<CannedResponse>();
-
+    private HttpRequest lastRequest;
+    
     public void pushCannedResponse(String requestRegex, int status, String responseBody, String contentType) {
         responses.add(0, new CannedResponse(Pattern.compile(requestRegex), status, responseBody, contentType));
     }
@@ -70,7 +67,8 @@ public class MockHttpClient extends DefaultHttpClient {
         }
         responses.remove(0);
     }
-    
+
+    // Custom method added for our tests
     public void clearCannedResponses() {
         responses.clear();
     }
@@ -92,37 +90,23 @@ public class MockHttpClient extends DefaultHttpClient {
         return new MockRequestDirector(this);
     }
 
-    @Override
-    public synchronized void addResponseInterceptor(HttpResponseInterceptor itcp) {
-        httpResponseInterceptors.add(itcp);
-        super.addResponseInterceptor(itcp);
-    }
-    
     public HttpResponse processRequest(HttpRequest request) {
         lastRequest = request;
         for (CannedResponse cr : responses) {
             if (cr.pattern.matcher(request.getRequestLine().toString()).find()) {
                 Log.v("HTTP", "Mocking request since it matches pattern " + cr.pattern);
                 Log.v("HTTP", "Response body: " + cr.responseBody);
-                MockHttpResponse httpResponse = new MockHttpResponse(cr.statusCode, cr.responseBody, cr.contentType);
-                for(HttpResponseInterceptor itcp : httpResponseInterceptors) {
-                    try {
-                        itcp.process(httpResponse, null);
-                    } catch (HttpException e) {
-                    } catch (IOException e) {
-                    }
-                }
-
-                return httpResponse;
+                return new MockHttpResponse(cr.statusCode, cr.responseBody, cr.contentType);
             }
         }
 
         return null;
     }
     
+    // Custom method added for our tests
     public String getLastPostRequestContent()
-            throws IOException {
-    	
+        throws IOException {
+        
         if (lastRequest.getRequestLine().getMethod() == "POST") {
             StringBuilder sb = new StringBuilder();
             HttpEntity entity = ((HttpPost) lastRequest).getEntity();
@@ -130,11 +114,11 @@ public class MockHttpClient extends DefaultHttpClient {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
                 while ((line = br.readLine()) != null) {
-                    sb.append(line + "\n");
+                    sb.append(line += "\n");
                 }
                 return sb.toString();
             } catch (Exception e) {
-                throw new IOException("Can't read POST content");
+                throw new IOException("Can't read POST content.");
             }
         } else {
             return null;
@@ -187,7 +171,7 @@ class MockHttpResponse extends BasicHttpResponse {
                 }
                 this.setEntity(responseBodyEntity);
             } catch (UnsupportedEncodingException e) {
-                // Nothing, really...
+                throw new RuntimeException("Default HTTP charset not supported!?", e);
             }
         }
     }
