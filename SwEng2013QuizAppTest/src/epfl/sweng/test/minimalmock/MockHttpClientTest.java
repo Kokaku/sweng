@@ -3,18 +3,20 @@ package epfl.sweng.test.minimalmock;
 import org.apache.http.HttpStatus;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 
 import com.jayway.android.robotium.solo.Solo;
 
 import epfl.sweng.servercomm.SwengHttpClientFactory;
 import epfl.sweng.showquestions.ShowQuestionsActivity;
-import epfl.sweng.testing.TestingTransaction;
 import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
+import epfl.sweng.testing.TestingTransaction;
 
 /** A test that illustrates the use of MockHttpClients */
 public class MockHttpClientTest extends ActivityInstrumentationTestCase2<ShowQuestionsActivity> {
 
+    private static final String LOG_TAG = MockHttpClientTest.class.getName();
     protected static final String RANDOM_QUESTION_BUTTON_LABEL = "Show a random question";
 
     private MockHttpClient httpClient;
@@ -25,8 +27,12 @@ public class MockHttpClientTest extends ActivityInstrumentationTestCase2<ShowQue
     }
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    public void setUp() {
+        try {
+            super.setUp();
+        } catch (Exception e) {
+            Log.v(LOG_TAG, "Exception in setUp()", e);
+        }
 
         httpClient = new MockHttpClient();
         SwengHttpClientFactory.setInstance(httpClient);
