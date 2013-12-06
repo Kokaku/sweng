@@ -20,7 +20,10 @@ import epfl.sweng.quizquestions.QuizQuestion;
  * @author ValentinRutz
  *
  */
-public class JSONUtilities {
+public final class JSONUtilities {
+    
+    private JSONUtilities() {
+    }
 
     /**
      * Translates a {@link QuizQuestion} into a {@link JSONObject} 
@@ -105,9 +108,6 @@ public class JSONUtilities {
         if (from != null) {
             jsonObject.put("from", from);
         }
-        
-        String test = query.toString();
-        System.out.println(test + " JSON: " + jsonObject.toString());
         
         return jsonObject.toString();
     }
