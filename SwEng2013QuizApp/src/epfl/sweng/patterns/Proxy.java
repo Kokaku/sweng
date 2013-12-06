@@ -1,6 +1,5 @@
 package epfl.sweng.patterns;
 
-
 import android.os.AsyncTask;
 import android.util.Log;
 import epfl.sweng.R;
@@ -29,7 +28,6 @@ import epfl.sweng.servercomm.ServerCommunication;
  * @author lseguy
  * 
  */
-// TODO : Change name ? ConnectionManager? OfflineManager?
 public enum Proxy implements QuestionsCommunicator {
 	INSTANCE;
 	
@@ -72,10 +70,6 @@ public enum Proxy implements QuestionsCommunicator {
 	 *            the activity waiting for feedback
 	 */
 	public void setState(ConnectionState state, OnSyncListener listener) {
-//		Log.d(LOG_TAG, "Setting connection state to " + state);
-//		if (listener != null) {
-//			Log.d(LOG_TAG, "OnSyncListener activity is " + listener);
-//		}
 		mCurrentState = state;
 		if (isOnline()) {
 			new SynchronizationTask(listener).execute();
@@ -103,15 +97,12 @@ public enum Proxy implements QuestionsCommunicator {
 		throws NotLoggedInException, DBException,
 			ServerCommunicationException {
 
-//		Log.d(LOG_TAG, "searchQuestion(" + query + ") called");
 
 		if (!UserCredentials.INSTANCE.isAuthenticated()) {
 			throw new NotLoggedInException();
 		}
 
 		if (isOnline()) {
-//			Log.d(LOG_TAG,
-//					"Online => searching question from server and caching it");
 
 			QuestionIterator questionIterator = instance.searchQuestion(query,
 					next);
@@ -123,7 +114,6 @@ public enum Proxy implements QuestionsCommunicator {
 
 			return questionIterator;
 		} else {
-//			Log.d(LOG_TAG, "Offline => searching question from cache");
 			try {
 			    return DatabaseHandler.getHandler().searchQuestion(query, next);
 			} catch (IllegalArgumentException e) {
@@ -154,20 +144,16 @@ public enum Proxy implements QuestionsCommunicator {
 		throws ServerCommunicationException, DBException,
 			NotLoggedInException {
 
-//		Log.d(LOG_TAG, "getRandomQuestion() called");
 
 		if (!UserCredentials.INSTANCE.isAuthenticated()) {
 			throw new NotLoggedInException();
 		}
 
 		if (isOnline()) {
-//			Log.d(LOG_TAG,
-//					"Online => getting question from server and caching it");
 			QuizQuestion question = instance.getRandomQuestion();
 			DatabaseHandler.getHandler().storeQuestion(question, false);
 			return question;
 		} else {
-//			Log.d(LOG_TAG, "Offline => getting question from cache");
 			return DatabaseHandler.getHandler().getRandomQuestion();
 		}
 	}
@@ -191,20 +177,16 @@ public enum Proxy implements QuestionsCommunicator {
 	public QuizQuestion send(QuizQuestion question) throws DBException,
 			NotLoggedInException, ServerCommunicationException {
 
-//		Log.d(LOG_TAG, "send() called");
 
 		if (!UserCredentials.INSTANCE.isAuthenticated()) {
 			throw new NotLoggedInException();
 		}
 
 		if (isOnline()) {
-//			Log.d(LOG_TAG,
-//					"Online => sending question to server and caching it");
 			QuizQuestion submittedQuestion = instance.send(question);
 			DatabaseHandler.getHandler().storeQuestion(submittedQuestion, false);
 			return submittedQuestion;
 		} else {
-//			Log.d(LOG_TAG, "Offline => storing question in cache");
 			DatabaseHandler.getHandler().storeQuestion(question, true);
 			return question;
 		}
@@ -224,7 +206,6 @@ public enum Proxy implements QuestionsCommunicator {
 
 		@Override
 		protected Integer doInBackground(Void... unused) {
-//			Log.d(LOG_TAG, "SyncTask doing its job");
 			try {
 				return DatabaseHandler.getHandler().synchronizeQuestions();
 			} catch (ServerCommunicationException e) {
@@ -244,10 +225,7 @@ public enum Proxy implements QuestionsCommunicator {
 				if (questionsSubmitted > 0) {
 					SwEng2013QuizApp
 							.displayToast(R.string.synchronization_success);
-//					Log.d(LOG_TAG, "SyncTask has submitted "
-//							+ questionsSubmitted + " questions");
 				}
-//				Log.d(LOG_TAG, "SyncTask executed successfully");
 				SwEng2013QuizApp.displayToast(R.string.now_online);
 			} else {
 				switch (mException) {
@@ -263,15 +241,11 @@ public enum Proxy implements QuestionsCommunicator {
 						break;
 				}
 
-//				Log.d(LOG_TAG, "Exception in SyncTask, going offline");
 				setState(ConnectionState.OFFLINE);
 				SwEng2013QuizApp.displayToast(R.string.now_offline);
 			}
 
 			if (mListeningActivity != null) {
-//				Log.d(LOG_TAG,
-//						"SyncTask signal to the listening activity : "
-//								+ mListeningActivity);
 				mListeningActivity.onSyncCompleted();
 			}
 		}

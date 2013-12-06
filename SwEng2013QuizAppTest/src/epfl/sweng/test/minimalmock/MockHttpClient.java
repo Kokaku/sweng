@@ -141,6 +141,7 @@ public class MockHttpClient extends DefaultHttpClient {
  */
 class MockRequestDirector implements RequestDirector {
 
+    private static final String LOG_TAG = MockRequestDirector.class.getName();    
     private MockHttpClient httpClient;
 
     public MockRequestDirector(MockHttpClient httpClient) {
@@ -155,6 +156,7 @@ class MockRequestDirector implements RequestDirector {
         try {
             response = httpClient.processRequest(request);
         } catch (UnsupportedEncodingException e) {
+            Log.v(LOG_TAG, "UnsupportedEncodingException in execute()", e);
             return null;
         }
         if (response == null) {
