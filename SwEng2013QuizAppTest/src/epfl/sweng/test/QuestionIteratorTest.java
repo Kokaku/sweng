@@ -6,6 +6,7 @@ import java.util.HashSet;
 import org.apache.http.HttpStatus;
 import org.json.JSONException;
 
+import android.util.Log;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.entry.MainActivity;
@@ -24,7 +25,6 @@ import epfl.sweng.utils.JSONUtilities;
 
 public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
     
-
     private final MockHttpClient mockHttpClient = new MockHttpClient();
     private final QuizQuestion[] questions = new QuizQuestion[] {
             new QuizQuestion(
@@ -73,6 +73,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
                     3,
                     new HashSet<String>(Arrays.asList(new String[] {"test2"})),
                     0, "me")};
+    private static final String LOG_TAG = QuestionIteratorTest.class.getName();
 
     public QuestionIteratorTest() {
         super(MainActivity.class);
@@ -101,19 +102,25 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             QuizQuestion[] question = null;
             new QuestionIterator(question);
             fail("QuestionIterator constructed without any questions");
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "DBException in setUp()", e);
+        }
         
         try {
             new QuestionIterator(null, null, null);
             fail("QuestionIterator constructed without any questions");
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "DBException in setUp()", e);
+        }
     }
     
     public void testCannotConstructWithoutQueryIfNextSetted() {
         try {
             new QuestionIterator(questions, null, "next");
             fail("QuestionIterator constructed without any questions");
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "DBException in setUp()", e);
+        }
     }
     
     public void testHasTheCorrectNumberOfQuestion() {
@@ -124,6 +131,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 iterator.next();
             } catch (Exception e) {
+                Log.v(LOG_TAG, "DBException in setUp()", e);
                 fail("Unexpected exception");
             }
             counter++;
@@ -140,6 +148,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 assertTrue(questions[counter] == iterator.next());
             } catch (Exception e) {
+                Log.v(LOG_TAG, "DBException in setUp()", e);
                 fail("Unexpected exception");
             }
             counter++;
@@ -158,9 +167,11 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
     
     private void pushNextQuestions() throws JSONException {
         String JSONQuestion = "{\"questions\": [ ";
+        StringBuffer buf = new StringBuffer();
         for(QuizQuestion question: newQuestions) {
-            JSONQuestion += JSONUtilities.getJSONString(question)+", ";
+            buf.append(JSONUtilities.getJSONString(question)+", ");
         }
+        JSONQuestion += buf.toString();
         JSONQuestion = JSONQuestion.substring(0, JSONQuestion.length()-2)+
                 " ]}";
         
@@ -182,6 +193,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
         try {
             pushNextQuestions();
         } catch (JSONException e1) {
+            Log.v(LOG_TAG, "DBException in setUp()", e1);
             fail("Problem with mock");
         }
         
@@ -190,6 +202,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 iterator.next();
             } catch (Exception e) {
+                Log.v(LOG_TAG, "DBException in setUp()", e);
                 fail("Unexpected exception");
             }
         }
@@ -199,6 +212,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 iterator.next();
             } catch (Exception e) {
+                Log.v(LOG_TAG, "DBException in setUp()", e);
                 fail("Problem with mock");
             }
             counter++;
@@ -211,6 +225,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
         try {
             pushNextQuestions();
         } catch (JSONException e1) {
+            Log.v(LOG_TAG, "DBException in setUp()", e1);
             fail("Problem with mock");
         }
         QuestionIterator iterator = new QuestionIterator(questions, "banana + patatos", "42");
@@ -218,6 +233,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 iterator.next();
             } catch (Exception e) {
+                Log.v(LOG_TAG, "DBException in setUp()", e);
                 fail("Unexpected exception");
             }
         }
@@ -227,6 +243,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 assertTrue(questionsEquals(newQuestions[counter], iterator.next()));
             } catch (Exception e) {
+                Log.v(LOG_TAG, "DBException in setUp()", e);
                 fail("Problem with mock");
             }
             counter++;
@@ -237,6 +254,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
         try {
             pushNextQuestions();
         } catch (JSONException e1) {
+            Log.v(LOG_TAG, "DBException in setUp()", e1);
             fail("Problem with mock");
         }
         QuestionIterator iterator = new QuestionIterator(questions, "banana + patatos", "42");
@@ -244,6 +262,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 iterator.next();
             } catch (Exception e) {
+                Log.v(LOG_TAG, "DBException in setUp()", e);
                 fail("Unexpected exception");
             }
         }
