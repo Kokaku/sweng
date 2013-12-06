@@ -126,7 +126,9 @@ public class MockHttpClient extends DefaultHttpClient {
                 Log.v(LOG_TAG, "IOException in getLastPostRequestContent()", e);
                 throw new IOException("Can't read POST content.");
             } finally {
-                br.close();
+                if(br != null) {
+                    br.close();
+                }
             }
         } else {
             return null;
