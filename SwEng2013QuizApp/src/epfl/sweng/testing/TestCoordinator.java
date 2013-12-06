@@ -116,6 +116,7 @@ public final class TestCoordinator {
                         tts.wait(transactionTimeout - (currentTime - tts.startTime));
                         Log.d(TAG, String.format("Waiting for transaction %s... done", t));
                     } catch (InterruptedException e) {
+                        Log.d(TAG, "InterruptedException in run()", e);
                         TestCoordinationError err = new TestCoordinationError(
                                 "Interrupted while waiting for transaction " + t);
                         err.initCause(e);

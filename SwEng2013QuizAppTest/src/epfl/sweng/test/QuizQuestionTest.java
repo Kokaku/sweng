@@ -1,6 +1,3 @@
-/**
- * 
- */
 package epfl.sweng.test;
 
 import java.lang.reflect.Field;
@@ -15,23 +12,28 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 import epfl.sweng.quizquestions.QuizQuestion;
 
 /**
  * @author lseguy
- * 
  */
 public class QuizQuestionTest extends AndroidTestCase {
 
+    private static final String LOG_TAG = QuizQuestionTest.class.getName();    
 	private QuizQuestion mQuestion;
 	private Set<String> mTags;
 
-	public static final int CORRECT_ANSWER_ID = 1;
-	public static final String QUESTION_TEXT = "This is the question";
-	public static final String[] LIST_OF_ANSWERS = { "Answer 1", "Answer 2" };
+	private static final int CORRECT_ANSWER_ID = 1;
+	private static final String QUESTION_TEXT = "This is the question";
+	private static final String[] LIST_OF_ANSWERS = { "Answer 1", "Answer 2" };
 
-	protected void setUp() throws Exception {
-		super.setUp();
+	protected void setUp() {
+	    try {
+	        super.setUp();
+	    } catch (Exception e) {
+            Log.v(LOG_TAG, "Exception in setUp()", e);
+	    }
 
 		mTags = new TreeSet<String>();
 		mTags.add("Tag1");
@@ -42,73 +44,66 @@ public class QuizQuestionTest extends AndroidTestCase {
 
 	public void testCreateQuestionWithNullQuestion() {
 		try {
-			@SuppressWarnings("unused")
-			QuizQuestion illegalQuestion = new QuizQuestion(null,
-					Arrays.asList(LIST_OF_ANSWERS), 0, mTags);
+			new QuizQuestion(null, Arrays.asList(LIST_OF_ANSWERS), 0, mTags);
 			fail("Constructor can't accept null arguments");
 		} catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "IllegalArgumentException in testCreateQuestionWithNullQuestion()", e);
 		}
 	}
 
 	public void testCreateQuestionWithNullAnswers() {
 		try {
-			@SuppressWarnings("unused")
-			QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-					null, 0, mTags);
+		    new QuizQuestion(QUESTION_TEXT, null, 0, mTags);
 			fail("Constructor can't accept null arguments");
 		} catch (IllegalArgumentException e) {
-		}
+            Log.v(LOG_TAG, "IllegalArgumentException in testCreateQuestionWithNullAnswers()", e);
+        }
 	}
 
 	public void testCreateQuestionWithNullTags() {
 		try {
-			@SuppressWarnings("unused")
-			QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-					Arrays.asList(LIST_OF_ANSWERS), 0, null);
+			new QuizQuestion(QUESTION_TEXT, Arrays.asList(LIST_OF_ANSWERS), 0, null);
 			fail("Constructor can't accept null arguments");
 		} catch (IllegalArgumentException e) {
-		}
+            Log.v(LOG_TAG, "IllegalArgumentException in testCreateQuestionWithNullTags()", e);
+        }
 	}
 
 	public void testCreateQuestionWithOneAnswer() {
 		try {
-			@SuppressWarnings("unused")
-			QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-					Arrays.asList(new String[] { "answer1" }), 0, mTags);
+			new QuizQuestion(QUESTION_TEXT, Arrays.asList(new String[] { "answer1" }), 0, mTags);
 			fail("Constructor must be called with more than one answer");
 		} catch (IllegalArgumentException e) {
-		}
+            Log.v(LOG_TAG, "IllegalArgumentException in testCreateQuestionWithOneAnswer()", e);
+        }
 	}
 
 	public void testCreateQuestionWithNoTags() {
 		try {
-			@SuppressWarnings("unused")
-			QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-					Arrays.asList(LIST_OF_ANSWERS), 1, new TreeSet<String>());
+		    new QuizQuestion(QUESTION_TEXT, Arrays.asList(LIST_OF_ANSWERS), 1, new TreeSet<String>());
 			fail("Set of tags can't be empty");
 		} catch (IllegalArgumentException e) {
-		}
+            Log.v(LOG_TAG, "IllegalArgumentException in testCreateQuestionWithNoTags()", e);
+        }
 	}
 
 	public void testCreateQuestionWithNegativeSolutionIndex() {
 		try {
-			@SuppressWarnings("unused")
-			QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-					Arrays.asList(LIST_OF_ANSWERS), -1, mTags);
+			new QuizQuestion(QUESTION_TEXT, Arrays.asList(LIST_OF_ANSWERS), -1, mTags);
 			fail("Constructor can't accept a negative solutionIndex");
 		} catch (IllegalArgumentException e) {
-		}
+            Log.v(LOG_TAG, "IllegalArgumentException in testCreateQuestionWithNegativeSolutionIndex()", e);
+        }
 	}
 
 	public void testCreateQuestionWithOutOfBoundsSolutionIndex() {
 		try {
-			@SuppressWarnings("unused")
-			QuizQuestion illegalQuestion = new QuizQuestion(QUESTION_TEXT,
-					Arrays.asList(LIST_OF_ANSWERS), LIST_OF_ANSWERS.length + 1,
-					mTags);
+			new QuizQuestion(QUESTION_TEXT, Arrays.asList(LIST_OF_ANSWERS),
+			        LIST_OF_ANSWERS.length + 1, mTags);
 			fail("solutionIndex must be between 0 and answers.length-1");
 		} catch (IllegalArgumentException e) {
-		}
+            Log.v(LOG_TAG, "IllegalArgumentException in testCreateQuestionWithOutOfBoundsSolutionIndex()", e);
+        }
 	}
 
 	public void testConstructorCopiesAnswers() {
@@ -181,70 +176,76 @@ public class QuizQuestionTest extends AndroidTestCase {
             jsonObject.put("id", mQuestion.getId());
             assertTrue(mQuestion.toString().equals(jsonObject.toString()));
         } catch (JSONException e) {
+            Log.v(LOG_TAG, "JSONException in testToString()", e);
             fail("Unexpected JSONException");
         }
     }
     
-    public void editQuestion(String question) {
+    private void editQuestion(String question) {
         try {
             Field mQuestionField = QuizQuestion.class.getDeclaredField("mQuestion");
             mQuestionField.setAccessible(true);
             mQuestionField.set(mQuestion, question);
         } catch (Exception e) {
+            Log.v(LOG_TAG, "Exception in editQuestion()", e);
             fail("Java reflexion error");
         }
     }
     
-    public void editAnswer(List<String> answers) {
+    private void editAnswer(List<String> answers) {
         try {
             Field mAnswersField = QuizQuestion.class.getDeclaredField("mAnswers");
             mAnswersField.setAccessible(true);
             mAnswersField.set(mQuestion, answers);
            
         } catch (Exception e) {
+            Log.v(LOG_TAG, "Exception in editAnswer()", e);
             fail("Java reflexion error");
         }
     }
     
-    public void editSolution(int solutionIndex) {
+    private void editSolution(int solutionIndex) {
         try {
             Field mSolutionIndexField = QuizQuestion.class.getDeclaredField("mSolutionIndex");
             mSolutionIndexField.setAccessible(true);
             mSolutionIndexField.set(mQuestion, solutionIndex);
         } catch (Exception e) {
+            Log.v(LOG_TAG, "Exception in editSolution()", e);
             fail("Java reflexion error");
         }
     }
     
-    public void editTags(Set<String> tags) {
+    private void editTags(Set<String> tags) {
         try {
             Field mTagsField = QuizQuestion.class.getDeclaredField("mTags");
             mTagsField.setAccessible(true);
             mTagsField.set(mQuestion, tags);
         } catch (Exception e) {
+            Log.v(LOG_TAG, "Exception in editTags()", e);
             fail("Java reflexion error");
         }
     }
     
-    public void editId(long id) {
-        try {
-            Field mIdField = QuizQuestion.class.getDeclaredField("mId");
-            mIdField.setAccessible(true);
-            mIdField.set(mQuestion, id);
-        } catch (Exception e) {
-            fail("Java reflexion error");
-        }
-    }
-    
-    public void editOwner(String owner) {
-        try {
-            Field mOwnerField = QuizQuestion.class.getDeclaredField("mOwner");
-            mOwnerField.setAccessible(true);
-            mOwnerField.set(mQuestion, owner);
-        } catch (Exception e) {
-            fail("Java reflexion error");
-        }
-    }
+//    private void editId(long id) {
+//        try {
+//            Field mIdField = QuizQuestion.class.getDeclaredField("mId");
+//            mIdField.setAccessible(true);
+//            mIdField.set(mQuestion, id);
+//        } catch (Exception e) {
+//            Log.v(LOG_TAG, "Exception in editId()", e);
+//            fail("Java reflexion error");
+//        }
+//    }
+//    
+//    private void editOwner(String owner) {
+//        try {
+//            Field mOwnerField = QuizQuestion.class.getDeclaredField("mOwner");
+//            mOwnerField.setAccessible(true);
+//            mOwnerField.set(mQuestion, owner);
+//        } catch (Exception e) {
+//            fail("Java reflexion error");
+//        }
+//    }
 
     public void testAuditWhenNoErrors() {
         testCreateQuestionWithOneAnswer();
@@ -265,11 +266,11 @@ public class QuizQuestionTest extends AndroidTestCase {
 
     public void testAuditWhenQuestionToLong() {
         testCreateQuestionWithOneAnswer();
-        String question = "";
+        StringBuilder question = new StringBuilder();
         for (int i = 0; i < 600; i++) {
-            question += "a";
+            question.append("a");
         }
-        editQuestion(question);
+        editQuestion(question.toString());
         assertTrue(mQuestion.auditErrors() == 1);
     }
 
@@ -295,8 +296,11 @@ public class QuizQuestionTest extends AndroidTestCase {
     public void testAuditWhenTagsNull() {
         testCreateQuestionWithOneAnswer();
         editTags(null);
-        if(mQuestion == null)
-        assertTrue(mQuestion.auditErrors() == 1);
+        if (mQuestion != null) {
+            assertTrue(mQuestion.auditErrors() == 1);
+        } else {
+            fail("Question is null");
+        }
     }
 
     public void testAuditWhenNoTag() {
@@ -331,11 +335,11 @@ public class QuizQuestionTest extends AndroidTestCase {
             answers.add("   ");
         }
         for (int i = 0; i < 21; i++) {
-            String newTag = "";
+            StringBuilder newTag = new StringBuilder();
             for (int j = 0; j < i; j++) {
-                newTag += " ";
+                newTag.append(" ");
             }
-            tags.add(newTag);
+            tags.add(newTag.toString());
         }
         editQuestion(" ");
         editAnswer(answers);

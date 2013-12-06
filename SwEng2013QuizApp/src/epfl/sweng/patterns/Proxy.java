@@ -2,6 +2,7 @@ package epfl.sweng.patterns;
 
 
 import android.os.AsyncTask;
+import android.util.Log;
 import epfl.sweng.R;
 import epfl.sweng.SwEng2013QuizApp;
 import epfl.sweng.authentication.UserCredentials;
@@ -31,6 +32,8 @@ import epfl.sweng.servercomm.ServerCommunication;
 // TODO : Change name ? ConnectionManager? OfflineManager?
 public enum Proxy implements QuestionsCommunicator {
 	INSTANCE;
+	
+    private static final String LOG_TAG = Proxy.class.getName();
 
 	private ConnectionState mCurrentState = ConnectionState.ONLINE;
 	private QuestionsCommunicator instance = ServerCommunication.INSTANCE;
@@ -69,9 +72,9 @@ public enum Proxy implements QuestionsCommunicator {
 	 *            the activity waiting for feedback
 	 */
 	public void setState(ConnectionState state, OnSyncListener listener) {
-//		Log.d("POTATO PROXY", "Setting connection state to " + state);
+//		Log.d(LOG_TAG, "Setting connection state to " + state);
 //		if (listener != null) {
-//			Log.d("POTATO PROXY", "OnSyncListener activity is " + listener);
+//			Log.d(LOG_TAG, "OnSyncListener activity is " + listener);
 //		}
 		mCurrentState = state;
 		if (isOnline()) {
@@ -100,14 +103,14 @@ public enum Proxy implements QuestionsCommunicator {
 		throws NotLoggedInException, DBException,
 			ServerCommunicationException {
 
-//		Log.d("POTATO PROXY", "searchQuestion(" + query + ") called");
+//		Log.d(LOG_TAG, "searchQuestion(" + query + ") called");
 
 		if (!UserCredentials.INSTANCE.isAuthenticated()) {
 			throw new NotLoggedInException();
 		}
 
 		if (isOnline()) {
-//			Log.d("POTATO PROXY",
+//			Log.d(LOG_TAG,
 //					"Online => searching question from server and caching it");
 
 			QuestionIterator questionIterator = instance.searchQuestion(query,
@@ -120,10 +123,11 @@ public enum Proxy implements QuestionsCommunicator {
 
 			return questionIterator;
 		} else {
-//			Log.d("POTATO PROXY", "Offline => searching question from cache");
+//			Log.d(LOG_TAG, "Offline => searching question from cache");
 			try {
 			    return DatabaseHandler.getHandler().searchQuestion(query, next);
 			} catch (IllegalArgumentException e) {
+			    Log.d(LOG_TAG, "IllegalArgumentException in searchQuestion()", e);
 			    throw new BadRequestException("Unrecognized next argument");
 			}
 			
@@ -150,20 +154,20 @@ public enum Proxy implements QuestionsCommunicator {
 		throws ServerCommunicationException, DBException,
 			NotLoggedInException {
 
-//		Log.d("POTATO PROXY", "getRandomQuestion() called");
+//		Log.d(LOG_TAG, "getRandomQuestion() called");
 
 		if (!UserCredentials.INSTANCE.isAuthenticated()) {
 			throw new NotLoggedInException();
 		}
 
 		if (isOnline()) {
-//			Log.d("POTATO PROXY",
+//			Log.d(LOG_TAG,
 //					"Online => getting question from server and caching it");
 			QuizQuestion question = instance.getRandomQuestion();
 			DatabaseHandler.getHandler().storeQuestion(question, false);
 			return question;
 		} else {
-//			Log.d("POTATO PROXY", "Offline => getting question from cache");
+//			Log.d(LOG_TAG, "Offline => getting question from cache");
 			return DatabaseHandler.getHandler().getRandomQuestion();
 		}
 	}
@@ -187,20 +191,20 @@ public enum Proxy implements QuestionsCommunicator {
 	public QuizQuestion send(QuizQuestion question) throws DBException,
 			NotLoggedInException, ServerCommunicationException {
 
-//		Log.d("POTATO PROXY", "send() called");
+//		Log.d(LOG_TAG, "send() called");
 
 		if (!UserCredentials.INSTANCE.isAuthenticated()) {
 			throw new NotLoggedInException();
 		}
 
 		if (isOnline()) {
-//			Log.d("POTATO PROXY",
+//			Log.d(LOG_TAG,
 //					"Online => sending question to server and caching it");
 			QuizQuestion submittedQuestion = instance.send(question);
 			DatabaseHandler.getHandler().storeQuestion(submittedQuestion, false);
 			return submittedQuestion;
 		} else {
-//			Log.d("POTATO PROXY", "Offline => storing question in cache");
+//			Log.d(LOG_TAG, "Offline => storing question in cache");
 			DatabaseHandler.getHandler().storeQuestion(question, true);
 			return question;
 		}
@@ -220,16 +224,14 @@ public enum Proxy implements QuestionsCommunicator {
 
 		@Override
 		protected Integer doInBackground(Void... unused) {
-//			Log.d("POTATO PROXY", "SyncTask doing its job");
+//			Log.d(LOG_TAG, "SyncTask doing its job");
 			try {
 				return DatabaseHandler.getHandler().synchronizeQuestions();
 			} catch (ServerCommunicationException e) {
-//				Log.d("POTATO PROXY",
-//						"ServerComException in SyncTask : " + e.getMessage());
+			    Log.d(LOG_TAG, "ServerCommunicationException in SynchronizationTask", e);
 				mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
 			} catch (DBException e) {
-//				Log.d("POTATO PROXY",
-//						"DBException in SyncTask : " + e.getMessage());
+			    Log.d(LOG_TAG, "DBException in SynchronizationTask", e);
 				mException = AsyncTaskExceptions.DB_EXCEPTION;
 			}
 
@@ -242,10 +244,10 @@ public enum Proxy implements QuestionsCommunicator {
 				if (questionsSubmitted > 0) {
 					SwEng2013QuizApp
 							.displayToast(R.string.synchronization_success);
-//					Log.d("POTATO PROXY", "SyncTask has submitted "
+//					Log.d(LOG_TAG, "SyncTask has submitted "
 //							+ questionsSubmitted + " questions");
 				}
-//				Log.d("POTATO PROXY", "SyncTask executed successfully");
+//				Log.d(LOG_TAG, "SyncTask executed successfully");
 				SwEng2013QuizApp.displayToast(R.string.now_online);
 			} else {
 				switch (mException) {
@@ -258,15 +260,16 @@ public enum Proxy implements QuestionsCommunicator {
 						break;
 					default:
 						assert false;
+						break;
 				}
 
-//				Log.d("POTATO PROXY", "Exception in SyncTask, going offline");
+//				Log.d(LOG_TAG, "Exception in SyncTask, going offline");
 				setState(ConnectionState.OFFLINE);
 				SwEng2013QuizApp.displayToast(R.string.now_offline);
 			}
 
 			if (mListeningActivity != null) {
-//				Log.d("POTATO PROXY",
+//				Log.d(LOG_TAG,
 //						"SyncTask signal to the listening activity : "
 //								+ mListeningActivity);
 				mListeningActivity.onSyncCompleted();

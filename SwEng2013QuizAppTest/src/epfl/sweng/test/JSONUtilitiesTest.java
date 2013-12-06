@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 import epfl.sweng.quizquestions.QuizQuestion;
 import epfl.sweng.utils.JSONUtilities;
 
@@ -23,6 +24,7 @@ public class JSONUtilitiesTest extends AndroidTestCase {
 
     private QuizQuestion mQuestion;
     private Set<String> mTags;
+    private static final String LOG_TAG = JSONUtilitiesTest.class.getName();
     
     public static final int CORRECT_ANSWER_ID = 2;
     public static final String QUESTION_TEXT = "Dummy question";
@@ -43,8 +45,10 @@ public class JSONUtilitiesTest extends AndroidTestCase {
             JSONUtilities.getJSONString(null);
             fail("getJSONString can't accept a null argument");
         } catch (JSONException e) {
+            Log.v(LOG_TAG, "JSONException in testGetJSONStringWithNullParameter()", e);
             fail("Wrong exception thrown");
         } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "IllegalArgumentException in testGetJSONStringWithNullParameter()", e);
         }
     }
     
@@ -66,6 +70,7 @@ public class JSONUtilitiesTest extends AndroidTestCase {
             Set<String> tags = JSONUtilities.parseJSONArrayToSet(jsonObject.getJSONArray("tags"));
             assertEquals("Tags not equal", mTags, tags);
         } catch (JSONException e) {
+            Log.v(LOG_TAG, "JSONException in testGetJSONString()", e);
             fail("JSONException while parsing the string or getting a value : " +
                 e.getMessage());
         }

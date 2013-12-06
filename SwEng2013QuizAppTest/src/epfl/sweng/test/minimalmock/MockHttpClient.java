@@ -39,6 +39,8 @@ import android.util.Log;
 /** The SwEng HTTP Client */
 public class MockHttpClient extends DefaultHttpClient {
 
+    private static final String LOG_TAG = MockHttpClient.class.getName();    
+    
     /** Prepared response */
     private static class CannedResponse {
         private final Pattern pattern;
@@ -111,14 +113,20 @@ public class MockHttpClient extends DefaultHttpClient {
             StringBuilder sb = new StringBuilder();
             HttpEntity entity = ((HttpPost) lastRequest).getEntity();
             String line = null;
+            BufferedReader br = null;
             try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
+                br = new BufferedReader(new InputStreamReader(entity.getContent()));
                 while ((line = br.readLine()) != null) {
                     sb.append(line += "\n");
                 }
                 return sb.toString();
-            } catch (Exception e) {
+            } catch (IOException e) {
+                Log.v(LOG_TAG, "IOException in getLastPostRequestContent()", e);
                 throw new IOException("Can't read POST content.");
+            } finally {
+                if(br != null) {
+                    br.close();
+                }
             }
         } else {
             return null;

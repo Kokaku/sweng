@@ -10,6 +10,7 @@ import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
 import epfl.sweng.authentication.UserCredentials;
 import epfl.sweng.authentication.UserCredentials.AuthenticationState;
 import epfl.sweng.entry.MainActivity;
@@ -28,6 +29,8 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
  * 
  */
 public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> {
+    
+    private static final String LOG_TAG = ServerCommunicationTest.class.getName();
 
     private final MockHttpClient mockHttpClient = new MockHttpClient();
     private QuizQuestion mQuestion;
@@ -186,6 +189,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
             mQuestion = ServerCommunication.INSTANCE.getRandomQuestion();
             fail("Incorrect question is not fetched");
         } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "Exception in testGetRandomIncorrectQuestion()", e);
         }
 
     }
@@ -199,6 +203,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
             fail("Question should not be created when invalid JSONObject "
                     + "returned by server");
         } catch (ServerCommunicationException e) {
+            Log.v(LOG_TAG, "Exception in testGetRandomQuestionWithBadJSONObject()", e);
         }
     }
 
@@ -210,6 +215,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
             fail("Question should not be parsed when missing fields in"
                     + "the JSONObject retrurned by server");
         } catch (ServerCommunicationException e) {
+            Log.v(LOG_TAG, "Exception in testGetRandomQuestionWithMissingJSONFieldAnswers()", e);
         }
     }
 
@@ -221,6 +227,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
         try {
             ServerCommunication.INSTANCE.send(mQuestion);
         } catch (ServerCommunicationException e) {
+            Log.v(LOG_TAG, "Exception in testSendQuestion()", e);
             fail("Valid question is sent");
         }
         mockHttpClient.clearCannedResponses();
@@ -250,17 +257,17 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
                 mQuestion.getSolutionIndex() == questionOnServer
                         .getSolutionIndex());
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.v(LOG_TAG, "Exception in testQuestionWellReceived()", e);
             fail("JSONException");
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.v(LOG_TAG, "Exception in testQuestionWellReceived()", e);
             fail("IOException");
         } finally {
             mockHttpClient.clearCannedResponses();
         }
     }
 
-    public void testQuestionNotRecieved() throws ServerCommunicationException {
+    public void testQuestionNotReceived() throws ServerCommunicationException {
         pushCannedAnswerForBADPostRequest();
         mTags.add("tag1");
         mQuestion = new QuizQuestion(mQuestionText, new ArrayList<String>(
@@ -269,7 +276,7 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
             ServerCommunication.INSTANCE.send(mQuestion);
             fail("The server did not accept the request");
         } catch (ServerCommunicationException e) {
-
+            Log.v(LOG_TAG, "Exception in testQuestionNotReceived()", e);
         }
     }
     
@@ -297,15 +304,17 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
             ServerCommunication.INSTANCE.login("paul", "d01m07y73");
             assertTrue(UserCredentials.INSTANCE.getState() == UserCredentials.AuthenticationState.AUTHENTICATED);
         } catch (ServerCommunicationException e) {
+            Log.v(LOG_TAG, "Exception in testLoginSteps1To6()", e);
             fail("Unexpected exception");
         } catch (InvalidCredentialsException e) {
+            Log.v(LOG_TAG, "Exception in testLoginSteps1To6()", e);
             fail("creditial are valide");
         }
         
         mockHttpClient.clearCannedResponses();
     }
     
-    public void testLoginInvalidCreditial() {
+    public void testLoginInvalidCredentials() {
         UserCredentials.INSTANCE.setState(UserCredentials.AuthenticationState.UNAUTHENTICATED);
         mockHttpClient.clearCannedResponses();
         mockHttpClient.pushCannedResponse(
@@ -328,8 +337,10 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
             ServerCommunication.INSTANCE.login("paul", "d01m07y73");
             fail("Bad login must throw an InvalidCredentialsException");
         } catch (ServerCommunicationException e) {
+            Log.v(LOG_TAG, "Exception in testLoginInvalidCredentials()", e);
             fail("Unexpected exception");
         } catch (InvalidCredentialsException e) {
+            Log.v(LOG_TAG, "Exception in testLoginInvalidCredentials()", e);
         }
         
         assertTrue(UserCredentials.INSTANCE.getState() != UserCredentials.AuthenticationState.AUTHENTICATED);
@@ -360,7 +371,9 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
             ServerCommunication.INSTANCE.login("paul", "d01m07y73");
             fail("Exception expected to be thrown");
         } catch (ServerCommunicationException e) {
+            Log.v(LOG_TAG, "Exception in testLoginTokenResponseNonOk()", e);
         } catch (InvalidCredentialsException e) {
+            Log.v(LOG_TAG, "Exception in testLoginTokenResponseNonOk()", e);
             fail("creditial are valide");
         }
         
@@ -392,7 +405,9 @@ public class ServerCommunicationTest extends QuizActivityTestCase<MainActivity> 
             ServerCommunication.INSTANCE.login("paul", "d01m07y73");
             fail("Exception expected to be thrown");
         } catch (ServerCommunicationException e) {
+            Log.v(LOG_TAG, "Exception in testLoginConfirmationResponseNonOk()", e);
         } catch (InvalidCredentialsException e) {
+            Log.v(LOG_TAG, "Exception in testLoginConfirmationResponseNonOk()", e);
             fail("creditial are valide");
         }
         

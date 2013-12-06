@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -30,7 +31,7 @@ import epfl.sweng.testing.TestCoordinator.TTChecks;
  */
 public class AuthenticationActivity extends Activity {
 
-//    private static final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
+    private static final String LOG_TAG = AuthenticationActivity.class.getName();
     
     private AuthenticationTask mAuthTask = null;
     
@@ -170,10 +171,10 @@ public class AuthenticationActivity extends Activity {
                 ServerCommunication.INSTANCE.login(mUsername.getText().toString(), 
                     mPassword.getText().toString());
             } catch (InvalidCredentialsException e) {
-//                Log.d(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
+                Log.d(LOG_TAG, "InvalidCredentialsException in AuthenticationTask", e);
                 mException = AsyncTaskExceptions.INVALID_CREDENTIALS;
             } catch (ServerCommunicationException e) {
-//                Log.d(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
+                Log.d(LOG_TAG, "ServerCommunicationException in AuthenticationTask", e);
                 mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
             }
             
@@ -199,6 +200,7 @@ public class AuthenticationActivity extends Activity {
                         break;
                     default:
                         assert false;
+                        break;
                 }
                 
 //                Log.d(LOG_TAG, "Oh no! Login failed");
