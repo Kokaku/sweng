@@ -74,9 +74,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	    int responseStatus = 0;
 	    String httpBody = null;
 	    
-//		Log.d(LOG_TAG, "Starting to send question = " + question);
 		if (!isNetworkAvailable()) {
-//			Log.d(LOG_TAG, "Network is not available to send question");
 			throw new ServerCommunicationException("Not connected.");
 		}
 
@@ -96,9 +94,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
 			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
 	        responseStatus = httpResponse.getStatusLine().getStatusCode();
 		    httpBody = handler.handleResponse(httpResponse);
-//			Log.d(LOG_TAG, "httpBody = " + httpBody + " status = " + responseStatus);
 			updatedQuestion = new QuizQuestion(httpBody);
-//			Log.d(LOG_TAG, "updated question = " + updatedQuestion);
 		} catch (IOException e) {
 		    Log.d(LOG_TAG, "IOException in send()", e);
 			// Status code is 3xx or 4xx
@@ -116,11 +112,9 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		}
 		
 		if (httpBody == null || responseStatus != HttpStatus.SC_CREATED) {
-//		    Log.d(LOG_TAG, "httpBody is " + httpBody + " and status is " + responseStatus);
 		    throw new ServerCommunicationException("Unable to send the question to the server.");
 		}
 		
-//		Log.d(LOG_TAG, "question sent, updated question = " + updatedQuestion);
 		return updatedQuestion;
 	}
 
@@ -139,7 +133,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	    int responseStatus = 0;
         String httpBody = null;
 	    
-//		Log.d(LOG_TAG, "Starting to fetch a question");
 		if (!isNetworkAvailable()) {
 			Log.d(LOG_TAG, "Network not available in getRQuestion");
 			throw new ServerCommunicationException("Not connected.");
@@ -153,12 +146,10 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		try {
 			httpResponse = SwengHttpClientFactory.getInstance().execute(request);
 			if (httpResponse == null) {
-//				Log.d(LOG_TAG, "Response null, ServerComException thrown");
 			    throw new ServerCommunicationException("Unable to contact server");
 			}
 			responseStatus = httpResponse.getStatusLine().getStatusCode();
 			httpBody = handler.handleResponse(httpResponse);
-//			Log.d(LOG_TAG, "Response: body = " + httpBody + " status = " + responseStatus);
 		} catch (IOException e) {
 		    Log.d(LOG_TAG, "IOException in getRandomQuestion()", e);
             // Status code is 3xx or 4xx
@@ -173,13 +164,11 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		
 
 		if (httpBody == null || responseStatus != HttpStatus.SC_OK) {
-//			Log.d(LOG_TAG, "httpBody is null, or status not correct");
 			throw new ServerCommunicationException("Unable to get a question from the server.");
 		}
 
 		try {
 			QuizQuestion question = new QuizQuestion(httpBody);
-//			Log.d(LOG_TAG, "Question fetched: " + question);
 			return question;
 		} catch (JSONException e) {
 			Log.d(LOG_TAG, "JSONException in getRandomQuestion()", e);
@@ -205,42 +194,29 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	    throws ServerCommunicationException, InvalidCredentialsException {
 
 		if (!isNetworkAvailable()) {
-//			Log.d(LOG_TAG, "Network not available in login");
-
 			throw new ServerCommunicationException("Not connected");
-		}/*
-		 * else if (UserCredentials.INSTANCE.getState() ==
-		 * AuthenticationState.AUTHENTICATED) { return; // already logged in or
-		 * login in }
-		 */
-
+		} else if (UserCredentials.INSTANCE.getState() == AuthenticationState.AUTHENTICATED) {
+		    return; // already logged in or login in
+		}
+		
 		try {
-//			Log.d(LOG_TAG, "Start loging in");
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.TOKEN);
-//			Log.v(LOG_TAG, "State: TOKEN "
-//					+ UserCredentials.INSTANCE.getState());
 			
 			String httpResponse = requestToken();
 			JSONObject json = new JSONObject(httpResponse);
 			String token = json.getString("token");
-//			Log.v(LOG_TAG, "token = " + token);
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.TEQUILA);
-//			Log.v(LOG_TAG, "State: TEQUILA "
-//					+ UserCredentials.INSTANCE.getState());
 
 			authTequila(token, username, password);
 
 			UserCredentials.INSTANCE.setState(AuthenticationState.CONFIRMATION);
-//			Log.v(LOG_TAG, "State: CONFIRMATION "
-//					+ UserCredentials.INSTANCE.getState());
 
 			httpResponse = requestSessionID(token);
 
 			json = new JSONObject(httpResponse);
 			String session = json.getString("session");
-//			Log.v(LOG_TAG, "session = " + session);
 
 			UserCredentials.INSTANCE
 					.setState(AuthenticationState.AUTHENTICATED);
@@ -278,9 +254,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
 	private void addAuthenticationHeader(HttpUriRequest request) {
 		request.setHeader("Authorization", "Tequila "
 				+ UserCredentials.INSTANCE.getSessionID());
-//		Log.v(LOG_TAG,
-//				"Adding athentication header");
-
 	}
 
 	private String requestToken() throws ServerCommunicationException {
@@ -303,16 +276,11 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		    Log.d(LOG_TAG, "IOException in requestToken()", e);
 		}
 
-//		Log.d(LOG_TAG, "status = " + responseStatus);
 		
 		if (httpBody == null || responseStatus != HttpStatus.SC_OK) {
-//			Log.v(LOG_TAG, "Exception: request = "
-//					+ httpResponse + " status = " + responseStatus);
 
 			throw new ServerCommunicationException("Unable to get a token.");
 		}
-//		Log.v(LOG_TAG, "httpResponse = "
-//				+ httpResponse);
 
 		return httpBody;
 	}
@@ -341,8 +309,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		} catch (IOException e) {
         	Log.d(LOG_TAG, "IOException in authTequila()", e);
 		}
-
-//    	Log.v(LOG_TAG, "Response status = " + responseStatus);
 
 		if (responseStatus != HttpStatus.SC_MOVED_TEMPORARILY) {
 			throw new InvalidCredentialsException(
@@ -377,9 +343,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
 		    Log.d(LOG_TAG, "IOException in requestSessionID()", e);
 		}
 		
-//    	Log.v(LOG_TAG, "Response status = " 
-//    			+ responseStatus + "response = " + httpResponse);
-
 		if (httpBody == null || responseStatus != HttpStatus.SC_OK) {
 			throw new ServerCommunicationException("Unable to confirm token.");
 		}
@@ -408,10 +371,7 @@ public enum ServerCommunication implements QuestionsCommunicator {
         int responseStatus = 0;
         String httpBody = null;
         
-//        Log.d(LOG_TAG, "Start sending query to the server = " + query);
-        
         if (!isNetworkAvailable()) {
-//            Log.d(LOG_TAG, "Network is not available to send query");
             throw new ServerCommunicationException("Not connected.");
         }
         
@@ -432,8 +392,6 @@ public enum ServerCommunication implements QuestionsCommunicator {
             responseStatus = httpResponse.getStatusLine().getStatusCode();
             httpBody = handler.handleResponse(httpResponse);
 
-//            Log.d(LOG_TAG, "httpBody = " + httpBody + " status = " + responseStatus);
-            
             iterator = httpResponseToQuestionIterator(query, httpBody);
         } catch (IOException e) {
             Log.d(LOG_TAG, "IOException in searchQuestion()", e);

@@ -22,7 +22,7 @@ public class SwEng2013QuizApp extends Application {
      */
     public void onCreate() {
         super.onCreate();
-        SwEng2013QuizApp.context = getApplicationContext();
+        setContext(getApplicationContext());
     }
     
     /**
@@ -40,6 +40,11 @@ public class SwEng2013QuizApp extends Application {
      */
     public static Context getAppContext() {
         return SwEng2013QuizApp.context;
+    }
+    
+    
+    private static void setContext(Context context) {
+        SwEng2013QuizApp.context = context;
     }
     
 }
