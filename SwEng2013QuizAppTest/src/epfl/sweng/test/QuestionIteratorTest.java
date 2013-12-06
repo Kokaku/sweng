@@ -103,14 +103,14 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             new QuestionIterator(question);
             fail("QuestionIterator constructed without any questions");
         } catch (IllegalArgumentException e) {
-            Log.v(LOG_TAG, "DBException in setUp()", e);
+            Log.v(LOG_TAG, "IllegalArgumentException in testCannotConstructWithoutQuestion()", e);
         }
         
         try {
             new QuestionIterator(null, null, null);
             fail("QuestionIterator constructed without any questions");
         } catch (IllegalArgumentException e) {
-            Log.v(LOG_TAG, "DBException in setUp()", e);
+            Log.v(LOG_TAG, "IllegalArgumentException in testCannotConstructWithoutQuestion()", e);
         }
     }
     
@@ -119,7 +119,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             new QuestionIterator(questions, null, "next");
             fail("QuestionIterator constructed without any questions");
         } catch (IllegalArgumentException e) {
-            Log.v(LOG_TAG, "DBException in setUp()", e);
+            Log.v(LOG_TAG, "IllegalArgumentException in testCannotConstructWithoutQueryIfNextSetted()", e);
         }
     }
     
@@ -131,7 +131,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 iterator.next();
             } catch (Exception e) {
-                Log.v(LOG_TAG, "DBException in setUp()", e);
+                Log.v(LOG_TAG, "Exception in testHasTheCorrectNumberOfQuestion()", e);
                 fail("Unexpected exception");
             }
             counter++;
@@ -148,7 +148,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 assertTrue(questions[counter] == iterator.next());
             } catch (Exception e) {
-                Log.v(LOG_TAG, "DBException in setUp()", e);
+                Log.v(LOG_TAG, "Exception in testNextReturnQuestionInCorrectOrder()", e);
                 fail("Unexpected exception");
             }
             counter++;
@@ -193,7 +193,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
         try {
             pushNextQuestions();
         } catch (JSONException e1) {
-            Log.v(LOG_TAG, "DBException in setUp()", e1);
+            Log.v(LOG_TAG, "JSONException in testWhenNextQuestionsFetchCorrectNumberOfQuestion()", e1);
             fail("Problem with mock");
         }
         
@@ -202,7 +202,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 iterator.next();
             } catch (Exception e) {
-                Log.v(LOG_TAG, "DBException in setUp()", e);
+                Log.v(LOG_TAG, "Exception in testWhenNextQuestionsFetchCorrectNumberOfQuestion()", e);
                 fail("Unexpected exception");
             }
         }
@@ -212,7 +212,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 iterator.next();
             } catch (Exception e) {
-                Log.v(LOG_TAG, "DBException in setUp()", e);
+                Log.v(LOG_TAG, "Exception in testWhenNextQuestionsFetchCorrectNumberOfQuestion()", e);
                 fail("Problem with mock");
             }
             counter++;
@@ -225,7 +225,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
         try {
             pushNextQuestions();
         } catch (JSONException e1) {
-            Log.v(LOG_TAG, "DBException in setUp()", e1);
+            Log.v(LOG_TAG, "JSONException in testNextQuestionsFetchCorrectly()", e1);
             fail("Problem with mock");
         }
         QuestionIterator iterator = new QuestionIterator(questions, "banana + patatos", "42");
@@ -233,7 +233,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 iterator.next();
             } catch (Exception e) {
-                Log.v(LOG_TAG, "DBException in setUp()", e);
+                Log.v(LOG_TAG, "Exception in testNextQuestionsFetchCorrectly()", e);
                 fail("Unexpected exception");
             }
         }
@@ -243,7 +243,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 assertTrue(questionsEquals(newQuestions[counter], iterator.next()));
             } catch (Exception e) {
-                Log.v(LOG_TAG, "DBException in setUp()", e);
+                Log.v(LOG_TAG, "Exception in testNextQuestionsFetchCorrectly()", e);
                 fail("Problem with mock");
             }
             counter++;
@@ -254,7 +254,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
         try {
             pushNextQuestions();
         } catch (JSONException e1) {
-            Log.v(LOG_TAG, "DBException in setUp()", e1);
+            Log.v(LOG_TAG, "JSONException in testWhenNextQuestionsFetchReturnCorrectArrayOfQuestions()", e1);
             fail("Problem with mock");
         }
         QuestionIterator iterator = new QuestionIterator(questions, "banana + patatos", "42");
@@ -262,7 +262,7 @@ public class QuestionIteratorTest extends QuizActivityTestCase<MainActivity> {
             try {
                 iterator.next();
             } catch (Exception e) {
-                Log.v(LOG_TAG, "DBException in setUp()", e);
+                Log.v(LOG_TAG, "Exception in testWhenNextQuestionsFetchReturnCorrectArrayOfQuestions()", e);
                 fail("Unexpected exception");
             }
         }
