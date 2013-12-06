@@ -83,7 +83,6 @@ public class AuthenticationActivity extends Activity {
      */
     private void attemptLogin() {
         if (mAuthTask != null) {
-//            Log.d(LOG_TAG, "Already logging in");
             return;
         }
         
@@ -91,11 +90,9 @@ public class AuthenticationActivity extends Activity {
         mPassword.setError(null);
         
         if (TextUtils.isEmpty(mUsername.getText())) {
-//            Log.d(LOG_TAG, "Empty username");
             mUsername.setError(getString(R.string.error_field_required));
             mUsername.requestFocus();
         } else if (TextUtils.isEmpty(mPassword.getText())) {
-//            Log.d(LOG_TAG, "Empty password");
             mPassword.setError(getString(R.string.error_field_required));
             mPassword.requestFocus();
         } else {
@@ -165,8 +162,6 @@ public class AuthenticationActivity extends Activity {
         
         @Override
         protected Void doInBackground(Void... unused) {
-//            Log.d(LOG_TAG, "AuthenticationTask starting");
-            
             try {
                 ServerCommunication.INSTANCE.login(mUsername.getText().toString(), 
                     mPassword.getText().toString());
@@ -187,7 +182,6 @@ public class AuthenticationActivity extends Activity {
             showProgress(false);
             
             if (mException == null) {
-//                Log.d(LOG_TAG, "Yipee, login successful!");
                 finish();
             } else {
                 switch (mException) {
@@ -203,7 +197,6 @@ public class AuthenticationActivity extends Activity {
                         break;
                 }
                 
-//                Log.d(LOG_TAG, "Oh no! Login failed");
                 mUsername.setText("");
                 mPassword.setText("");
                 showKeyboard(true);
