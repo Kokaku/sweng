@@ -1,6 +1,3 @@
-/**
- * 
- */
 package epfl.sweng.test;
 
 import java.lang.reflect.Field;
@@ -20,7 +17,6 @@ import epfl.sweng.quizquestions.QuizQuestion;
 
 /**
  * @author lseguy
- * 
  */
 public class QuizQuestionTest extends AndroidTestCase {
 
