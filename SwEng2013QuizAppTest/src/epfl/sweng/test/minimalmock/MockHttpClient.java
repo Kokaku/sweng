@@ -33,8 +33,6 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
 
-import epfl.sweng.servercomm.QuestionsCommunicator;
-
 import android.util.Log;
 
 

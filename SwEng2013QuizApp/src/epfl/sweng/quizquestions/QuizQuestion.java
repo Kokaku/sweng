@@ -103,7 +103,7 @@ public class QuizQuestion implements Parcelable {
 					"Each answer must be non empty and not longer than "
 							+ MAX_ANSWER_CARACTERS + " caracters");
 		}
-		if (tags.size() < 1 || tags.size() > MAX_TAGS) {
+		if (tags.isEmpty() || tags.size() > MAX_TAGS) {
 			throw new IllegalArgumentException(
 					"A question needs at least one tag and at most " + MAX_TAGS
 							+ " tags.");
@@ -213,7 +213,7 @@ public class QuizQuestion implements Parcelable {
 	 */
 	private int checkQuestion() {
 		return (mQuestion == null
-				|| mQuestion.replaceAll("\\s+", "").equals("") || mQuestion
+				|| "".equals(mQuestion.replaceAll("\\s+", "")) || mQuestion
 				.length() > MAX_QUESTION_CARACTERS) ? 1 : 0;
 	}
 
@@ -243,7 +243,7 @@ public class QuizQuestion implements Parcelable {
 	 * @return the number of errors in the tags set
 	 */
 	private int checkTags() {
-		int errors = (mTags == null || mTags.size() < 1 || mTags.size() > MAX_TAGS) ? 1
+		int errors = (mTags == null || mTags.isEmpty() || mTags.size() > MAX_TAGS) ? 1
 				: 0;
 
 		if (mTags != null) {
@@ -257,7 +257,7 @@ public class QuizQuestion implements Parcelable {
 		int errors = 0;
 		for (int i = 0; i < answers.size(); ++i) {
 			errors += (answers.get(i) == null
-					|| answers.get(i).replaceAll("\\s+", "").equals("") || answers
+					|| "".equals(answers.get(i).replaceAll("\\s+", "")) || answers
 					.get(i).length() > MAX_ANSWER_CARACTERS) ? 1 : 0;
 		}
 		return errors;
@@ -270,7 +270,7 @@ public class QuizQuestion implements Parcelable {
 		while (tagsIter.hasNext()) {
 			String currentTag = tagsIter.next();
 			errors += (currentTag == null
-					|| currentTag.replaceAll("\\s+", "").equals("") || currentTag
+					|| "".equals(currentTag.replaceAll("\\s+", "")) || currentTag
 					.length() > MAX_TAG_CARACTERS) ? 1 : 0;
 		}
 
@@ -297,7 +297,7 @@ public class QuizQuestion implements Parcelable {
 	 * 
 	 * @param in the Parcel from which we are reading
 	 */
-	public void readFromParcel(Parcel in) {
+	private void readFromParcel(Parcel in) {
 		mQuestion = in.readString();
 		mSolutionIndex = in.readInt();
 		mAnswers = new ArrayList<String>();
