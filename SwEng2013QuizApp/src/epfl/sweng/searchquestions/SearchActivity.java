@@ -25,11 +25,19 @@ import epfl.sweng.showquestions.ShowQuestionsActivity;
 import epfl.sweng.testing.TestCoordinator;
 import epfl.sweng.testing.TestCoordinator.TTChecks;
 
+/**
+ * This activity allows the user to insert search queries and send them to the 
+ * server or search in the local cash. Once the query was successful, questions
+ * are shown by starting the ShowQuestionsActivity
+ * 
+ * @author Zhivka Gucevska
+ *
+ */
 public class SearchActivity extends Activity {
-    
-    private static final String LOG_TAG = SearchActivity.class.getName();
+
+	private static final String LOG_TAG = SearchActivity.class.getName();
 	private static final int MAX_LENGTH_QUERY = 500;
-	
+
 	private Button mSearchButton;
 	private EditText mSearchQuery;
 	private ProgressBar mProgressBar;
@@ -46,7 +54,6 @@ public class SearchActivity extends Activity {
 		mProgressBar = (ProgressBar) findViewById(R.id.progressbar_search);
 
 		mSearchQuery.addTextChangedListener(new QueryEditTextListener());
-		System.out.println(mSearchButton);
 		TestCoordinator.check(TTChecks.SEARCH_ACTIVITY_SHOWN);
 	}
 
@@ -57,6 +64,12 @@ public class SearchActivity extends Activity {
 		return true;
 	}
 
+	/**
+	 * Called when clicking on the button "Search", sends the query to the 
+	 * SwEngServer/local DataBase
+	 * 
+	 * @param view the button being clicked
+	 */
 	public void onClickSearch(View view) {
 		mIntent = new Intent(this, ShowQuestionsActivity.class);
 		new SearchTask().execute(interpreteWhiteSpaces(mSearchQuery.getText()
@@ -74,7 +87,7 @@ public class SearchActivity extends Activity {
 
 	private boolean validQuery(String query) {
 		if (query.length() <= MAX_LENGTH_QUERY
-				&& !query.replaceAll("\\W+", "").equals("")
+				&& !"".equals(query.replaceAll("\\W+", ""))
 				&& validNesting(query)) {
 			return true;
 		}
@@ -84,17 +97,14 @@ public class SearchActivity extends Activity {
 
 	private boolean validNesting(String query) {
 		int openParen = 0;
-		query = query.trim().replaceAll("(\\w+)(\\s+)(\\w+)", "$1*$3")
-				.replaceAll("\\s+", "").replaceAll("\\w+", "a");
-		query = query.replaceAll("(\\))(\\()", "$1*$2")
-				.replaceAll("(\\))(\\w+)", "$1 * $2")
-				.replaceAll("(\\w+)(\\()", "$1 * $2").replaceAll("\\s+", "");
-		System.out.println(query);
+		query = sanitizeQuery(query);
+
 		for (int i = 0; i < query.length(); i++) {
 			char current = query.charAt(i);
 			if (current == '(') {
 				openParen++;
-				if (i >= query.length()-1 || (query.charAt(i) != 'a' && query.charAt(i) != '(')) {
+				if (i >= query.length() - 1
+						|| (query.charAt(i) != 'a' && query.charAt(i) != '(')) {
 					return false;
 				}
 			} else if (current == ')') {
@@ -120,6 +130,16 @@ public class SearchActivity extends Activity {
 
 	}
 
+	private String sanitizeQuery(String query) {
+		query = query.trim().replaceAll("(\\w+)(\\s+)(\\w+)", "$1*$3")
+				.replaceAll("\\s+", "").replaceAll("\\w+", "a");
+		query = query.replaceAll("(\\))(\\()", "$1*$2")
+				.replaceAll("(\\))(\\w+)", "$1 * $2")
+				.replaceAll("(\\w+)(\\()", "$1 * $2").replaceAll("\\s+", "");
+
+		return query;
+	}
+
 	private void hideViews() {
 		mSearchButton.setVisibility(View.GONE);
 		mSearchQuery.setVisibility(View.GONE);
@@ -129,7 +149,8 @@ public class SearchActivity extends Activity {
 	 * 
 	 * @param query
 	 * @return query with white spaces interpreted: removed when useless,
-	 *         replaced by '*' when used as such
+	 *         replaced by '*' when used as such, afterwords spaces are inserted 
+	 *         before and after every operator
 	 */
 	private String interpreteWhiteSpaces(String query) {
 		query = query.trim().replaceAll("(\\w+)(\\s+)(\\w+)", "$1*$3")
@@ -142,7 +163,6 @@ public class SearchActivity extends Activity {
 				.replaceAll("\\*", " * ").replaceAll("\\+", " + ")
 				.replaceAll("(\\()", " " + "$1" + " ")
 				.replaceAll("(\\))", " " + "$1" + " ");
-		System.out.println("QUERY: " + query);
 		return query;
 	}
 
@@ -162,15 +182,20 @@ public class SearchActivity extends Activity {
 		@Override
 		public void beforeTextChanged(CharSequence s, int start, int count,
 				int after) {
+			//This method is not necessary, hence it's empty
 		}
 
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before,
 				int count) {
+			//This method is not necessary, hence it's empty
+
 		}
 	}
 
 	/**
+	 * Retrieves the questions corresponding to the query in a separate thread, 
+	 * starts ShowQuestionsActivity when fetch is successeful
 	 * 
 	 * @author Zhivka Gucevska
 	 * 
@@ -186,8 +211,6 @@ public class SearchActivity extends Activity {
 
 		@Override
 		protected QuestionIterator doInBackground(String... params) {
-//			Log.d(LOG_TAG,
-//					"Sending query to server, getting questions");
 			try {
 				return Proxy.INSTANCE.searchQuestion(params[0], params[1]);
 			} catch (NotLoggedInException e) {
@@ -197,10 +220,10 @@ public class SearchActivity extends Activity {
 				Log.d(LOG_TAG, "BadRequestException in SearchTask", e);
 				mException = AsyncTaskExceptions.BAD_REQUEST_EXCEPTION;
 			} catch (ServerCommunicationException e) {
-			    Log.d(LOG_TAG, "ServerCommunicationException in SearchTask", e);
+				Log.d(LOG_TAG, "ServerCommunicationException in SearchTask", e);
 				mException = AsyncTaskExceptions.SERVER_COMMUNICATION_EXCEPTION;
 			} catch (DBException e) {
-			    Log.d(LOG_TAG, "DBException in SearchTask", e);
+				Log.d(LOG_TAG, "DBException in SearchTask", e);
 				mException = AsyncTaskExceptions.DB_EXCEPTION;
 			}
 
@@ -211,12 +234,6 @@ public class SearchActivity extends Activity {
 		protected void onPostExecute(QuestionIterator questionIterator) {
 			if (mException == null) {
 				if (questionIterator != null) {
-
-					// can create the intent for ShowQuestions and launch it
-					// here
-//					Log.d(LOG_TAG,
-//							"Questions fetched successfully ");
-
 					// put extras in mIntent
 					mIntent.putExtra("Source", SearchActivity.class.getName());
 					mIntent.putExtra("iterator", questionIterator);
@@ -224,8 +241,7 @@ public class SearchActivity extends Activity {
 					startActivity(mIntent);
 					finish();
 				} else {
-					System.err
-							.println("Something went wrong in SearchActvivity, QuestionIterator was not created");
+					Log.d(LOG_TAG, "Something went wrong in SearchTask, QuestionIterator was not created");
 				}
 			} else {
 				switch (mException) {
@@ -237,7 +253,6 @@ public class SearchActivity extends Activity {
 								.displayToast(R.string.failed_to_get_question);
 						Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
 						SwEng2013QuizApp.displayToast(R.string.now_offline);
-						// TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
 						break;
 					case BAD_REQUEST_EXCEPTION:
 						SwEng2013QuizApp
@@ -247,12 +262,8 @@ public class SearchActivity extends Activity {
 						if (Proxy.INSTANCE.isOnline()) {
 							SwEng2013QuizApp
 									.displayToast(R.string.failed_to_cache_question);
-//							Log.d(LOG_TAG,
-//									"Toast failed to cache question displayed");
 						} else {
 							SwEng2013QuizApp.displayToast(R.string.broken_database);
-//							Log.d(LOG_TAG,
-//									"Broken DB toast displayed");
 						}
 						break;
 					default:

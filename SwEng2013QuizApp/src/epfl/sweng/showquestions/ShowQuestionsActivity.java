@@ -237,7 +237,7 @@ public class ShowQuestionsActivity extends ListActivity {
 
 		@Override
 		protected QuizQuestion doInBackground(Void... unused) {
-//			Log.d(LOG_TAG, "Getting a question");
+			Log.d(LOG_TAG, "Getting a question");
 			try {
 				if (mState == State.RANDOM) {
 					return Proxy.INSTANCE.getRandomQuestion();
@@ -292,7 +292,6 @@ public class ShowQuestionsActivity extends ListActivity {
 								.displayToast(R.string.failed_to_get_question);
 						Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
 						SwEng2013QuizApp.displayToast(R.string.now_offline);
-						// TestCoordinator.check(TTChecks.OFFLINE_CHECKBOX_ENABLED);
 						break;
 					case BAD_REQUEST_EXCEPTION:
 						SwEng2013QuizApp
