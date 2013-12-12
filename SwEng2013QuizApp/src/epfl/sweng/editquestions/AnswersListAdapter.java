@@ -64,7 +64,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
 
         removeAnswerButton.setText(R.string.remove_answer);
 
-        if (mAnswersArrayList.get(position).equals("")) {
+        if ("".equals(mAnswersArrayList.get(position))) {
             answerEditText.setHint(R.string.type_in_answer);
         } else {
             answerEditText.setText(mAnswersArrayList.get(position));
@@ -110,7 +110,7 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
      */
     public boolean hasOnlyValidAnswers() {
         for (String answer : mAnswersArrayList) {
-            if (answer.replaceAll("\\s+", "").equals("")) {
+            if ("".equals(answer.replaceAll("\\s+", ""))) {
                 return false;
             }
         }
@@ -161,12 +161,13 @@ public class AnswersListAdapter extends ArrayAdapter<String> {
         @Override
         public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
                 int arg3) {
+            //Nothing to do before text changed
         }
 
         @Override
         public void onTextChanged(CharSequence arg0, int arg1, int arg2,
                 int arg3) {
-
+            //Nothing to do on text changed
         }
     }
 

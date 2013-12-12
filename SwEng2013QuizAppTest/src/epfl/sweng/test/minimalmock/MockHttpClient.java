@@ -92,7 +92,8 @@ public class MockHttpClient extends DefaultHttpClient {
         return new MockRequestDirector(this);
     }
 
-    public HttpResponse processRequest(HttpRequest request) {
+    public HttpResponse processRequest(HttpRequest request)
+            throws UnsupportedEncodingException {
         lastRequest = request;
         for (CannedResponse cr : responses) {
             if (cr.pattern.matcher(request.getRequestLine().toString()).find()) {
@@ -109,7 +110,7 @@ public class MockHttpClient extends DefaultHttpClient {
     public String getLastPostRequestContent()
         throws IOException {
         
-        if (lastRequest.getRequestLine().getMethod() == "POST") {
+        if (lastRequest.getRequestLine().getMethod().equals("POST")) {
             StringBuilder sb = new StringBuilder();
             HttpEntity entity = ((HttpPost) lastRequest).getEntity();
             String line = null;
@@ -117,7 +118,7 @@ public class MockHttpClient extends DefaultHttpClient {
             try {
                 br = new BufferedReader(new InputStreamReader(entity.getContent()));
                 while ((line = br.readLine()) != null) {
-                    sb.append(line += "\n");
+                    sb.append(line + "\n");
                 }
                 return sb.toString();
             } catch (IOException e) {
@@ -140,6 +141,7 @@ public class MockHttpClient extends DefaultHttpClient {
  */
 class MockRequestDirector implements RequestDirector {
 
+    private static final String LOG_TAG = MockRequestDirector.class.getName();    
     private MockHttpClient httpClient;
 
     public MockRequestDirector(MockHttpClient httpClient) {
@@ -150,14 +152,21 @@ class MockRequestDirector implements RequestDirector {
     public HttpResponse execute(HttpHost target, HttpRequest request,
             HttpContext context) {
         Log.v("HTTP", request.getRequestLine().toString());
-
-        HttpResponse response = httpClient.processRequest(request);
+        HttpResponse response = null;
+        try {
+            response = httpClient.processRequest(request);
+        } catch (UnsupportedEncodingException e) {
+            Log.v(LOG_TAG, "UnsupportedEncodingException in execute()", e);
+            return null;
+        }
         if (response == null) {
             throw new AssertionError("Request \"" + request.getRequestLine().toString()
                     + "\" did not match any known pattern");
         }
 
-        Log.v("HTTP", response.getStatusLine().toString());
+        if ( response!= null) {
+            Log.v("HTTP", response.getStatusLine().toString());
+        }
         return response;
     }
 
@@ -165,22 +174,20 @@ class MockRequestDirector implements RequestDirector {
 
 /** The HTTP Response returned by a MockHttpServer */
 class MockHttpResponse extends BasicHttpResponse {
-    public MockHttpResponse(int statusCode, String responseBody, String contentType) {
+    public MockHttpResponse(int statusCode, String responseBody, String contentType)
+           throws UnsupportedEncodingException {
         super(new ProtocolVersion("HTTP", 1, 1),
                 statusCode,
                 EnglishReasonPhraseCatalog.INSTANCE.getReason(
                         statusCode, Locale.getDefault()));
 
         if (responseBody != null) {
-            try {
-                StringEntity responseBodyEntity = new StringEntity(responseBody);
-                if (contentType != null) {
-                    responseBodyEntity.setContentType(contentType);
-                }
-                this.setEntity(responseBodyEntity);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException("Default HTTP charset not supported!?", e);
+            StringEntity responseBodyEntity = new StringEntity(responseBody);
+            if (contentType != null) {
+                responseBodyEntity.setContentType(contentType);
             }
+            this.setEntity(responseBodyEntity);
+            
         }
     }
 }

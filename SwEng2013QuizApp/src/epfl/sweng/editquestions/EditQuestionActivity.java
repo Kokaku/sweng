@@ -192,8 +192,8 @@ public class EditQuestionActivity extends ListActivity {
      */
     private int auditEditTextQuestion() {
         return (mQuestionEditText == null
-                || !mQuestionEditText.getHint().equals(
-                        "Type in the question's text body") || mQuestionEditText
+                || !"Type in the question's text body".equals(
+                        mQuestionEditText.getHint()) || mQuestionEditText
                         .getVisibility() != 0) ? 1 : 0;
     }
 
@@ -211,8 +211,9 @@ public class EditQuestionActivity extends ListActivity {
             for (int i = 0; i < listView.getCount(); ++i) {
                 EditText answerEditText = (EditText) listView.getChildAt(i)
                         .findViewById(R.id.edit_answer);
-                errors += (!answerEditText.getHint().equals(
-                        "Type in the answer") || answerEditText.getVisibility() != 0) ? 1
+                errors += (!"Type in the answer".equals(
+                        answerEditText.getHint()) ||
+                        answerEditText.getVisibility() != 0) ? 1
                         : 0;
             }
             return errors;
@@ -224,8 +225,8 @@ public class EditQuestionActivity extends ListActivity {
      */
     private int auditEditTextTags() {
         return (mTagsEditText == null
-                || !mTagsEditText.getHint().equals(
-                        "Type in the question's tags") || mTagsEditText
+                || !"Type in the question's tags".equals(
+                        mTagsEditText.getHint()) || mTagsEditText
                         .getVisibility() != 0) ? 1 : 0;
     }
 
@@ -233,7 +234,7 @@ public class EditQuestionActivity extends ListActivity {
      * @return 1 if there is an error regarding the addAnswer Button
      */
     private int auditPlusButton() {
-        return (mAddButton == null || !mAddButton.getText().equals("\u002B") || mAddButton
+        return (mAddButton == null || !"\u002B".equals(mAddButton.getText()) || mAddButton
                 .getVisibility() != 0) ? 1 : 0;
     }
 
@@ -241,7 +242,7 @@ public class EditQuestionActivity extends ListActivity {
      * @return 1 if there is an error regarding the submit Button
      */
     private int auditSubmitButton() {
-        return (mSubmitButton == null || !mSubmitButton.getText().equals("Submit")
+        return (mSubmitButton == null || !"Submit".equals(mSubmitButton.getText())
                 || mSubmitButton.getVisibility() != 0 || isSubmitButtonEnabled()) ? 1 : 0;
     }
     
@@ -284,10 +285,10 @@ public class EditQuestionActivity extends ListActivity {
             Button removeButton = (Button) listElement
                     .findViewById(R.id.button_remove_answer);
 
-            errors += (checkAnswerButton == null
-                    || (!checkAnswerButton.getText().equals("\u2718") && !checkAnswerButton
-                            .getText().equals("\u2714")) || checkAnswerButton
-                            .getVisibility() != 0) ? 1 : 0;
+            errors += (checkAnswerButton == null ||
+                    (!"\u2718".equals(checkAnswerButton.getText()) &&
+                     !"\u2714".equals(checkAnswerButton.getText())) || 
+                     checkAnswerButton.getVisibility() != 0) ? 1 : 0;
 
             errors += (removeButton == null
                     || !removeButton.getText().equals("\u002D") || removeButton
@@ -307,8 +308,7 @@ public class EditQuestionActivity extends ListActivity {
         for (int i = 0; i < listView.getCount(); ++i) {
             Button checkAnswerButton = (Button) listView.getChildAt(i)
                     .findViewById(R.id.button_check_answer);
-            correctAnswersCount += (checkAnswerButton.getText()
-                    .equals("\u2714")) ? 1 : 0;
+            correctAnswersCount += ("\u2714".equals(checkAnswerButton.getText())) ? 1 : 0;
         }
         
         return (correctAnswersCount > 1) ? 1 : 0;
@@ -323,8 +323,7 @@ public class EditQuestionActivity extends ListActivity {
         @Override
         public void afterTextChanged(Editable newText) {
             if (!mOnReset) {
-                mValidQuestion = !newText.toString().replaceAll("\\s+", "")
-                        .equals("");
+                mValidQuestion = !"".equals(newText.toString().replaceAll("\\s+", ""));
                 mAnswersAdapter.setQuestionBodyValidity(mValidTags
                         && mValidQuestion);
 
@@ -335,11 +334,13 @@ public class EditQuestionActivity extends ListActivity {
         @Override
         public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
                 int arg3) {
+            //Nothing to do before text changed
         }
 
         @Override
         public void onTextChanged(CharSequence arg0, int arg1, int arg2,
                 int arg3) {
+            //Nothing to do on text changed
         }
     }
 
@@ -353,8 +354,7 @@ public class EditQuestionActivity extends ListActivity {
         public void afterTextChanged(Editable newText) {
 
             if (!mOnReset) {
-                mValidTags = !newText.toString().replaceAll("\\W+", "")
-                        .equals("");
+                mValidTags = !"".equals(newText.toString().replaceAll("\\W+", ""));
                 mAnswersAdapter.setQuestionBodyValidity(mValidTags
                         && mValidQuestion);
 
@@ -365,11 +365,13 @@ public class EditQuestionActivity extends ListActivity {
         @Override
         public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
                 int arg3) {
+            //Nothing to do before text changed
         }
 
         @Override
         public void onTextChanged(CharSequence arg0, int arg1, int arg2,
                 int arg3) {
+            //Nothing to do on text changed
 
         }
     }
@@ -406,16 +408,13 @@ public class EditQuestionActivity extends ListActivity {
         @Override
         protected void onPostExecute(QuizQuestion question) {
             if (mException == null) {
-//            	Log.d(LOG_TAG, "No exception");
                 if (!Proxy.INSTANCE.isOnline()) {
-//                	Log.d(LOG_TAG, "Proxy is not online, toast displayed");
                     SwEng2013QuizApp.displayToast(R.string.question_cached);
                 }
                 TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
             } else {
                 switch (mException) {
                     case NOT_LOGGED_IN_EXCEPTION:
-//                    	Log.d(LOG_TAG, "Not logged in");
                         SwEng2013QuizApp.displayToast(R.string.not_logged_in);
                         TestCoordinator.check(TTChecks.NEW_QUESTION_SUBMITTED);
                         break;
@@ -428,7 +427,6 @@ public class EditQuestionActivity extends ListActivity {
                         Proxy.INSTANCE.setState(ConnectionState.OFFLINE);
                         SwEng2013QuizApp.displayToast(R.string.now_offline);
                         // Send it again to cache the question
-//                        Log.d(LOG_TAG, "ServerCom exception, go offline");
                         new SendQuestionTask().execute(question);
                         break;
                     case DB_EXCEPTION:

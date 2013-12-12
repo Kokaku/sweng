@@ -39,7 +39,7 @@ public enum UserCredentials {
      * @return true if successful, false otherwise
      */
     public boolean saveUserCredentials(String sessionIdValue) {
-        if (isAuthenticated() && !sessionIdValue.equals("")) {
+        if (isAuthenticated() && !"".equals(sessionIdValue)) {
             SharedPreferences.Editor preferencesEditor = mUserSession.edit();
             preferencesEditor.putString("SESSION_ID", sessionIdValue);
             preferencesEditor.commit();
@@ -56,7 +56,7 @@ public enum UserCredentials {
      */
     public void setState(AuthenticationState newState) {
         if (newState != AuthenticationState.AUTHENTICATED
-                && !getSessionID().equals("")) {
+                && !"".equals(getSessionID())) {
             clearUserCredentials();
         }
         mCurrentState = newState;
@@ -86,7 +86,7 @@ public enum UserCredentials {
         mUserSession = context.getSharedPreferences("user_session", 
                 Context.MODE_PRIVATE);
         
-        if (!getSessionID().equals("")) {
+        if (!"".equals(getSessionID())) {
             mCurrentState = AuthenticationState.AUTHENTICATED;
         }
     }
